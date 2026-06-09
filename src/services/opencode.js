@@ -57,14 +57,6 @@ function runOpencode(args, workdir, timeoutMs) {
   });
 }
 
-async function readGameHtml(workdir) {
-  const gamePath = join(workdir, 'game.html');
-  if (!existsSync(gamePath)) {
-    throw new Error('game.html was not created by opencode');
-  }
-  return await readFile(gamePath, 'utf-8');
-}
-
 function guessSessionIdFromStdout(stdout) {
   const match = stdout.match(/(?:session|Session)\s*(?:ID|id)?[:\s]+([a-f0-9-]{36})/i);
   return match ? match[1] : null;
@@ -78,8 +70,8 @@ export async function generateGame(sessionId, workdir, description) {
     buildInitialPrompt(description),
   ];
 
-  await runOpencode(args, workdir, config.opencodeTimeout);
-  const html = await readGameHtml(workdir);
+  const { stdout, stderr } = await runOpencode(args, workdir, config.opencodeTimeout);
+  const html = await readGameHtml(workdir, stdout, stderr);
   return { html, opencodeSessionId: null };
 }
 
@@ -92,10 +84,19 @@ export async function editGame(sessionId, workdir, opencodeSessionId, userMessag
     buildEditPrompt(userMessage),
   ];
 
-  const { stdout } = await runOpencode(args, workdir, config.opencodeTimeout);
-  const html = await readGameHtml(workdir);
+  const { stdout, stderr } = await runOpencode(args, workdir, config.opencodeTimeout);
+  const html = await readGameHtml(workdir, stdout, stderr);
 
   const parsedSessionId = guessSessionIdFromStdout(stdout);
 
   return { html, opencodeSessionId: parsedSessionId || opencodeSessionId };
+}
+
+async function readGameHtml(workdir, stdout = '', stderr = '') {
+  const gamePath = join(workdir, 'game.html');
+  if (!existsSync(gamePath)) {
+    const detail = `stdout:\n${stdout.slice(-2000)}\n\nstderr:\n${stderr.slice(-2000)}`;
+    throw new Error(`game.html was not created by opencode.\n${detail}`);
+  }
+  return await readFile(gamePath, 'utf-8');
 }
