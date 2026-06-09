@@ -8,7 +8,7 @@ RUN mkdir -p /home/appuser/.local/share/opencode
 
 COPY opencode-auth/auth.json /home/appuser/.local/share/opencode/auth.json
 
-RUN chown -R appuser:appgroup /home/appuser/.local/share/opencode && \
+RUN chown -R appuser:appgroup /home/appuser/.local && \
     chmod 600 /home/appuser/.local/share/opencode/auth.json
 
 WORKDIR /app
