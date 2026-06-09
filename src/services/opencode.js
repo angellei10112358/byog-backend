@@ -71,7 +71,8 @@ export async function generateGame(sessionId, workdir, description) {
 
   const { stdout, stderr } = await runOpencode(args, workdir, config.opencodeTimeout);
   const html = await readGameHtml(workdir, stdout, stderr);
-  return { html, opencodeSessionId: null };
+  const opencodeSessionId = guessSessionIdFromStdout(stdout);
+  return { html, opencodeSessionId };
 }
 
 export async function editGame(sessionId, workdir, opencodeSessionId, userMessage) {
