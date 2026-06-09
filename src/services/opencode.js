@@ -20,6 +20,7 @@ Fix or adjust game.html accordingly. Keep it a single self-contained file with a
 
 function runOpencode(args, workdir, timeoutMs) {
   return new Promise((resolve, reject) => {
+    console.log('[opencode] spawning:', args.join(' '));
     const child = spawn('opencode', args, {
       cwd: workdir,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -39,6 +40,9 @@ function runOpencode(args, workdir, timeoutMs) {
 
     child.on('close', (code) => {
       clearTimeout(timer);
+      console.log('[opencode] exit code:', code);
+      console.log('[opencode] stdout tail:', stdout.slice(-1500));
+      console.log('[opencode] stderr tail:', stderr.slice(-1500));
       if (code !== 0) {
         reject(new Error(`opencode exited with code ${code}\nstderr: ${stderr.slice(-2000)}`));
         return;
