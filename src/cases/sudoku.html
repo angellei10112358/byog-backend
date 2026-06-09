@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -169,7 +169,7 @@ h1 { font-weight: 300; font-size: 28px; letter-spacing: 4px; color: #ccc; }
 </div>
 
 <script>
-// 鈹€鈹€鈹€ Sudoku Engine 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Sudoku Engine ────────────────────────────────────────────
 
 function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -270,7 +270,7 @@ function createPuzzle(difficulty) {
     return { puzzle, given, solution: full };
 }
 
-// 鈹€鈹€鈹€ Game State 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Game State ───────────────────────────────────────────────
 
 const state = {
     board: [],
@@ -288,7 +288,7 @@ const state = {
     gameOver: false,
 };
 
-// 鈹€鈹€鈹€ DOM refs 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── DOM refs ─────────────────────────────────────────────────
 
 const gridEl = document.getElementById('grid');
 const numpadEl = document.getElementById('numpad');
@@ -298,7 +298,7 @@ const modeIndicator = document.getElementById('mode-indicator');
 const victoryOverlay = document.getElementById('victory-overlay');
 const victoryTime = document.getElementById('victory-time');
 
-// 鈹€鈹€鈹€ Helpers 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Helpers ──────────────────────────────────────────────────
 
 function cloneBoard(b) { return b.map(r => [...r]); }
 
@@ -348,7 +348,7 @@ function isBoardComplete(board) {
     return true;
 }
 
-// 鈹€鈹€鈹€ Rendering 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Rendering ────────────────────────────────────────────────
 
 function render() {
     const board = state.board;
@@ -427,7 +427,7 @@ function render() {
     }
     const clearBtn = document.createElement('button');
     clearBtn.className = 'num-btn clear-btn';
-    clearBtn.textContent = '鉁?;
+    clearBtn.textContent = '✕';
     clearBtn.addEventListener('click', () => clearCell());
     numpadEl.appendChild(clearBtn);
 
@@ -497,7 +497,7 @@ function checkVictory() {
     }
 }
 
-// 鈹€鈹€鈹€ New Game 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── New Game ─────────────────────────────────────────────────
 
 function newGame() {
     if (state.timerInterval) {
@@ -524,7 +524,7 @@ function newGame() {
     render();
 }
 
-// 鈹€鈹€鈹€ Keyboard 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Keyboard ─────────────────────────────────────────────────
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -606,7 +606,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// 鈹€鈹€鈹€ Solve & Hint 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Solve & Hint ──────────────────────────────────────────────
 
 function solvePuzzle() {
     if (state.gameOver) return;
@@ -644,7 +644,7 @@ function giveHint() {
     statusEl.textContent = 'Board already complete!';
 }
 
-// 鈹€鈹€鈹€ Init 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// ─── Init ─────────────────────────────────────────────────────
 
 document.querySelectorAll('[data-diff]').forEach(btn => {
     btn.addEventListener('click', () => {

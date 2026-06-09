@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- creator: Lei Zhang -->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>鍧﹀厠澶ф垬 - Tank Battle</title>
+<title>坦克大战 - Tank Battle</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;user-select:none}
 body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Segoe UI',Arial,sans-serif}
@@ -58,74 +58,74 @@ canvas#gameCanvas{display:block;border:3px solid #0f3460;border-radius:4px;backg
   <button id="soundToggle" class="sound-btn muted">&#x1f507;</button>
 </div>
 <div class="sidebar">
-  <h2 id="titleEl">鈿?/h2>
-  <div id="gameMode" class="info-row"><span data-i18n="ui.mode">妯″紡</span><span style="color:#888">鈻?<span data-i18n="st.wait">绛夊緟</span></span></div>
-  <div class="info-row"><span data-i18n="ui.lives">鐢熷懡</span><span id="lives">3</span></div>
-  <div class="info-row"><span data-i18n="ui.score">寰楀垎</span><span id="score">0</span></div>
-  <div class="info-row"><span data-i18n="ui.kills">娑堢伃</span><span id="kills">0</span></div>
-  <div class="info-row"><span data-i18n="ui.enemy">鏁屼汉</span><span id="enemiesLeft">0</span></div>
-  <div class="info-row"><span data-i18n="ui.item">閬撳叿</span><span id="powerupStatus" style="font-size:11px;color:#888">-</span></div>
-  <div class="info-row" id="levelInfo"><span data-i18n="ui.level">鍏冲崱</span><span id="levelDisplay">-</span></div>
+  <h2 id="titleEl">⚔</h2>
+  <div id="gameMode" class="info-row"><span data-i18n="ui.mode">模式</span><span style="color:#888">■ <span data-i18n="st.wait">等待</span></span></div>
+  <div class="info-row"><span data-i18n="ui.lives">生命</span><span id="lives">3</span></div>
+  <div class="info-row"><span data-i18n="ui.score">得分</span><span id="score">0</span></div>
+  <div class="info-row"><span data-i18n="ui.kills">消灭</span><span id="kills">0</span></div>
+  <div class="info-row"><span data-i18n="ui.enemy">敌人</span><span id="enemiesLeft">0</span></div>
+  <div class="info-row"><span data-i18n="ui.item">道具</span><span id="powerupStatus" style="font-size:11px;color:#888">-</span></div>
+  <div class="info-row" id="levelInfo"><span data-i18n="ui.level">关卡</span><span id="levelDisplay">-</span></div>
 
   <div class="mode-tabs">
-    <div class="mode-tab active" data-mode="campaign" data-i18n="mode.c">闂叧</div>
-    <div class="mode-tab" data-mode="custom" data-i18n="mode.u">鑷畾涔?/div>
-    <div class="mode-tab" data-mode="endless" data-i18n="mode.e">鏃犲敖</div>
+    <div class="mode-tab active" data-mode="campaign" data-i18n="mode.c">闯关</div>
+    <div class="mode-tab" data-mode="custom" data-i18n="mode.u">自定义</div>
+    <div class="mode-tab" data-mode="endless" data-i18n="mode.e">无尽</div>
   </div>
 
   <div class="mode-tabs" style="margin-top:0">
-    <div id="btn1P" class="player-btn active" data-players="1" data-i18n="p1">1P 鍗曚汉</div>
-    <div id="btn2P" class="player-btn" data-players="2" data-i18n="p2">2P 鍙屼汉</div>
+    <div id="btn1P" class="player-btn active" data-players="1" data-i18n="p1">1P 单人</div>
+    <div id="btn2P" class="player-btn" data-players="2" data-i18n="p2">2P 双人</div>
   </div>
 
   <div id="campaignPanel">
-    <div class="editor-label" data-i18n="ed.select">鈻?閫夋嫨鍏冲崱</div>
+    <div class="editor-label" data-i18n="ed.select">▼ 选择关卡</div>
     <div class="level-select" id="levelSelect"></div>
   </div>
 
   <div id="customPanel" style="display:none">
-    <div class="editor-label" data-i18n="ed.enemy">鈻?鏁屼汉鏁伴噺</div>
+    <div class="editor-label" data-i18n="ed.enemy">▼ 敌人数量</div>
     <div class="slider-row">
       <span id="enemyCountLabel">10</span>
       <input type="range" id="enemyCountSlider" min="1" max="30" value="10">
     </div>
-    <div class="editor-label" data-i18n="ed.fast">鈻?楂橀€熸晫浜?/div>
+    <div class="editor-label" data-i18n="ed.fast">▼ 高速敌人</div>
     <div class="slider-row">
       <span id="fastCountLabel">2</span>
       <input type="range" id="fastCountSlider" min="0" max="10" value="2">
     </div>
     <div class="slider-row">
-      <div class="editor-label" data-i18n="ed.heavy">鈻?閲嶇敳鏁屼汉</div>
+      <div class="editor-label" data-i18n="ed.heavy">▼ 重甲敌人</div>
       <span id="heavyCountLabel">1</span>
       <input type="range" id="heavyCountSlider" min="0" max="10" value="1">
     </div>
   </div>
 
   <div class="btn-row">
-    <button id="btnSettings" class="btn" style="background:#555;color:#fff;font-size:12px;padding:5px" data-i18n="btn.settings">鈿?璁剧疆</button>
+    <button id="btnSettings" class="btn" style="background:#555;color:#fff;font-size:12px;padding:5px" data-i18n="btn.settings">⚙ 设置</button>
   </div>
 
   <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:999;justify-content:center;align-items:center">
     <div style="background:#1a1a2e;border:2px solid #f5c842;border-radius:8px;padding:20px;min-width:280px;max-width:360px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="color:#f5c842;font-size:15px;font-weight:bold" data-i18n="btn.settings">鈿?璁剧疆</span>
+        <span style="color:#f5c842;font-size:15px;font-weight:bold" data-i18n="btn.settings">⚙ 设置</span>
         <span id="settingsClose" style="color:#888;cursor:pointer;font-size:18px;line-height:1">&times;</span>
       </div>
       <div class="slider-row" style="margin:6px 0;font-size:12px;border:1px solid #555;border-radius:4px;padding:4px 6px;align-items:center">
-        <span style="color:#aaa;flex:1"><span data-i18n="bm.collide">纰版挒</span> / <span data-i18n="bm.pass">璐┛</span></span>
-        <span id="bulletModeLabel" style="color:#f5c842;cursor:pointer;font-weight:bold;border:2px solid #f5c842;padding:2px 8px;border-radius:4px">纰版挒</span>
+        <span style="color:#aaa;flex:1"><span data-i18n="bm.collide">碰撞</span> / <span data-i18n="bm.pass">贯穿</span></span>
+        <span id="bulletModeLabel" style="color:#f5c842;cursor:pointer;font-weight:bold;border:2px solid #f5c842;padding:2px 8px;border-radius:4px">碰撞</span>
       </div>
       <div style="border-top:1px solid #333;margin:8px 0 6px"></div>
       <div class="slider-row" style="margin:3px 0;font-size:12px">
-        <span style="color:#aaa;flex:1" data-i18n="st.prot.player">鎴戞柟鍑虹敓淇濇姢</span>
-        <span id="protPlayerLabel" style="color:#f5c842;cursor:pointer;font-weight:bold;border:1px solid #f5c842;padding:1px 6px;border-radius:3px;font-size:11px">寮€</span>
+        <span style="color:#aaa;flex:1" data-i18n="st.prot.player">我方出生保护</span>
+        <span id="protPlayerLabel" style="color:#f5c842;cursor:pointer;font-weight:bold;border:1px solid #f5c842;padding:1px 6px;border-radius:3px;font-size:11px">开</span>
       </div>
       <div class="slider-row" style="margin:3px 0;font-size:12px">
-        <span style="color:#aaa;flex:1" data-i18n="st.prot.enemy">鏁屾柟鍑虹敓淇濇姢</span>
-        <span id="protEnemyLabel" style="color:#f5c842;cursor:pointer;font-weight:bold;border:1px solid #f5c842;padding:1px 6px;border-radius:3px;font-size:11px">寮€</span>
+        <span style="color:#aaa;flex:1" data-i18n="st.prot.enemy">敌方出生保护</span>
+        <span id="protEnemyLabel" style="color:#f5c842;cursor:pointer;font-weight:bold;border:1px solid #f5c842;padding:1px 6px;border-radius:3px;font-size:11px">开</span>
       </div>
       <div class="slider-row" style="margin:3px 0;font-size:12px">
-        <span style="color:#aaa;flex:1" data-i18n="st.prot.dur">淇濇姢鏃堕棿 (绉?</span>
+        <span style="color:#aaa;flex:1" data-i18n="st.prot.dur">保护时间 (秒)</span>
         <span id="protDurLabel" style="min-width:20px">3</span>
         <input type="range" id="protDurSlider" min="1" max="10" value="3" style="flex:1;accent-color:#f5c842">
       </div>
@@ -133,31 +133,31 @@ canvas#gameCanvas{display:block;border:3px solid #0f3460;border-radius:4px;backg
   </div>
 
   <div class="btn-row">
-    <button id="btnPlay" class="btn btn-play" data-i18n="btn.play">寮€濮?/button>
-    <button id="btnEdit" class="btn btn-edit" data-i18n="btn.edit">缂栬緫</button>
-    <button id="btnReset" class="btn btn-reset" data-i18n="btn.reset">閲嶇疆</button>
+    <button id="btnPlay" class="btn btn-play" data-i18n="btn.play">开始</button>
+    <button id="btnEdit" class="btn btn-edit" data-i18n="btn.edit">编辑</button>
+    <button id="btnReset" class="btn btn-reset" data-i18n="btn.reset">重置</button>
   </div>
 
   <div id="editorPanel">
-    <div class="editor-label" data-i18n="ed.brush">鈻?鍦板舰鐢荤瑪</div>
+    <div class="editor-label" data-i18n="ed.brush">▼ 地形画笔</div>
     <div class="editor-palette" id="palette"></div>
     <div style="display:flex;gap:4px;margin-top:3px">
-      <button id="btnClear" class="btn" style="background:#e74c3c;color:#fff;font-size:11px;padding:5px;flex:1" data-i18n="btn.clear">娓呯┖鍏ㄥ満</button>
-      <button id="btnRestore" class="btn" style="background:#666;color:#fff;font-size:11px;padding:5px;flex:1" data-i18n="btn.restore">涓€閿仮澶?/button>
+      <button id="btnClear" class="btn" style="background:#e74c3c;color:#fff;font-size:11px;padding:5px;flex:1" data-i18n="btn.clear">清空全场</button>
+      <button id="btnRestore" class="btn" style="background:#666;color:#fff;font-size:11px;padding:5px;flex:1" data-i18n="btn.restore">一键恢复</button>
     </div>
-    <div class="editor-hint" data-i18n="ed.hint">宸﹂敭鏀剧疆 | 鍙抽敭鎿﹂櫎 | 婊氳疆鍒囨崲</div>
+    <div class="editor-hint" data-i18n="ed.hint">左键放置 | 右键擦除 | 滚轮切换</div>
   </div>
 
   <div class="btn-row">
-    <button id="btnSave" class="btn" style="background:#8e44ad;color:#fff;font-size:11px;padding:5px;display:none" data-i18n="btn.save">淇濆瓨鍦板浘</button>
+    <button id="btnSave" class="btn" style="background:#8e44ad;color:#fff;font-size:11px;padding:5px;display:none" data-i18n="btn.save">保存地图</button>
   </div>
   <div id="savedMapsPanel" style="display:none;margin-top:2px">
-    <div class="editor-label" data-i18n="ed.saved">鈻?宸蹭繚瀛樼殑鍦板浘</div>
+    <div class="editor-label" data-i18n="ed.saved">▼ 已保存的地图</div>
     <div id="savedMapsList" style="display:flex;flex-direction:column;gap:3px;max-height:150px;overflow-y:auto"></div>
   </div>
 
   <div style="display:flex;gap:4px;align-items:center;margin-top:2px">
-    <span style="font-size:11px;color:#888">馃寪</span>
+    <span style="font-size:11px;color:#888">🌐</span>
     <select id="langSelect" style="flex:1;background:#222;color:#ddd;border:1px solid #444;border-radius:4px;padding:3px 4px;font-size:11px;cursor:pointer"></select>
   </div>
   <div class="controls-help" id="controlsHelp"></div>
@@ -177,157 +177,157 @@ const SPAWN_POINTS=[[0,0],[0,9],[0,19]];
 const BASE_POS={x:9,y:18};
 
 const LANG={
-'zh-CN':{n:'涓枃','title':'鈿?鍧﹀厠鍐茬獊','mode.c':'闂叧','mode.u':'鑷畾涔?,'mode.e':'鏃犲敖','p1':'1P 鍗曚汉','p2':'2P 鍙屼汉',
-'ui.mode':'妯″紡','ui.lives':'鐢熷懡','ui.score':'寰楀垎','ui.kills':'娑堢伃','ui.enemy':'鏁屼汉','ui.item':'閬撳叿','ui.level':'鍏冲崱','ui.time':'鐢ㄦ椂',
-'btn.play':'寮€濮?,'btn.edit':'缂栬緫','btn.exit':'閫€鍑虹紪杈?,'btn.reset':'閲嶇疆','btn.clear':'娓呯┖鍏ㄥ満','btn.restore':'涓€閿仮澶?,'btn.save':'淇濆瓨鍦板浘','btn.load':'鍔犺浇','btn.settings':'鈿?璁剧疆',
-'ed.brush':'鈻?鍦板舰鐢荤瑪','ed.select':'鈻?閫夋嫨鍏冲崱','ed.enemy':'鈻?鏁屼汉鏁伴噺','ed.fast':'鈻?楂橀€熸晫浜?,'ed.heavy':'鈻?閲嶇敳鏁屼汉','ed.saved':'鈻?宸蹭繚瀛樼殑鍦板浘',
-'ed.hint':'宸﹂敭鏀剧疆 | 鍙抽敭鎿﹂櫎 | 婊氳疆鍒囨崲',
-'ctrl':'绉诲姩 | 寮€鐏?| 鍒囨崲缂栬緫',
-'bm.collide':'纰版挒','bm.pass':'璐┛',
-'st.on':'寮€','st.off':'鍏?,'st.play':'娓告垙涓?,'st.wait':'绛夊緟','st.win':'鑳滃埄','st.lose':'澶辫触','st.pause':'宸叉殏鍋?,'st.acc':'鍛戒腑鐜?,'st.prot.player':'鎴戞柟鍑虹敓淇濇姢','st.prot.enemy':'鏁屾柟鍑虹敓淇濇姢','st.prot.dur':'淇濇姢鏃堕棿 (绉?',
-'msg.win':'鑳滃埄锛?,'msg.lose':'GAME OVER','msg.next':'鐐瑰嚮杩涘叆涓嬩竴鍏?鈫?,'msg.all':'馃帀 鍏ㄩ儴閫氬叧锛?,'msg.reset':'鐐瑰嚮"閲嶇疆"閲嶆柊寮€濮?,
-'tr.0':'绌哄湴','tr.1':'鐮栧','tr.2':'閽㈡澘','tr.3':'姘村煙','tr.4':'鏍戞灄','tr.5':'鍐伴潰','tr.6':'鍩哄湴',
-'lv.1':'绗?鍏?,'lv.2':'绗?鍏?,'lv.3':'绗?鍏?,'lv.4':'绗?鍏?,'lv.5':'绗?鍏?,'lv.6':'绗?鍏?,'lv.7':'绗?鍏?,'lv.8':'绗?鍏?,
-'pw.s':'闃叉姢缃?,'pw.t':'鍐荤粨','pw.f':'鍫″瀿','pw.p':'鐏姏','pw.l':'鐢熷懡','pw.b':'鐐稿脊','pw.sp':'鍔犻€?,'pw.r':'杩炲彂','pw.rp':'淇'},
-'en':{n:'English','title':'鈿?Tank Battle','mode.c':'Campaign','mode.u':'Custom','mode.e':'Endless','p1':'1P Solo','p2':'2P Co-op',
+'zh-CN':{n:'中文','title':'⚔ 坦克冲突','mode.c':'闯关','mode.u':'自定义','mode.e':'无尽','p1':'1P 单人','p2':'2P 双人',
+'ui.mode':'模式','ui.lives':'生命','ui.score':'得分','ui.kills':'消灭','ui.enemy':'敌人','ui.item':'道具','ui.level':'关卡','ui.time':'用时',
+'btn.play':'开始','btn.edit':'编辑','btn.exit':'退出编辑','btn.reset':'重置','btn.clear':'清空全场','btn.restore':'一键恢复','btn.save':'保存地图','btn.load':'加载','btn.settings':'⚙ 设置',
+'ed.brush':'▼ 地形画笔','ed.select':'▼ 选择关卡','ed.enemy':'▼ 敌人数量','ed.fast':'▼ 高速敌人','ed.heavy':'▼ 重甲敌人','ed.saved':'▼ 已保存的地图',
+'ed.hint':'左键放置 | 右键擦除 | 滚轮切换',
+'ctrl':'移动 | 开火 | 切换编辑',
+'bm.collide':'碰撞','bm.pass':'贯穿',
+'st.on':'开','st.off':'关','st.play':'游戏中','st.wait':'等待','st.win':'胜利','st.lose':'失败','st.pause':'已暂停','st.acc':'命中率','st.prot.player':'我方出生保护','st.prot.enemy':'敌方出生保护','st.prot.dur':'保护时间 (秒)',
+'msg.win':'胜利！','msg.lose':'GAME OVER','msg.next':'点击进入下一关 →','msg.all':'🎉 全部通关！','msg.reset':'点击"重置"重新开始',
+'tr.0':'空地','tr.1':'砖墙','tr.2':'钢板','tr.3':'水域','tr.4':'树林','tr.5':'冰面','tr.6':'基地',
+'lv.1':'第1关','lv.2':'第2关','lv.3':'第3关','lv.4':'第4关','lv.5':'第5关','lv.6':'第6关','lv.7':'第7关','lv.8':'第8关',
+'pw.s':'防护罩','pw.t':'冻结','pw.f':'堡垒','pw.p':'火力','pw.l':'生命','pw.b':'炸弹','pw.sp':'加速','pw.r':'连发','pw.rp':'修复'},
+'en':{n:'English','title':'⚔ Tank Battle','mode.c':'Campaign','mode.u':'Custom','mode.e':'Endless','p1':'1P Solo','p2':'2P Co-op',
 'ui.mode':'Mode','ui.lives':'Lives','ui.score':'Score','ui.kills':'Kills','ui.enemy':'Enemies','ui.item':'Item','ui.level':'Level','ui.time':'Time',
-'btn.play':'Start','btn.edit':'Edit','btn.exit':'Exit Edit','btn.reset':'Reset','btn.clear':'Clear All','btn.restore':'Restore','btn.save':'Save Map','btn.load':'Load','btn.settings':'鈿?Settings',
-'ed.brush':'鈻?Terrain Brush','ed.select':'鈻?Select Level','ed.enemy':'鈻?Enemy Count','ed.fast':'鈻?Fast Enemies','ed.heavy':'鈻?Heavy Armor','ed.saved':'鈻?Saved Maps',
+'btn.play':'Start','btn.edit':'Edit','btn.exit':'Exit Edit','btn.reset':'Reset','btn.clear':'Clear All','btn.restore':'Restore','btn.save':'Save Map','btn.load':'Load','btn.settings':'⚙ Settings',
+'ed.brush':'▼ Terrain Brush','ed.select':'▼ Select Level','ed.enemy':'▼ Enemy Count','ed.fast':'▼ Fast Enemies','ed.heavy':'▼ Heavy Armor','ed.saved':'▼ Saved Maps',
 'ed.hint':'Left: Place | Right: Erase | Scroll: Switch',
 'ctrl':'Move | Fire | Toggle Edit',
 'bm.collide':'Collide','bm.pass':'Pierce',
 'st.on':'On','st.off':'Off','st.play':'Playing','st.wait':'Waiting','st.win':'Victory','st.lose':'Defeated','st.pause':'Paused','st.acc':'Accuracy','st.prot.player':'Spawn Shield','st.prot.enemy':'Enemy Shield','st.prot.dur':'Duration (sec)',
-'msg.win':'Victory!','msg.lose':'GAME OVER','msg.next':'Click for next level 鈫?,'msg.all':'馃帀 All Clear!','msg.reset':'Click "Reset" to restart',
+'msg.win':'Victory!','msg.lose':'GAME OVER','msg.next':'Click for next level →','msg.all':'🎉 All Clear!','msg.reset':'Click "Reset" to restart',
 'tr.0':'Empty','tr.1':'Brick','tr.2':'Steel','tr.3':'Water','tr.4':'Trees','tr.5':'Ice','tr.6':'Base',
 'lv.1':'Level 1','lv.2':'Level 2','lv.3':'Level 3','lv.4':'Level 4','lv.5':'Level 5','lv.6':'Level 6','lv.7':'Level 7','lv.8':'Level 8',
 'pw.s':'Shield','pw.t':'Freeze','pw.f':'Fort','pw.p':'Power','pw.l':'Life','pw.b':'Bomb','pw.sp':'Speed','pw.r':'Rapid','pw.rp':'Repair'},
-'ja':{n:'鏃ユ湰瑾?,'title':'鈿?銈裤兂銈儛銉堛儷','mode.c':'銈儯銉炽儦銉笺兂','mode.u':'銈偣銈裤儬','mode.e':'銈ㄣ兂銉夈儸銈?,'p1':'1P 涓€浜?,'p2':'2P 浜屼汉',
-'ui.mode':'銉兗銉?,'ui.lives':'銉┿偆銉?,'ui.score':'寰楃偣','ui.kills':'鎾冪牬','ui.enemy':'娈嬫暤','ui.item':'銈偆銉嗐儬','ui.level':'銈广儐銉笺偢','ui.time':'鏅傞枔',
-'btn.play':'闁嬪','btn.edit':'绶ㄩ泦','btn.exit':'绶ㄩ泦绲備簡','btn.reset':'銉偦銉冦儓','btn.clear':'鍏ㄦ秷鍘?,'btn.restore':'寰╁厓','btn.save':'銉炪儍銉椾繚瀛?,'btn.load':'瑾伩杈笺伩','btn.settings':'鈿?瑷畾',
-'ed.brush':'鈻?鍦板舰銉栥儵銈?,'ed.select':'鈻?銈广儐銉笺偢閬告姙','ed.enemy':'鈻?鏁点伄鏁?,'ed.fast':'鈻?楂橀€熸暤','ed.heavy':'鈻?閲嶈鐢叉暤','ed.saved':'鈻?淇濆瓨娓堛伩銉炪儍銉?,
-'ed.hint':'宸?閰嶇疆 | 鍙?娑堝幓 | 銉涖偆銉笺儷:鍒囨浛',
-'ctrl':'绉诲嫊 | 鐧哄皠 | 绶ㄩ泦鍒囨浛',
-'bm.collide':'娑堟粎','bm.pass':'璨€?,
-'st.on':'ON','st.off':'OFF','st.play':'銉椼儸銈や腑','st.wait':'寰呮','st.win':'鍕濆埄','st.lose':'鏁楀寳','st.pause':'涓€鏅傚仠姝?,'st.acc':'鍛戒腑鐜?,'st.prot.player':'鑷粛鍑虹従淇濊','st.prot.enemy':'鏁佃粛鍑虹従淇濊','st.prot.dur':'淇濊鏅傞枔 (绉?',
-'msg.win':'鍕濆埄锛?,'msg.lose':'銈层兗銉犮偑銉笺儛銉?,'msg.next':'銈儶銉冦偗銇ф銇?鈫?,'msg.all':'馃帀 鍏ㄣ偣銉嗐兗銈搞偗銉偄锛?,'msg.reset':'銆屻儶銈汇儍銉堛€嶃倰銈儶銉冦偗',
-'tr.0':'绌哄湴','tr.1':'銉兂銈?,'tr.2':'閶奸墑','tr.3':'姘村煙','tr.4':'妫灄','tr.5':'姘烽潰','tr.6':'鍩哄湴',
-'lv.1':'绗?闈?,'lv.2':'绗?闈?,'lv.3':'绗?闈?,'lv.4':'绗?闈?,'lv.5':'绗?闈?,'lv.6':'绗?闈?,'lv.7':'绗?闈?,'lv.8':'绗?闈?,
-'pw.s':'銈枫兗銉儔','pw.t':'銉曘儶銉笺偤','pw.f':'瑕佸','pw.p':'銉戙儻銉?,'pw.l':'銉┿偆銉?,'pw.b':'銉溿儬','pw.sp':'銈广償銉笺儔','pw.r':'閫ｅ皠','pw.rp':'淇京'},
-'ko':{n:'頃滉淡鞏?,'title':'鈿?韮表伂 氚绊媭','mode.c':'旌犿帢鞚?,'mode.u':'旎れ姢韰€','mode.e':'氍错暅','p1':'1P 1鞚?,'p2':'2P 2鞚?,
-'ui.mode':'氇摐','ui.lives':'氇╈埁','ui.score':'鞝愳垬','ui.kills':'觳橃箻','ui.enemy':'鞝?,'ui.item':'鞎勳澊韰?,'ui.level':'霠堧波','ui.time':'鞁滉皠',
-'btn.play':'鞁滌瀾','btn.edit':'韼胳','btn.exit':'韼胳 膦呺','btn.reset':'齑堦赴頇?,'btn.clear':'鞝勳泊 歆€鞖瓣赴','btn.restore':'氤奠洂','btn.save':'毵?鞝€鞛?,'btn.load':'攵堧煬鞓り赴','btn.settings':'鈿?靹れ爼',
-'ed.brush':'鈻?歆€順?敫岆煬鞁?,'ed.select':'鈻?霠堧波 靹犿儩','ed.enemy':'鈻?鞝?靾?,'ed.fast':'鈻?瓿犾啀 鞝?,'ed.heavy':'鈻?欷戩灔臧?鞝?,'ed.saved':'鈻?鞝€鞛ル悳 毵?,
-'ed.hint':'膦?氚办箻 | 鞖?靷牅 | 頊?鞝勴櫂',
-'ctrl':'鞚措彊 | 氚滌偓 | 韼胳 鞝勴櫂',
-'bm.collide':'靻岆└','bm.pass':'甏€韱?,
-'st.on':'旒滌','st.off':'旰检','st.play':'頂岆爤鞚?欷?,'st.wait':'雽€旮?,'st.win':'鞀闺Μ','st.lose':'韺鞍','st.pause':'鞚检嫓 鞝曥','st.acc':'氇呾毳?,'st.prot.player':'鞎勱蛋 靸濎劚 氤错樃','st.prot.enemy':'鞝侁蛋 靸濎劚 氤错樃','st.prot.dur':'氤错樃 鞁滉皠 (齑?',
-'msg.win':'鞀闺Μ!','msg.lose':'瓴岇瀯 鞓る矂','msg.next':'韥措Ν頃橃棳 雼れ潓 鈫?,'msg.all':'馃帀 鞝勲秬 韥措Μ鞏?','msg.reset':'"齑堦赴頇?毳?韥措Ν',
-'tr.0':'牍堩劙','tr.1':'氩诫弻','tr.2':'臧曥矤','tr.3':'氍?,'tr.4':'靾?,'tr.5':'鞏检潓','tr.6':'旮办',
-'lv.1':'霠堧波 1','lv.2':'霠堧波 2','lv.3':'霠堧波 3','lv.4':'霠堧波 4','lv.5':'霠堧波 5','lv.6':'霠堧波 6','lv.7':'霠堧波 7','lv.8':'霠堧波 8',
-'pw.s':'氚╉尐','pw.t':'鞏茧Μ旮?,'pw.f':'鞖旍儓','pw.p':'韺岇泴','pw.l':'靸濍獏','pw.b':'韽儎','pw.sp':'鞀ろ敿霌?,'pw.r':'靻嶌偓','pw.rp':'靾橂Μ'},
-'es':{n:'Espa帽ol','title':'鈿?Tank Battle','mode.c':'Campa帽a','mode.u':'Personalizado','mode.e':'Sin Fin','p1':'1P Individual','p2':'2P Cooperativo',
-'ui.mode':'Modo','ui.lives':'Vidas','ui.score':'Puntaje','ui.kills':'Eliminaciones','ui.enemy':'Enemigos','ui.item':'脥tem','ui.level':'Nivel','ui.time':'Tiempo',
-'btn.play':'Jugar','btn.edit':'Editar','btn.exit':'Salir Edici贸n','btn.reset':'Reiniciar','btn.clear':'Limpiar Todo','btn.restore':'Restaurar','btn.save':'Guardar Mapa','btn.load':'Cargar','btn.settings':'鈿?Ajustes',
-'ed.brush':'鈻?Pincel de Terreno','ed.select':'鈻?Seleccionar Nivel','ed.enemy':'鈻?N掳 de Enemigos','ed.fast':'鈻?Enemigos R谩pidos','ed.heavy':'鈻?Blindados','ed.saved':'鈻?Mapas Guardados',
+'ja':{n:'日本語','title':'⚔ タンクバトル','mode.c':'キャンペーン','mode.u':'カスタム','mode.e':'エンドレス','p1':'1P 一人','p2':'2P 二人',
+'ui.mode':'モード','ui.lives':'ライフ','ui.score':'得点','ui.kills':'撃破','ui.enemy':'残敵','ui.item':'アイテム','ui.level':'ステージ','ui.time':'時間',
+'btn.play':'開始','btn.edit':'編集','btn.exit':'編集終了','btn.reset':'リセット','btn.clear':'全消去','btn.restore':'復元','btn.save':'マップ保存','btn.load':'読み込み','btn.settings':'⚙ 設定',
+'ed.brush':'▼ 地形ブラシ','ed.select':'▼ ステージ選択','ed.enemy':'▼ 敵の数','ed.fast':'▼ 高速敵','ed.heavy':'▼ 重装甲敵','ed.saved':'▼ 保存済みマップ',
+'ed.hint':'左:配置 | 右:消去 | ホイール:切替',
+'ctrl':'移動 | 発射 | 編集切替',
+'bm.collide':'消滅','bm.pass':'貫通',
+'st.on':'ON','st.off':'OFF','st.play':'プレイ中','st.wait':'待機','st.win':'勝利','st.lose':'敗北','st.pause':'一時停止','st.acc':'命中率','st.prot.player':'自軍出現保護','st.prot.enemy':'敵軍出現保護','st.prot.dur':'保護時間 (秒)',
+'msg.win':'勝利！','msg.lose':'ゲームオーバー','msg.next':'クリックで次へ →','msg.all':'🎉 全ステージクリア！','msg.reset':'「リセット」をクリック',
+'tr.0':'空地','tr.1':'レンガ','tr.2':'鋼鉄','tr.3':'水域','tr.4':'森林','tr.5':'氷面','tr.6':'基地',
+'lv.1':'第1面','lv.2':'第2面','lv.3':'第3面','lv.4':'第4面','lv.5':'第5面','lv.6':'第6面','lv.7':'第7面','lv.8':'第8面',
+'pw.s':'シールド','pw.t':'フリーズ','pw.f':'要塞','pw.p':'パワー','pw.l':'ライフ','pw.b':'ボム','pw.sp':'スピード','pw.r':'連射','pw.rp':'修復'},
+'ko':{n:'한국어','title':'⚔ 탱크 배틀','mode.c':'캠페인','mode.u':'커스텀','mode.e':'무한','p1':'1P 1인','p2':'2P 2인',
+'ui.mode':'모드','ui.lives':'목숨','ui.score':'점수','ui.kills':'처치','ui.enemy':'적','ui.item':'아이템','ui.level':'레벨','ui.time':'시간',
+'btn.play':'시작','btn.edit':'편집','btn.exit':'편집 종료','btn.reset':'초기화','btn.clear':'전체 지우기','btn.restore':'복원','btn.save':'맵 저장','btn.load':'불러오기','btn.settings':'⚙ 설정',
+'ed.brush':'▼ 지형 브러시','ed.select':'▼ 레벨 선택','ed.enemy':'▼ 적 수','ed.fast':'▼ 고속 적','ed.heavy':'▼ 중장갑 적','ed.saved':'▼ 저장된 맵',
+'ed.hint':'좌:배치 | 우:삭제 | 휠:전환',
+'ctrl':'이동 | 발사 | 편집 전환',
+'bm.collide':'소멸','bm.pass':'관통',
+'st.on':'켜짐','st.off':'꺼짐','st.play':'플레이 중','st.wait':'대기','st.win':'승리','st.lose':'패배','st.pause':'일시 정지','st.acc':'명중률','st.prot.player':'아군 생성 보호','st.prot.enemy':'적군 생성 보호','st.prot.dur':'보호 시간 (초)',
+'msg.win':'승리!','msg.lose':'게임 오버','msg.next':'클릭하여 다음 →','msg.all':'🎉 전부 클리어!','msg.reset':'"초기화"를 클릭',
+'tr.0':'빈터','tr.1':'벽돌','tr.2':'강철','tr.3':'물','tr.4':'숲','tr.5':'얼음','tr.6':'기지',
+'lv.1':'레벨 1','lv.2':'레벨 2','lv.3':'레벨 3','lv.4':'레벨 4','lv.5':'레벨 5','lv.6':'레벨 6','lv.7':'레벨 7','lv.8':'레벨 8',
+'pw.s':'방패','pw.t':'얼리기','pw.f':'요새','pw.p':'파워','pw.l':'생명','pw.b':'폭탄','pw.sp':'스피드','pw.r':'속사','pw.rp':'수리'},
+'es':{n:'Español','title':'⚔ Tank Battle','mode.c':'Campaña','mode.u':'Personalizado','mode.e':'Sin Fin','p1':'1P Individual','p2':'2P Cooperativo',
+'ui.mode':'Modo','ui.lives':'Vidas','ui.score':'Puntaje','ui.kills':'Eliminaciones','ui.enemy':'Enemigos','ui.item':'Ítem','ui.level':'Nivel','ui.time':'Tiempo',
+'btn.play':'Jugar','btn.edit':'Editar','btn.exit':'Salir Edición','btn.reset':'Reiniciar','btn.clear':'Limpiar Todo','btn.restore':'Restaurar','btn.save':'Guardar Mapa','btn.load':'Cargar','btn.settings':'⚙ Ajustes',
+'ed.brush':'▼ Pincel de Terreno','ed.select':'▼ Seleccionar Nivel','ed.enemy':'▼ N° de Enemigos','ed.fast':'▼ Enemigos Rápidos','ed.heavy':'▼ Blindados','ed.saved':'▼ Mapas Guardados',
 'ed.hint':'Izq: Colocar | Der: Borrar | Rueda: Cambiar',
-'ctrl':'Mover | Disparar | Alternar Edici贸n',
+'ctrl':'Mover | Disparar | Alternar Edición',
 'bm.collide':'Anular','bm.pass':'Penetrar',
-'st.on':'S铆','st.off':'No','st.play':'Jugando','st.wait':'Esperando','st.win':'Victoria','st.lose':'Derrota','st.pause':'Pausado','st.acc':'Precisi贸n','st.prot.player':'Escudo al aparecer','st.prot.enemy':'Escudo enemigo','st.prot.dur':'Duraci贸n (seg)',
-'msg.win':'隆Victoria!','msg.lose':'GAME OVER','msg.next':'Clic para siguiente nivel 鈫?,'msg.all':'馃帀 隆Todo listo!','msg.reset':'Clic "Reiniciar" para reiniciar',
-'tr.0':'Vac铆o','tr.1':'Ladrillo','tr.2':'Acero','tr.3':'Agua','tr.4':'脕rbol','tr.5':'Hielo','tr.6':'Base',
+'st.on':'Sí','st.off':'No','st.play':'Jugando','st.wait':'Esperando','st.win':'Victoria','st.lose':'Derrota','st.pause':'Pausado','st.acc':'Precisión','st.prot.player':'Escudo al aparecer','st.prot.enemy':'Escudo enemigo','st.prot.dur':'Duración (seg)',
+'msg.win':'¡Victoria!','msg.lose':'GAME OVER','msg.next':'Clic para siguiente nivel →','msg.all':'🎉 ¡Todo listo!','msg.reset':'Clic "Reiniciar" para reiniciar',
+'tr.0':'Vacío','tr.1':'Ladrillo','tr.2':'Acero','tr.3':'Agua','tr.4':'Árbol','tr.5':'Hielo','tr.6':'Base',
 'lv.1':'Nivel 1','lv.2':'Nivel 2','lv.3':'Nivel 3','lv.4':'Nivel 4','lv.5':'Nivel 5','lv.6':'Nivel 6','lv.7':'Nivel 7','lv.8':'Nivel 8',
-'pw.s':'Escudo','pw.t':'Congelar','pw.f':'Fortaleza','pw.p':'Poder','pw.l':'Vida','pw.b':'Bomba','pw.sp':'Velocidad','pw.r':'R谩pido','pw.rp':'Reparar'},
-'fr':{n:'Fran莽ais','title':'鈿?Tank Battle','mode.c':'Campagne','mode.u':'Personnalis茅','mode.e':'Infini','p1':'1P Solo','p2':'2P duo',
-'ui.mode':'Mode','ui.lives':'Vies','ui.score':'Score','ui.kills':'脡liminations','ui.enemy':'Ennemis','ui.item':'Objet','ui.level':'Niveau','ui.time':'Temps',
-'btn.play':'Jouer','btn.edit':'脡diter','btn.exit':'Quitter','btn.reset':'R茅initialiser','btn.clear':'Tout Effacer','btn.restore':'Restaurer','btn.save':'Sauver la Carte','btn.load':'Charger','btn.settings':'鈿?Param猫tres',
-'ed.brush':'鈻?Pinceau de Terrain','ed.select':'鈻?Choisir Niveau','ed.enemy':'鈻?Nbre d\'Ennemis','ed.fast':'鈻?Ennemis Rapides','ed.heavy':'鈻?Blind茅s Lourds','ed.saved':'鈻?Cartes Sauvegard茅es',
+'pw.s':'Escudo','pw.t':'Congelar','pw.f':'Fortaleza','pw.p':'Poder','pw.l':'Vida','pw.b':'Bomba','pw.sp':'Velocidad','pw.r':'Rápido','pw.rp':'Reparar'},
+'fr':{n:'Français','title':'⚔ Tank Battle','mode.c':'Campagne','mode.u':'Personnalisé','mode.e':'Infini','p1':'1P Solo','p2':'2P duo',
+'ui.mode':'Mode','ui.lives':'Vies','ui.score':'Score','ui.kills':'Éliminations','ui.enemy':'Ennemis','ui.item':'Objet','ui.level':'Niveau','ui.time':'Temps',
+'btn.play':'Jouer','btn.edit':'Éditer','btn.exit':'Quitter','btn.reset':'Réinitialiser','btn.clear':'Tout Effacer','btn.restore':'Restaurer','btn.save':'Sauver la Carte','btn.load':'Charger','btn.settings':'⚙ Paramètres',
+'ed.brush':'▼ Pinceau de Terrain','ed.select':'▼ Choisir Niveau','ed.enemy':'▼ Nbre d\'Ennemis','ed.fast':'▼ Ennemis Rapides','ed.heavy':'▼ Blindés Lourds','ed.saved':'▼ Cartes Sauvegardées',
 'ed.hint':'Gauche:Placer | Droit:Effacer | Molette:Changer',
-'ctrl':'D茅placer | Tirer | Alterner 脡dition',
+'ctrl':'Déplacer | Tirer | Alterner Édition',
 'bm.collide':'Annuler','bm.pass':'Transpercer',
-'st.on':'Oui','st.off':'Non','st.play':'En jeu','st.wait':'Attente','st.win':'Victoire','st.lose':'D茅faite','st.pause':'En pause','st.acc':'Pr茅cision','st.prot.player':'Bouclier d\'apparition','st.prot.enemy':'Bouclier ennemi','st.prot.dur':'Dur茅e (sec)',
-'msg.win':'Victoire !','msg.lose':'GAME OVER','msg.next':'Cliquez pour niveau suivant 鈫?,'msg.all':'馃帀 Tout termin茅 !','msg.reset':'Cliquez "R茅initialiser"',
+'st.on':'Oui','st.off':'Non','st.play':'En jeu','st.wait':'Attente','st.win':'Victoire','st.lose':'Défaite','st.pause':'En pause','st.acc':'Précision','st.prot.player':'Bouclier d\'apparition','st.prot.enemy':'Bouclier ennemi','st.prot.dur':'Durée (sec)',
+'msg.win':'Victoire !','msg.lose':'GAME OVER','msg.next':'Cliquez pour niveau suivant →','msg.all':'🎉 Tout terminé !','msg.reset':'Cliquez "Réinitialiser"',
 'tr.0':'Vide','tr.1':'Brique','tr.2':'Acier','tr.3':'Eau','tr.4':'Arbres','tr.5':'Glace','tr.6':'Base',
 'lv.1':'Niveau 1','lv.2':'Niveau 2','lv.3':'Niveau 3','lv.4':'Niveau 4','lv.5':'Niveau 5','lv.6':'Niveau 6','lv.7':'Niveau 7','lv.8':'Niveau 8',
-'pw.s':'Bouclier','pw.t':'Gel','pw.f':'Forteresse','pw.p':'Puissance','pw.l':'Vie','pw.b':'Bombe','pw.sp':'Vitesse','pw.r':'Rafale','pw.rp':'R茅parer'},
-'de':{n:'Deutsch','title':'鈿?Panzer Battle','mode.c':'Kampagne','mode.u':'Benutzerdefiniert','mode.e':'Endlos','p1':'1P Einzel','p2':'2P Co-op',
-'ui.mode':'Modus','ui.lives':'Leben','ui.score':'Punkte','ui.kills':'Absch眉sse','ui.enemy':'Feinde','ui.item':'Item','ui.level':'Level','ui.time':'Zeit',
-'btn.play':'Start','btn.edit':'Bearbeiten','btn.exit':'Bearbeiten beenden','btn.reset':'Zur眉cksetzen','btn.clear':'Alles L枚schen','btn.restore':'Wiederherstellen','btn.save':'Karte Speichern','btn.load':'Laden','btn.settings':'鈿?Einstellungen',
-'ed.brush':'鈻?Gel盲nde-Pinsel','ed.select':'鈻?Level w盲hlen','ed.enemy':'鈻?Feindanzahl','ed.fast':'鈻?Schnelle Feinde','ed.heavy':'鈻?Schwere Panzer','ed.saved':'鈻?Gespeicherte Karten',
-'ed.hint':'Links:Platzieren | Rechts:L枚schen | Rad:Wechseln',
+'pw.s':'Bouclier','pw.t':'Gel','pw.f':'Forteresse','pw.p':'Puissance','pw.l':'Vie','pw.b':'Bombe','pw.sp':'Vitesse','pw.r':'Rafale','pw.rp':'Réparer'},
+'de':{n:'Deutsch','title':'⚔ Panzer Battle','mode.c':'Kampagne','mode.u':'Benutzerdefiniert','mode.e':'Endlos','p1':'1P Einzel','p2':'2P Co-op',
+'ui.mode':'Modus','ui.lives':'Leben','ui.score':'Punkte','ui.kills':'Abschüsse','ui.enemy':'Feinde','ui.item':'Item','ui.level':'Level','ui.time':'Zeit',
+'btn.play':'Start','btn.edit':'Bearbeiten','btn.exit':'Bearbeiten beenden','btn.reset':'Zurücksetzen','btn.clear':'Alles Löschen','btn.restore':'Wiederherstellen','btn.save':'Karte Speichern','btn.load':'Laden','btn.settings':'⚙ Einstellungen',
+'ed.brush':'▼ Gelände-Pinsel','ed.select':'▼ Level wählen','ed.enemy':'▼ Feindanzahl','ed.fast':'▼ Schnelle Feinde','ed.heavy':'▼ Schwere Panzer','ed.saved':'▼ Gespeicherte Karten',
+'ed.hint':'Links:Platzieren | Rechts:Löschen | Rad:Wechseln',
 'ctrl':'Bewegen | Feuern | Bearbeiten umschalten',
 'bm.collide':'Aufheben','bm.pass':'Durchdringen',
 'st.on':'An','st.off':'Aus','st.play':'Spielt','st.wait':'Wartet','st.win':'Sieg','st.lose':'Niederlage','st.pause':'Pause','st.acc':'Treffergenauigkeit','st.prot.player':'Spawn-Schutz','st.prot.enemy':'Gegner-Schutz','st.prot.dur':'Dauer (Sek)',
-'msg.win':'Sieg!','msg.lose':'GAME OVER','msg.next':'Klick f眉r n盲chstes Level 鈫?,'msg.all':'馃帀 Alles geschafft!','msg.reset':'Klick "Zur眉cksetzen"',
-'tr.0':'Leer','tr.1':'Ziegel','tr.2':'Stahl','tr.3':'Wasser','tr.4':'B盲ume','tr.5':'Eis','tr.6':'Basis',
+'msg.win':'Sieg!','msg.lose':'GAME OVER','msg.next':'Klick für nächstes Level →','msg.all':'🎉 Alles geschafft!','msg.reset':'Klick "Zurücksetzen"',
+'tr.0':'Leer','tr.1':'Ziegel','tr.2':'Stahl','tr.3':'Wasser','tr.4':'Bäume','tr.5':'Eis','tr.6':'Basis',
 'lv.1':'Level 1','lv.2':'Level 2','lv.3':'Level 3','lv.4':'Level 4','lv.5':'Level 5','lv.6':'Level 6','lv.7':'Level 7','lv.8':'Level 8',
 'pw.s':'Schild','pw.t':'Einfrieren','pw.f':'Festung','pw.p':'Kraft','pw.l':'Leben','pw.b':'Bombe','pw.sp':'Tempo','pw.r':'Schnell','pw.rp':'Reparieren'},
-'ru':{n:'袪褍褋褋泻懈泄','title':'鈿?孝邪薪泻芯胁褘泄 袘芯泄','mode.c':'袣邪屑锌邪薪懈褟','mode.u':'袩芯谢褜蟹芯胁邪褌械谢褜褋泻懈泄','mode.e':'袘械褋泻芯薪械褔薪褘泄','p1':'1P 袨写懈薪','p2':'2P 袙写胁芯褢屑',
-'ui.mode':'袪械卸懈屑','ui.lives':'袞懈蟹薪懈','ui.score':'袨褔泻懈','ui.kills':'校斜懈褌芯','ui.enemy':'袙褉邪谐懈','ui.item':'袩褉械写屑械褌','ui.level':'校褉芯胁械薪褜','ui.time':'袙褉械屑褟',
-'btn.play':'小褌邪褉褌','btn.edit':'袩褉邪胁泻邪','btn.exit':'袙褘泄褌懈','btn.reset':'小斜褉芯褋','btn.clear':'袨褔懈褋褌懈褌褜 袙褋褢','btn.restore':'袙芯褋褋褌邪薪芯胁懈褌褜','btn.save':'小芯褏褉邪薪懈褌褜 袣邪褉褌褍','btn.load':'袟邪谐褉褍蟹懈褌褜','btn.settings':'鈿?袧邪褋褌褉芯泄泻懈',
-'ed.brush':'鈻?袣懈褋褌褜','ed.select':'鈻?袙褘斜褉邪褌褜 褍褉芯胁械薪褜','ed.enemy':'鈻?袣芯谢-胁芯 胁褉邪谐芯胁','ed.fast':'鈻?袘褘褋褌褉褘械 胁褉邪谐懈','ed.heavy':'鈻?孝褟卸褢谢邪褟 斜褉芯薪褟','ed.saved':'鈻?小芯褏褉邪薪褢薪薪褘械 袣邪褉褌褘',
-'ed.hint':'袥袣袦:小褌邪胁懈屑 | 袩袣袦:小褌械褉械褌褜 | 袣芯谢褢褋懈泻芯:小屑械薪懈褌褜',
-'ctrl':'袛胁懈卸械薪懈械 | 小褌褉械谢褜斜邪 | 小屑械薪懈褌褜 褉械卸懈屑',
-'bm.collide':'袨褌屑械薪邪','bm.pass':'袩褉芯褏芯写',
-'st.on':'袙泻谢','st.off':'袙褘泻谢','st.play':'袠谐褉邪','st.wait':'袨卸懈写邪薪懈械','st.win':'袩芯斜械写邪','st.lose':'袩芯褉邪卸械薪懈械','st.pause':'袩邪褍蟹邪','st.acc':'孝芯褔薪芯褋褌褜','st.prot.player':'袟邪褖懈褌邪 锌褉懈 锌芯褟胁谢械薪懈懈','st.prot.enemy':'袟邪褖懈褌邪 胁褉邪谐邪','st.prot.dur':'袛谢懈褌械谢褜薪芯褋褌褜 (褋械泻)',
-'msg.win':'袩芯斜械写邪!','msg.lose':'GAME OVER','msg.next':'袣谢懈泻 写谢褟 褋谢械写. 褍褉芯胁薪褟 鈫?,'msg.all':'馃帀 袙褋褢 锌褉芯泄写械薪芯!','msg.reset':'袣谢懈泻 芦小斜褉芯褋禄 写谢褟 褉械褋褌邪褉褌邪',
-'tr.0':'袩褍褋褌芯','tr.1':'袣懈褉锌懈褔','tr.2':'小褌邪谢褜','tr.3':'袙芯写邪','tr.4':'袛械褉械胁褜褟','tr.5':'袥褢写','tr.6':'袘邪蟹邪',
-'lv.1':'校褉芯胁械薪褜 1','lv.2':'校褉芯胁械薪褜 2','lv.3':'校褉芯胁械薪褜 3','lv.4':'校褉芯胁械薪褜 4','lv.5':'校褉芯胁械薪褜 5','lv.6':'校褉芯胁械薪褜 6','lv.7':'校褉芯胁械薪褜 7','lv.8':'校褉芯胁械薪褜 8',
-'pw.s':'些懈褌','pw.t':'袟邪屑芯褉芯蟹泻邪','pw.f':'袣褉械锌芯褋褌褜','pw.p':'小懈谢邪','pw.l':'袞懈蟹薪褜','pw.b':'袘芯屑斜邪','pw.sp':'小泻芯褉芯褋褌褜','pw.r':'袨褔械褉械写褜','pw.rp':'袪械屑芯薪褌'},
-'ar':{n:'丕賱毓乇亘賷丞',dir:'rtl','title':'鈿?賲毓乇賰丞 丕賱丿亘丕亘丕鬲','mode.c':'丨賲賱丞','mode.u':'賲禺氐氐','mode.e':'賱丕 賳賴丕賷丞','p1':'1P 賮乇丿賷','p2':'2P 孬賳丕卅賷',
-'ui.mode':'賵囟毓','ui.lives':'兀乇賵丕丨','ui.score':'賳賯丕胤','ui.kills':'賯鬲賱賶','ui.enemy':'兀毓丿丕亍','ui.item':'毓賳氐乇','ui.level':'賲爻鬲賵賶','ui.time':'丕賱賵賯鬲',
-'btn.play':'丕亘丿兀','btn.edit':'鬲丨乇賷乇','btn.exit':'禺乇賵噩','btn.reset':'廿毓丕丿丞 囟亘胤','btn.clear':'賲爻丨 丕賱賰賱','btn.restore':'丕爻鬲毓丕丿丞','btn.save':'丨賮馗 丕賱禺乇賷胤丞','btn.load':'鬲丨賲賷賱','btn.settings':'鈿?廿毓丿丕丿丕鬲',
-'ed.brush':'鈻?賮乇卮丕丞 丕賱鬲囟丕乇賷爻','ed.select':'鈻?丕禺鬲乇 賲爻鬲賵賶','ed.enemy':'鈻?毓丿丿 丕賱兀毓丿丕亍','ed.fast':'鈻?兀毓丿丕亍 爻乇賷毓賵賳','ed.heavy':'鈻?賲丿乇毓丕鬲 孬賯賷賱丞','ed.saved':'鈻?丕賱禺乇丕卅胤 丕賱賲丨賮賵馗丞',
-'ed.hint':'賷爻丕乇:賵囟毓 | 賷賲賷賳:賲爻丨 | 毓噩賱丞:鬲亘丿賷賱',
-'ctrl':'丨乇賰丞 | 廿胤賱丕賯 賳丕乇 | 鬲亘丿賷賱 丕賱鬲丨乇賷乇',
-'bm.collide':'鬲氐丕丿賲','bm.pass':'丕禺鬲乇丕賯',
-'st.on':'鬲卮睾賷賱','st.off':'廿賷賯丕賮','st.play':'賷賱毓亘','st.wait':'丕賳鬲馗丕乇','st.win':'丕賳鬲氐丕乇','st.lose':'賴夭賷賲丞','st.pause':'廿賷賯丕賮 賲丐賯鬲','st.acc':'丕賱丿賯丞','st.prot.player':'丿乇毓 丕賱馗賴賵乇','st.prot.enemy':'丿乇毓 丕賱毓丿賵','st.prot.dur':'丕賱賲丿丞 (孬丕賳賷丞)',
-'msg.win':'丕賳鬲氐丕乇!','msg.lose':'丕賳鬲賴鬲 丕賱賱毓亘丞','msg.next':'丕囟睾胤 賱賱賲乇丨賱丞 丕賱鬲丕賱賷丞 鈫?,'msg.all':'馃帀 丕賰鬲賲賱 丕賱賰賱!','msg.reset':'丕囟睾胤 "廿毓丕丿丞 囟亘胤" 賱賱亘丿亍',
-'tr.0':'賮丕乇睾','tr.1':'胤賵亘','tr.2':'氐賱亘','tr.3':'賲丕亍','tr.4':'兀卮噩丕乇','tr.5':'噩賱賷丿','tr.6':'賯丕毓丿丞',
-'lv.1':'丕賱賲爻鬲賵賶 1','lv.2':'丕賱賲爻鬲賵賶 2','lv.3':'丕賱賲爻鬲賵賶 3','lv.4':'丕賱賲爻鬲賵賶 4','lv.5':'丕賱賲爻鬲賵賶 5','lv.6':'丕賱賲爻鬲賵賶 6','lv.7':'丕賱賲爻鬲賵賶 7','lv.8':'丕賱賲爻鬲賵賶 8',
-'pw.s':'丿乇毓','pw.t':'鬲噩賲賷丿','pw.f':'丨氐賳','pw.p':'賯賵丞','pw.l':'丨賷丕丞','pw.b':'賯賳亘賱丞','pw.sp':'爻乇毓丞','pw.r':'乇卮丕卮','pw.rp':'廿氐賱丕丨'},
-'pt':{n:'Portugu锚s','title':'鈿?Batalha de Tanques','mode.c':'Campanha','mode.u':'Personalizado','mode.e':'Infinito','p1':'1P Solo','p2':'2P Dupla',
-'ui.mode':'Modo','ui.lives':'Vidas','ui.score':'Pontua莽茫o','ui.kills':'Abates','ui.enemy':'Inimigos','ui.item':'Item','ui.level':'N铆vel','ui.time':'Tempo',
-'btn.play':'Jogar','btn.edit':'Editar','btn.exit':'Sair','btn.reset':'Reiniciar','btn.clear':'Limpar Tudo','btn.restore':'Restaurar','btn.save':'Salvar Mapa','btn.load':'Carregar','btn.settings':'鈿?Configura莽玫es',
-'ed.brush':'鈻?Pincel de Terreno','ed.select':'鈻?Selecionar N铆vel','ed.enemy':'鈻?N掳 de Inimigos','ed.fast':'鈻?Inimigos R谩pidos','ed.heavy':'鈻?Blindados','ed.saved':'鈻?Mapas Salvos',
+'ru':{n:'Русский','title':'⚔ Танковый Бой','mode.c':'Кампания','mode.u':'Пользовательский','mode.e':'Бесконечный','p1':'1P Один','p2':'2P Вдвоём',
+'ui.mode':'Режим','ui.lives':'Жизни','ui.score':'Очки','ui.kills':'Убито','ui.enemy':'Враги','ui.item':'Предмет','ui.level':'Уровень','ui.time':'Время',
+'btn.play':'Старт','btn.edit':'Правка','btn.exit':'Выйти','btn.reset':'Сброс','btn.clear':'Очистить Всё','btn.restore':'Восстановить','btn.save':'Сохранить Карту','btn.load':'Загрузить','btn.settings':'⚙ Настройки',
+'ed.brush':'▼ Кисть','ed.select':'▼ Выбрать уровень','ed.enemy':'▼ Кол-во врагов','ed.fast':'▼ Быстрые враги','ed.heavy':'▼ Тяжёлая броня','ed.saved':'▼ Сохранённые Карты',
+'ed.hint':'ЛКМ:Ставим | ПКМ:Стереть | Колёсико:Сменить',
+'ctrl':'Движение | Стрельба | Сменить режим',
+'bm.collide':'Отмена','bm.pass':'Проход',
+'st.on':'Вкл','st.off':'Выкл','st.play':'Игра','st.wait':'Ожидание','st.win':'Победа','st.lose':'Поражение','st.pause':'Пауза','st.acc':'Точность','st.prot.player':'Защита при появлении','st.prot.enemy':'Защита врага','st.prot.dur':'Длительность (сек)',
+'msg.win':'Победа!','msg.lose':'GAME OVER','msg.next':'Клик для след. уровня →','msg.all':'🎉 Всё пройдено!','msg.reset':'Клик «Сброс» для рестарта',
+'tr.0':'Пусто','tr.1':'Кирпич','tr.2':'Сталь','tr.3':'Вода','tr.4':'Деревья','tr.5':'Лёд','tr.6':'База',
+'lv.1':'Уровень 1','lv.2':'Уровень 2','lv.3':'Уровень 3','lv.4':'Уровень 4','lv.5':'Уровень 5','lv.6':'Уровень 6','lv.7':'Уровень 7','lv.8':'Уровень 8',
+'pw.s':'Щит','pw.t':'Заморозка','pw.f':'Крепость','pw.p':'Сила','pw.l':'Жизнь','pw.b':'Бомба','pw.sp':'Скорость','pw.r':'Очередь','pw.rp':'Ремонт'},
+'ar':{n:'العربية',dir:'rtl','title':'⚔ معركة الدبابات','mode.c':'حملة','mode.u':'مخصص','mode.e':'لا نهاية','p1':'1P فردي','p2':'2P ثنائي',
+'ui.mode':'وضع','ui.lives':'أرواح','ui.score':'نقاط','ui.kills':'قتلى','ui.enemy':'أعداء','ui.item':'عنصر','ui.level':'مستوى','ui.time':'الوقت',
+'btn.play':'ابدأ','btn.edit':'تحرير','btn.exit':'خروج','btn.reset':'إعادة ضبط','btn.clear':'مسح الكل','btn.restore':'استعادة','btn.save':'حفظ الخريطة','btn.load':'تحميل','btn.settings':'⚙ إعدادات',
+'ed.brush':'▼ فرشاة التضاريس','ed.select':'▼ اختر مستوى','ed.enemy':'▼ عدد الأعداء','ed.fast':'▼ أعداء سريعون','ed.heavy':'▼ مدرعات ثقيلة','ed.saved':'▼ الخرائط المحفوظة',
+'ed.hint':'يسار:وضع | يمين:مسح | عجلة:تبديل',
+'ctrl':'حركة | إطلاق نار | تبديل التحرير',
+'bm.collide':'تصادم','bm.pass':'اختراق',
+'st.on':'تشغيل','st.off':'إيقاف','st.play':'يلعب','st.wait':'انتظار','st.win':'انتصار','st.lose':'هزيمة','st.pause':'إيقاف مؤقت','st.acc':'الدقة','st.prot.player':'درع الظهور','st.prot.enemy':'درع العدو','st.prot.dur':'المدة (ثانية)',
+'msg.win':'انتصار!','msg.lose':'انتهت اللعبة','msg.next':'اضغط للمرحلة التالية →','msg.all':'🎉 اكتمل الكل!','msg.reset':'اضغط "إعادة ضبط" للبدء',
+'tr.0':'فارغ','tr.1':'طوب','tr.2':'صلب','tr.3':'ماء','tr.4':'أشجار','tr.5':'جليد','tr.6':'قاعدة',
+'lv.1':'المستوى 1','lv.2':'المستوى 2','lv.3':'المستوى 3','lv.4':'المستوى 4','lv.5':'المستوى 5','lv.6':'المستوى 6','lv.7':'المستوى 7','lv.8':'المستوى 8',
+'pw.s':'درع','pw.t':'تجميد','pw.f':'حصن','pw.p':'قوة','pw.l':'حياة','pw.b':'قنبلة','pw.sp':'سرعة','pw.r':'رشاش','pw.rp':'إصلاح'},
+'pt':{n:'Português','title':'⚔ Batalha de Tanques','mode.c':'Campanha','mode.u':'Personalizado','mode.e':'Infinito','p1':'1P Solo','p2':'2P Dupla',
+'ui.mode':'Modo','ui.lives':'Vidas','ui.score':'Pontuação','ui.kills':'Abates','ui.enemy':'Inimigos','ui.item':'Item','ui.level':'Nível','ui.time':'Tempo',
+'btn.play':'Jogar','btn.edit':'Editar','btn.exit':'Sair','btn.reset':'Reiniciar','btn.clear':'Limpar Tudo','btn.restore':'Restaurar','btn.save':'Salvar Mapa','btn.load':'Carregar','btn.settings':'⚙ Configurações',
+'ed.brush':'▼ Pincel de Terreno','ed.select':'▼ Selecionar Nível','ed.enemy':'▼ N° de Inimigos','ed.fast':'▼ Inimigos Rápidos','ed.heavy':'▼ Blindados','ed.saved':'▼ Mapas Salvos',
 'ed.hint':'Esq:Colocar | Dir:Apagar | Roda:Trocar',
-'ctrl':'Mover | Atirar | Alternar Edi莽茫o',
+'ctrl':'Mover | Atirar | Alternar Edição',
 'bm.collide':'Anular','bm.pass':'Atravessar',
-'st.on':'Lig','st.off':'Desl','st.play':'Jogando','st.wait':'Aguardando','st.win':'Vit贸ria','st.lose':'Derrota','st.pause':'Pausado','st.acc':'Precis茫o','st.prot.player':'Escudo ao spawnar','st.prot.enemy':'Escudo inimigo','st.prot.dur':'Dura莽茫o (seg)',
-'msg.win':'Vit贸ria!','msg.lose':'GAME OVER','msg.next':'Clique p/ pr贸ximo n铆vel 鈫?,'msg.all':'馃帀 Tudo limpo!','msg.reset':'Clique "Reiniciar" p/ recome莽ar',
-'tr.0':'Vazio','tr.1':'Tijolo','tr.2':'A莽o','tr.3':'脕gua','tr.4':'脕rvores','tr.5':'Gelo','tr.6':'Base',
-'lv.1':'N铆vel 1','lv.2':'N铆vel 2','lv.3':'N铆vel 3','lv.4':'N铆vel 4','lv.5':'N铆vel 5','lv.6':'N铆vel 6','lv.7':'N铆vel 7','lv.8':'N铆vel 8',
-'pw.s':'Escudo','pw.t':'Congelar','pw.f':'Forte','pw.p':'Poder','pw.l':'Vida','pw.b':'Bomba','pw.sp':'Velocidade','pw.r':'R谩pido','pw.rp':'Reparar'},
-'it':{n:'Italiano','title':'鈿?Tank Battle','mode.c':'Campagna','mode.u':'Personalizzato','mode.e':'Infinito','p1':'1P Singolo','p2':'2P Co-op',
-'ui.mode':'Modalit脿','ui.lives':'Vite','ui.score':'Punteggio','ui.kills':'Eliminazioni','ui.enemy':'Nemici','ui.item':'Oggetto','ui.level':'Livello','ui.time':'Tempo',
-'btn.play':'Gioca','btn.edit':'Modifica','btn.exit':'Esci','btn.reset':'Ripristina','btn.clear':'Pulisci Tutto','btn.restore':'Ripristina','btn.save':'Salva Mappa','btn.load':'Carica','btn.settings':'鈿?Impostazioni',
-'ed.brush':'鈻?Pennello Terreno','ed.select':'鈻?Seleziona Livello','ed.enemy':'鈻?N掳 Nemici','ed.fast':'鈻?Nemici Veloci','ed.heavy':'鈻?Corazzati','ed.saved':'鈻?Mappe Salvate',
+'st.on':'Lig','st.off':'Desl','st.play':'Jogando','st.wait':'Aguardando','st.win':'Vitória','st.lose':'Derrota','st.pause':'Pausado','st.acc':'Precisão','st.prot.player':'Escudo ao spawnar','st.prot.enemy':'Escudo inimigo','st.prot.dur':'Duração (seg)',
+'msg.win':'Vitória!','msg.lose':'GAME OVER','msg.next':'Clique p/ próximo nível →','msg.all':'🎉 Tudo limpo!','msg.reset':'Clique "Reiniciar" p/ recomeçar',
+'tr.0':'Vazio','tr.1':'Tijolo','tr.2':'Aço','tr.3':'Água','tr.4':'Árvores','tr.5':'Gelo','tr.6':'Base',
+'lv.1':'Nível 1','lv.2':'Nível 2','lv.3':'Nível 3','lv.4':'Nível 4','lv.5':'Nível 5','lv.6':'Nível 6','lv.7':'Nível 7','lv.8':'Nível 8',
+'pw.s':'Escudo','pw.t':'Congelar','pw.f':'Forte','pw.p':'Poder','pw.l':'Vida','pw.b':'Bomba','pw.sp':'Velocidade','pw.r':'Rápido','pw.rp':'Reparar'},
+'it':{n:'Italiano','title':'⚔ Tank Battle','mode.c':'Campagna','mode.u':'Personalizzato','mode.e':'Infinito','p1':'1P Singolo','p2':'2P Co-op',
+'ui.mode':'Modalità','ui.lives':'Vite','ui.score':'Punteggio','ui.kills':'Eliminazioni','ui.enemy':'Nemici','ui.item':'Oggetto','ui.level':'Livello','ui.time':'Tempo',
+'btn.play':'Gioca','btn.edit':'Modifica','btn.exit':'Esci','btn.reset':'Ripristina','btn.clear':'Pulisci Tutto','btn.restore':'Ripristina','btn.save':'Salva Mappa','btn.load':'Carica','btn.settings':'⚙ Impostazioni',
+'ed.brush':'▼ Pennello Terreno','ed.select':'▼ Seleziona Livello','ed.enemy':'▼ N° Nemici','ed.fast':'▼ Nemici Veloci','ed.heavy':'▼ Corazzati','ed.saved':'▼ Mappe Salvate',
 'ed.hint':'Sx:Piazza | Dx:Cancella | Rotellina:Cambia',
 'ctrl':'Muovi | Spara | Alterna Modifica',
 'bm.collide':'Neutralizza','bm.pass':'Attraversa',
-'st.on':'S矛','st.off':'No','st.play':'Giocando','st.wait':'In attesa','st.win':'Vittoria','st.lose':'Sconfitta','st.pause':'In pausa','st.acc':'Precisione','st.prot.player':'Scudo allo spawn','st.prot.enemy':'Scudo nemico','st.prot.dur':'Durata (sec)',
-'msg.win':'Vittoria!','msg.lose':'GAME OVER','msg.next':'Clic p/ prossimo livello 鈫?,'msg.all':'馃帀 Tutto completato!','msg.reset':'Clic "Ripristina" p/ ricominciare',
+'st.on':'Sì','st.off':'No','st.play':'Giocando','st.wait':'In attesa','st.win':'Vittoria','st.lose':'Sconfitta','st.pause':'In pausa','st.acc':'Precisione','st.prot.player':'Scudo allo spawn','st.prot.enemy':'Scudo nemico','st.prot.dur':'Durata (sec)',
+'msg.win':'Vittoria!','msg.lose':'GAME OVER','msg.next':'Clic p/ prossimo livello →','msg.all':'🎉 Tutto completato!','msg.reset':'Clic "Ripristina" p/ ricominciare',
 'tr.0':'Vuoto','tr.1':'Mattone','tr.2':'Acciaio','tr.3':'Acqua','tr.4':'Alberi','tr.5':'Ghiaccio','tr.6':'Base',
 'lv.1':'Livello 1','lv.2':'Livello 2','lv.3':'Livello 3','lv.4':'Livello 4','lv.5':'Livello 5','lv.6':'Livello 6','lv.7':'Livello 7','lv.8':'Livello 8',
-'pw.s':'Scudo','pw.t':'Congela','pw.f':'Forte','pw.p':'Potenza','pw.l':'Vita','pw.b':'Bomba','pw.sp':'Velocit脿','pw.r':'Raffica','pw.rp':'Riparare'},
-'hi':{n:'啶灌た啶ㄠ啶︵','title':'鈿?啶熰啶傕 啶啶︵啶?,'mode.c':'啶呧き啶苦く啶距え','mode.u':'啶曕じ啷嵿啶?,'mode.e':'啶呧え啶傕い','p1':'1P 啶忇啶?,'p2':'2P 啶︵啶灌ぐ啶?,
-'ui.mode':'啶啶?,'ui.lives':'啶溹啶掂え','ui.score':'啶膏啶曕啶?,'ui.kills':'啶ぞ啶班 啶椸','ui.enemy':'啶︵啶多啶え','ui.item':'啶嗋啶熰ぎ','ui.level':'啶膏啶むぐ','ui.time':'啶膏ぎ啶?,
-'btn.play':'啶多啶班','btn.edit':'啶膏啶ぞ啶︵た啶?,'btn.exit':'啶膏啶ぞ啶︵え 啶涏啶∴ぜ啷囙','btn.reset':'啶班啶膏啶?,'btn.clear':'啶膏が 啶膏ぞ啶ぜ 啶曕ぐ啷囙','btn.restore':'啶啶ㄠぐ啷嵿じ啷嵿ぅ啶距お啶苦い','btn.save':'啶啶?啶膏す啷囙啷囙','btn.load':'啶侧啶?啶曕ぐ啷囙','btn.settings':'鈿?啶膏啶熰た啶傕啷嵿じ',
-'ed.brush':'鈻?啶啶ぞ啶?啶啶班ざ','ed.select':'鈻?啶膏啶むぐ 啶氞啶ㄠ啶?,'ed.enemy':'鈻?啶︵啶多啶え 啶膏啶栢啶ぞ','ed.fast':'鈻?啶む啶溹ぜ 啶︵啶多啶え','ed.heavy':'鈻?啶ぞ啶班 啶曕さ啶?,'ed.saved':'鈻?啶膏す啷囙啷?啶椸 啶啶?,
-'ed.hint':'啶ぞ啶忇:啶班啷囙 | 啶︵ぞ啶忇:啶た啶熰ぞ啶忇 | 啶膏啶曕啶班啶?啶う啶侧啶?,
-'ctrl':'啶氞げ啷囙 | 啶椸啶侧 | 啶膏啶ぞ啶︵え 啶熰啶椸げ',
-'bm.collide':'啶班う啷嵿う','bm.pass':'啶啶︵え啶?,
-'st.on':'啶氞ぞ啶侧','st.off':'啶啶?,'st.play':'啶栢啶?啶班す啶?,'st.wait':'啶啶班い啷€啶曕啶粪ぞ','st.win':'啶溹啶?,'st.lose':'啶灌ぞ啶?,'st.pause':'啶掂た啶班ぞ啶?,'st.acc':'啶膏啷€啶曕い啶?,'st.prot.player':'啶膏啶啶?啶膏啶班啷嵿し啶?,'st.prot.enemy':'啶︵啶多啶え 啶膏啶班啷嵿し啶?,'st.prot.dur':'啶呧さ啶оた (啶膏啶曕啶?',
-'msg.win':'啶溹啶?','msg.lose':'啶椸啶?啶撪さ啶?,'msg.next':'啶呧啶侧 啶膏啶むぐ 啶曕 啶侧た啶?啶曕啶侧た啶?鈫?,'msg.all':'馃帀 啶膏が 啶膏ぞ啶?','msg.reset':'"啶班啶膏啶? 啶ぐ 啶曕啶侧た啶?啶曕ぐ啷囙',
-'tr.0':'啶栢ぞ啶侧','tr.1':'啶堗啶?,'tr.2':'啶膏啶熰啶?,'tr.3':'啶ぞ啶ㄠ','tr.4':'啶啶∴ぜ','tr.5':'啶ぐ啷嵿か','tr.6':'啶啶?,
-'lv.1':'啶膏啶むぐ 1','lv.2':'啶膏啶むぐ 2','lv.3':'啶膏啶むぐ 3','lv.4':'啶膏啶むぐ 4','lv.5':'啶膏啶むぐ 5','lv.6':'啶膏啶むぐ 6','lv.7':'啶膏啶むぐ 7','lv.8':'啶膏啶むぐ 8',
-'pw.s':'啶⑧ぞ啶?,'pw.t':'啶溹ぎ啶距え啶?,'pw.f':'啶曕た啶侧ぞ','pw.p':'啶多啷嵿い啶?,'pw.l':'啶溹啶掂え','pw.b':'啶ぎ','pw.sp':'啶椸い啶?,'pw.r':'啶む啶掂ぐ啶苦い','pw.rp':'啶ぐ啶啶い'}
+'pw.s':'Scudo','pw.t':'Congela','pw.f':'Forte','pw.p':'Potenza','pw.l':'Vita','pw.b':'Bomba','pw.sp':'Velocità','pw.r':'Raffica','pw.rp':'Riparare'},
+'hi':{n:'हिन्दी','title':'⚔ टैंक युद्ध','mode.c':'अभियान','mode.u':'कस्टम','mode.e':'अनंत','p1':'1P एकल','p2':'2P दोहरा',
+'ui.mode':'मोड','ui.lives':'जीवन','ui.score':'स्कोर','ui.kills':'मारे गए','ui.enemy':'दुश्मन','ui.item':'आइटम','ui.level':'स्तर','ui.time':'समय',
+'btn.play':'शुरू','btn.edit':'संपादित','btn.exit':'संपादन छोड़ें','btn.reset':'रीसेट','btn.clear':'सब साफ़ करें','btn.restore':'पुनर्स्थापित','btn.save':'मैप सहेजें','btn.load':'लोड करें','btn.settings':'⚙ सेटिंग्स',
+'ed.brush':'▼ भूभाग ब्रश','ed.select':'▼ स्तर चुनें','ed.enemy':'▼ दुश्मन संख्या','ed.fast':'▼ तेज़ दुश्मन','ed.heavy':'▼ भारी कवच','ed.saved':'▼ सहेजे गए मैप',
+'ed.hint':'बाएँ:रखें | दाएँ:मिटाएँ | स्क्रॉल:बदलें',
+'ctrl':'चलें | गोली | संपादन टॉगल',
+'bm.collide':'रद्द','bm.pass':'भेदना',
+'st.on':'चालू','st.off':'बंद','st.play':'खेल रहा','st.wait':'प्रतीक्षा','st.win':'जीत','st.lose':'हार','st.pause':'विराम','st.acc':'सटीकता','st.prot.player':'स्पॉन सुरक्षा','st.prot.enemy':'दुश्मन सुरक्षा','st.prot.dur':'अवधि (सेकंड)',
+'msg.win':'जीत!','msg.lose':'गेम ओवर','msg.next':'अगले स्तर के लिए क्लिक →','msg.all':'🎉 सब साफ!','msg.reset':'"रीसेट" पर क्लिक करें',
+'tr.0':'खाली','tr.1':'ईंट','tr.2':'स्टील','tr.3':'पानी','tr.4':'पेड़','tr.5':'बर्फ','tr.6':'बेस',
+'lv.1':'स्तर 1','lv.2':'स्तर 2','lv.3':'स्तर 3','lv.4':'स्तर 4','lv.5':'स्तर 5','lv.6':'स्तर 6','lv.7':'स्तर 7','lv.8':'स्तर 8',
+'pw.s':'ढाल','pw.t':'जमाना','pw.f':'किला','pw.p':'शक्ति','pw.l':'जीवन','pw.b':'बम','pw.sp':'गति','pw.r':'त्वरित','pw.rp':'मरम्मत'}
 };
 let langCode='en';
 function _(k){return LANG[langCode][k]||LANG['en'][k]||k}
 
 // ===== 8 campaign levels =====
 const LEVELS=[
-{name:'绗?鍏?,enemies:10,map:[
+{name:'第1关',enemies:10,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0],
@@ -348,7 +348,7 @@ const LEVELS=[
 [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:12,map:[
+{name:'第2关',enemies:12,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,1,1,0,0,1,1,0,0,2,2,0,0,1,1,0,0,1,1,0],
@@ -369,7 +369,7 @@ const LEVELS=[
 [0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:14,map:[
+{name:'第3关',enemies:14,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,3,3,0,0,0,0,3,3,0,0,0,0,0,0],
@@ -390,7 +390,7 @@ const LEVELS=[
 [0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:14,map:[
+{name:'第4关',enemies:14,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0],
@@ -411,7 +411,7 @@ const LEVELS=[
 [4,0,4,0,4,0,4,0,4,0,0,4,0,4,0,4,0,4,0,4],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:16,map:[
+{name:'第5关',enemies:16,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,5,5,0,0,5,5,0,1,1,1,1,0,5,5,0,0,5,5,0],
@@ -432,7 +432,7 @@ const LEVELS=[
 [0,5,5,0,0,5,5,0,0,0,0,0,0,5,5,0,0,5,5,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:18,map:[
+{name:'第6关',enemies:18,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,2,0,1,1,0,2,0,1,1,1,1,0,2,0,1,1,0,2,0],
@@ -453,7 +453,7 @@ const LEVELS=[
 [0,2,0,1,1,0,2,0,1,1,1,1,0,2,0,1,1,0,2,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:18,map:[
+{name:'第7关',enemies:18,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,1,1,0,3,3,0,1,1,0,0,1,1,0,3,3,0,1,1,0],
@@ -474,7 +474,7 @@ const LEVELS=[
 [0,1,1,0,3,3,0,1,1,0,0,1,1,0,3,3,0,1,1,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0]]},
-{name:'绗?鍏?,enemies:20,map:[
+{name:'第8关',enemies:20,map:[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,1,1,2,1,1,0,5,5,0,0,5,5,0,1,1,2,1,1,0],
@@ -507,7 +507,7 @@ let playerSpawnProtection=true,enemySpawnProtection=false,spawnProtDuration=3;
 let powerups=[],shieldTimer=0,freezeTimer=0,speedTimer=0,rapidTimer=0,baseWallsBuilt=false,bulletPower=1,mapEdited=false;
 const PW_SHIELD=0,PW_TIMER=1,PW_SHOVEL=2,PW_STAR=3,PW_LIFE=4,PW_BOMB=5,PW_SPEED=6,PW_RAPID=7,PW_REPAIR=8;
 const PW_COLORS=['#4af','#ff8','#c96','#ff0','#f66','#f80','#0f8','#f4f','#0f0'];
-const PW_ICON=['馃洝','鈴?,'馃彴','猸?,'鉂?,'馃挜','鈿?,'馃敟','馃敡'];
+const PW_ICON=['🛡','⏱','🏰','⭐','❤','💥','⚡','🔥','🔧'];
 let bulletMode='collide';
 // Stats
 let statsBulletsFired=0,statsBulletsHit=0,statsStartTime=0,statsEndTime=0;
@@ -1270,8 +1270,8 @@ function applyLanguage(){
   document.title=_('title');
   // Controls help
   document.getElementById('controlsHelp').innerHTML=playerCount===2?
-    '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> P1 '+_('ctrl').split('|')[0]+'<br><kbd>鈫?/kbd><kbd>鈫?/kbd><kbd>鈫?/kbd><kbd>鈫?/kbd> P2 '+_('ctrl').split('|')[0]+'<br><kbd>Space</kbd> '+_('ctrl').split('|')[1]+' P1 &nbsp;|&nbsp; <kbd>Enter</kbd> '+_('ctrl').split('|')[1]+' P2 &nbsp;|&nbsp; <kbd>E</kbd> '+_('ctrl').split('|')[2]+' &nbsp;|&nbsp; <kbd>P</kbd> '+_('st.pause'):
-    '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / <kbd>鈫?/kbd><kbd>鈫?/kbd><kbd>鈫?/kbd><kbd>鈫?/kbd> '+
+    '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> P1 '+_('ctrl').split('|')[0]+'<br><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> P2 '+_('ctrl').split('|')[0]+'<br><kbd>Space</kbd> '+_('ctrl').split('|')[1]+' P1 &nbsp;|&nbsp; <kbd>Enter</kbd> '+_('ctrl').split('|')[1]+' P2 &nbsp;|&nbsp; <kbd>E</kbd> '+_('ctrl').split('|')[2]+' &nbsp;|&nbsp; <kbd>P</kbd> '+_('st.pause'):
+    '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> '+
     _('ctrl').split('|')[0]+'<br><kbd>Space</kbd> '+_('ctrl').split('|')[1]+
     ' &nbsp;|&nbsp; <kbd>E</kbd> '+_('ctrl').split('|')[2]+
     ' &nbsp;|&nbsp; <kbd>P</kbd> '+_('st.pause');
@@ -1301,17 +1301,17 @@ function updateUI(){
   document.getElementById('levelDisplay').textContent=gameMode==='campaign'?_(`lv.${currentLevel+1}`):gameMode==='endless'?_(`mode.e`)+' - '+(endlessWave||1):_('mode.u');
   // Powerup status
   const st=[];
-  if(shieldTimer>0)st.push('馃洝'+(shieldTimer/60|0)+'s');
-  if(freezeTimer>0)st.push('鈴?+(freezeTimer/60|0)+'s');
-  if(bulletPower>1)st.push('猸恱'+bulletPower);
+  if(shieldTimer>0)st.push('🛡'+(shieldTimer/60|0)+'s');
+  if(freezeTimer>0)st.push('⏱'+(freezeTimer/60|0)+'s');
+  if(bulletPower>1)st.push('⭐x'+bulletPower);
   document.getElementById('powerupStatus').textContent=st.length?st.join(' '):'-';
   document.getElementById('powerupStatus').style.color=st.length?'#4af':'#888';
   const el=document.getElementById('gameMode');
-  if(gameState==='playing')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#2ecc71">鈻?'+_('st.play')+'</span>';
-  else if(gameState==='paused')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#f5c842">鈴?'+_('st.pause')+'</span>';
-  else if(gameState==='gameover')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#e94560">鈻?'+_('st.lose')+'</span>';
-  else if(gameState==='win')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#f5c842">鈽?'+_('st.win')+'</span>';
-  else el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#888">鈻?'+_('st.wait')+'</span>';
+  if(gameState==='playing')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#2ecc71">▶ '+_('st.play')+'</span>';
+  else if(gameState==='paused')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#f5c842">⏸ '+_('st.pause')+'</span>';
+  else if(gameState==='gameover')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#e94560">■ '+_('st.lose')+'</span>';
+  else if(gameState==='win')el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#f5c842">★ '+_('st.win')+'</span>';
+  else el.innerHTML='<span>'+_('ui.mode')+'</span><span style="color:#888">■ '+_('st.wait')+'</span>';
 }
 
 function switchMode(modeName){
@@ -1539,7 +1539,7 @@ function updateSavedMapsList(){
     const nm=document.createElement('span');
     nm.textContent=m.name;nm.style.cssText='flex:1;color:#ddd;cursor:pointer;padding:3px;background:#222;border:1px solid #444;border-radius:3px';
     nm.addEventListener('click',()=>{if(confirm(_('btn.load')+': '+m.name+'?'))loadSavedMap(i)});
-    const del=document.createElement('button');del.textContent='脳';
+    const del=document.createElement('button');del.textContent='×';
     del.style.cssText='background:#e74c3c;color:#fff;border:none;border-radius:3px;cursor:pointer;padding:2px 6px;font-size:11px';
     del.addEventListener('click',e=>{e.stopPropagation();deleteSavedMap(i)});
     row.appendChild(nm);row.appendChild(del);c.appendChild(row);

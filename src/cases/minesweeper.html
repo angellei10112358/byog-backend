@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>鎵浄 Minesweeper</title>
+<title>扫雷 Minesweeper</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
 body { background: #e0e0e0; font-family: 'Segoe UI', Arial, sans-serif; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; overflow-x: hidden; }
@@ -52,23 +52,23 @@ td.mine-hit { background: #f00; }
 <div class="game-container">
   <div class="menu-bar">
     <div class="dropdown">
-      <button class="menu-btn">娓告垙 Game</button>
+      <button class="menu-btn">游戏 Game</button>
       <div class="dropdown-content">
-        <button onclick="newGame(9,9,10)">鍒濈骇 Beginner (9脳9, 10)</button>
-        <button onclick="newGame(16,16,40)">涓骇 Intermediate (16脳16, 40)</button>
-        <button onclick="newGame(16,30,99)">楂樼骇 Expert (30脳16, 99)</button>
+        <button onclick="newGame(9,9,10)">初级 Beginner (9×9, 10)</button>
+        <button onclick="newGame(16,16,40)">中级 Intermediate (16×16, 40)</button>
+        <button onclick="newGame(16,30,99)">高级 Expert (30×16, 99)</button>
         <div class="separator"></div>
-        <button onclick="showCustom()">鑷畾涔?Custom...</button>
+        <button onclick="showCustom()">自定义 Custom...</button>
         <div class="separator"></div>
-        <button onclick="document.querySelector('.face').click()">閲嶆柊寮€濮?New</button>
+        <button onclick="document.querySelector('.face').click()">重新开始 New</button>
       </div>
     </div>
   </div>
 
   <div class="header">
     <div class="led" id="mineCount">000</div>
-    <div class="face" id="faceBtn" onclick="restart()">馃檪</div>
-    <div class="mode-btn" id="modeBtn" onclick="toggleMode()" title="鐐瑰嚮鍒囨崲鎸栧紑/鎻掓棗妯″紡">鉀忥笍</div>
+    <div class="face" id="faceBtn" onclick="restart()">🙂</div>
+    <div class="mode-btn" id="modeBtn" onclick="toggleMode()" title="点击切换挖开/插旗模式">⛏️</div>
     <div class="led" id="timer">000</div>
   </div>
 
@@ -79,13 +79,13 @@ td.mine-hit { background: #f00; }
 
 <div class="modal-overlay" id="customModal">
   <div class="modal">
-    <h3>鑷畾涔夋父鎴?Custom Game</h3>
-    <label>琛屾暟 Rows (5-50): <input type="number" id="cRows" value="9" min="5" max="50"></label>
-    <label>鍒楁暟 Cols (5-50): <input type="number" id="cCols" value="9" min="5" max="50"></label>
-    <label>闆锋暟 Mines: <input type="number" id="cMines" value="10" min="1"></label>
+    <h3>自定义游戏 Custom Game</h3>
+    <label>行数 Rows (5-50): <input type="number" id="cRows" value="9" min="5" max="50"></label>
+    <label>列数 Cols (5-50): <input type="number" id="cCols" value="9" min="5" max="50"></label>
+    <label>雷数 Mines: <input type="number" id="cMines" value="10" min="1"></label>
     <div class="modal-btns">
-      <button onclick="applyCustom()">纭畾 OK</button>
-      <button onclick="closeCustom()">鍙栨秷 Cancel</button>
+      <button onclick="applyCustom()">确定 OK</button>
+      <button onclick="closeCustom()">取消 Cancel</button>
     </div>
   </div>
 </div>
@@ -107,7 +107,7 @@ function initGrid() {
   gameOver = false; gameWon = false; firstMove = true;
   flagCount = 0; revealedCount = 0; timerSec = 0;
   if (timerId) { clearInterval(timerId); timerId = null; }
-  document.getElementById('faceBtn').textContent = '馃檪';
+  document.getElementById('faceBtn').textContent = '🙂';
   setMode(false);
 }
 
@@ -198,17 +198,17 @@ function render() {
       if (gameOver && p.mine && p.state === 1 && p.mine) {
         // check if this was the clicked mine
         cls = 'revealed mine';
-        content = '馃挘';
+        content = '💣';
       } else if (p.state === 0) {
         cls = 'hidden';
       } else if (p.state === 2) {
         cls = 'flag';
-        content = gameOver && p.mine ? '馃挘' : '馃毄';
+        content = gameOver && p.mine ? '💣' : '🚩';
       } else {
         cls = 'revealed';
         if (p.mine) {
           cls += ' mine';
-          content = '馃挘';
+          content = '💣';
         } else if (p.adj > 0) {
           cls += ' n' + p.adj;
           content = p.adj;
@@ -239,18 +239,18 @@ function handleClick(e) {
     if (p.state === 1) return;
     if (p.state === 0) { p.state = 2; flagCount++; }
     else if (p.state === 2) { p.state = 0; flagCount--; }
-    if (!firstMove && checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '馃槑'; }
+    if (!firstMove && checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '😎'; }
     render();
     return;
   }
 
   if (p.state === 2) return; // flagged
 
-  // click on revealed number 鈫?chord if flag count matches
+  // click on revealed number → chord if flag count matches
   if (p.state === 1 && p.adj > 0) {
     chord(r, c);
-    if (gameOver) { clearInterval(timerId); timerId = null; revealAllMines(); document.getElementById('faceBtn').textContent = '馃樀'; }
-    else if (checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '馃槑'; }
+    if (gameOver) { clearInterval(timerId); timerId = null; revealAllMines(); document.getElementById('faceBtn').textContent = '😵'; }
+    else if (checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '😎'; }
     render();
     return;
   }
@@ -267,13 +267,13 @@ function handleClick(e) {
     gameOver = true;
     clearInterval(timerId); timerId = null;
     revealAllMines();
-    document.getElementById('faceBtn').textContent = '馃樀';
+    document.getElementById('faceBtn').textContent = '😵';
     render();
     return;
   }
 
   reveal(r, c);
-  if (checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '馃槑'; }
+  if (checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '😎'; }
   render();
 }
 
@@ -287,7 +287,7 @@ function handleRightClick(e) {
   if (p.state === 1) return;
   if (p.state === 0) { p.state = 2; flagCount++; }
   else if (p.state === 2) { p.state = 0; flagCount--; }
-  if (!firstMove && checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '馃槑'; }
+  if (!firstMove && checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '😎'; }
   render();
 }
 
@@ -299,8 +299,8 @@ function handleDblClick(e) {
   const p = grid[r][c];
   if (p.state === 1 && p.adj > 0) {
     chord(r, c);
-    if (gameOver) { clearInterval(timerId); timerId = null; revealAllMines(); document.getElementById('faceBtn').textContent = '馃樀'; }
-    else if (checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '馃槑'; }
+    if (gameOver) { clearInterval(timerId); timerId = null; revealAllMines(); document.getElementById('faceBtn').textContent = '😵'; }
+    else if (checkWin()) { gameWon = true; clearInterval(timerId); timerId = null; document.getElementById('faceBtn').textContent = '😎'; }
     render();
   }
 }
@@ -340,8 +340,8 @@ function applyCustom() {
   const r = parseInt(document.getElementById('cRows').value) || 9;
   const c = parseInt(document.getElementById('cCols').value) || 9;
   const m = parseInt(document.getElementById('cMines').value) || 10;
-  if (r < 5 || r > 50 || c < 5 || c > 50) { alert('琛屾暟鍜屽垪鏁板繀椤诲湪 5-50 涔嬮棿銆?); return; }
-  if (m < 1 || m >= r * c) { alert('闆锋暟蹇呴』鍦?1 鍒?琛屾暟脳鍒楁暟-1 涔嬮棿銆?); return; }
+  if (r < 5 || r > 50 || c < 5 || c > 50) { alert('行数和列数必须在 5-50 之间。'); return; }
+  if (m < 1 || m >= r * c) { alert('雷数必须在 1 到 行数×列数-1 之间。'); return; }
   closeCustom();
   newGame(r, c, m);
 }
@@ -357,9 +357,9 @@ function adjustCellSize() {
 function setMode(on) {
   flagMode = on;
   const btn = document.getElementById('modeBtn');
-  btn.textContent = on ? '馃毄' : '鉀忥笍';
+  btn.textContent = on ? '🚩' : '⛏️';
   btn.className = 'mode-btn' + (on ? ' active' : '');
-  btn.title = on ? '鎻掓棗妯″紡锛堝乏閿彃鏃楋級' : '鎸栧紑妯″紡锛堝乏閿寲寮€锛?;
+  btn.title = on ? '插旗模式（左键插旗）' : '挖开模式（左键挖开）';
 }
 function toggleMode() { setMode(!flagMode); }
 

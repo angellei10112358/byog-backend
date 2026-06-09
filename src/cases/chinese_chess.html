@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>涓浗璞℃</title>
+<title>中国象棋</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#2c2c2c;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:"Microsoft YaHei","SimHei",sans-serif;user-select:none}
@@ -47,43 +47,43 @@ canvas{display:block;cursor:pointer;border-radius:6px}
 </head>
 <body>
 <div class="container">
-    <h1 id="title">涓?鍥?璞?妫?/h1>
+    <h1 id="title">中 国 象 棋</h1>
     <canvas id="boardCanvas"></canvas>
     <div class="status-bar">
-        <span class="mode-tag" id="modeTag">鍙屼汉瀵规垬</span>
-        <span class="turn-indicator red" id="turnText">绾㈡柟璧版</span>
-        <span class="hint" id="hintText">鐐瑰嚮妫嬪瓙鎴?WASD 绉诲姩</span>
-        <select class="lang-select" id="langSelect"><option value="zh">涓枃</option></select>
-        <button class="btn" id="menuBtn">鑿滃崟</button>
-        <button class="btn" id="resetBtn">閲嶅紑</button>
+        <span class="mode-tag" id="modeTag">双人对战</span>
+        <span class="turn-indicator red" id="turnText">红方走棋</span>
+        <span class="hint" id="hintText">点击棋子或 WASD 移动</span>
+        <select class="lang-select" id="langSelect"><option value="zh">中文</option></select>
+        <button class="btn" id="menuBtn">菜单</button>
+        <button class="btn" id="resetBtn">重开</button>
     </div>
 </div>
 
 <div class="modal-overlay" id="modeModal">
     <div class="modal">
-        <h2 id="modalTitle">涓?鍥?璞?妫?/h2>
-        <div class="sub" id="modalSub">閫夋嫨娓告垙妯″紡</div>
+        <h2 id="modalTitle">中 国 象 棋</h2>
+        <div class="sub" id="modalSub">选择游戏模式</div>
         <div class="section">
-            <div class="section-label" id="modeLabel">娓告垙鏂瑰紡</div>
+            <div class="section-label" id="modeLabel">游戏方式</div>
             <div class="mode-options">
-                <button class="mode-btn active" data-mode="pvp" id="modePvpBtn">馃懁 鍙屼汉瀵规垬</button>
-                <button class="mode-btn" data-mode="pvc" id="modePvcBtn">馃 浜烘満瀵规垬</button>
+                <button class="mode-btn active" data-mode="pvp" id="modePvpBtn">👤 双人对战</button>
+                <button class="mode-btn" data-mode="pvc" id="modePvcBtn">🤖 人机对战</button>
             </div>
         </div>
         <div class="section" id="diffSection" style="display:none">
-            <div class="section-label" id="diffLabel">鐢佃剳闅惧害</div>
+            <div class="section-label" id="diffLabel">电脑难度</div>
             <div class="diff-options">
-                <button class="diff-btn active" data-diff="easy" id="diffEasyBtn">绠€鍗?/button>
-                <button class="diff-btn" data-diff="normal" id="diffNormalBtn">鏅€?/button>
-                <button class="diff-btn" data-diff="hard" id="diffHardBtn">鍥伴毦</button>
+                <button class="diff-btn active" data-diff="easy" id="diffEasyBtn">简单</button>
+                <button class="diff-btn" data-diff="normal" id="diffNormalBtn">普通</button>
+                <button class="diff-btn" data-diff="hard" id="diffHardBtn">困难</button>
             </div>
-            <div class="diff-desc" id="diffDesc">鍋舵湁澶辫锛岄噸鍦ㄥ瓙鍔涳紝閫傚悎鏂版墜鍏ラ棬</div>
+            <div class="diff-desc" id="diffDesc">偶有失误，重在子力，适合新手入门</div>
         </div>
         <div class="section lang-modal-section">
-            <div class="section-label" id="langLabel">Language / 璇█</div>
+            <div class="section-label" id="langLabel">Language / 语言</div>
             <div class="lang-grid" id="langGrid"></div>
         </div>
-        <button class="start-btn" id="startBtn">寮€ 濮?娓?鎴?/button>
+        <button class="start-btn" id="startBtn">开 始 游 戏</button>
     </div>
 </div>
 
@@ -122,209 +122,209 @@ canvas.width=CW*dpr;canvas.height=CH*dpr;
 canvas.style.width=CW+'px';canvas.style.height=CH+'px';
 ctx.scale(dpr,dpr);
 
-const NAMES={red:{K:'甯?,A:'浠?,E:'鐩?,H:'椹?,R:'杞?,C:'鐐?,S:'鍏?},black:{K:'灏?,A:'澹?,E:'璞?,H:'椹?,R:'杞?,C:'鐐?,S:'鍗?}};
+const NAMES={red:{K:'帅',A:'仕',E:'相',H:'马',R:'车',C:'炮',S:'兵'},black:{K:'将',A:'士',E:'象',H:'马',R:'车',C:'炮',S:'卒'}};
 
 const LANGUAGES=[
-{code:'zh',name:'绠€浣撲腑鏂?,native:'绠€浣撲腑鏂?},
-{code:'zh-tw',name:'绻侀珨涓枃',native:'绻侀珨涓枃'},
+{code:'zh',name:'简体中文',native:'简体中文'},
+{code:'zh-tw',name:'繁體中文',native:'繁體中文'},
 {code:'en',name:'English',native:'English'},
-{code:'es',name:'Espa帽ol',native:'Espa帽ol'},
-{code:'fr',name:'Fran莽ais',native:'Fran莽ais'},
+{code:'es',name:'Español',native:'Español'},
+{code:'fr',name:'Français',native:'Français'},
 {code:'de',name:'Deutsch',native:'Deutsch'},
-{code:'ja',name:'鏃ユ湰瑾?,native:'鏃ユ湰瑾?},
-{code:'ko',name:'頃滉淡鞏?,native:'頃滉淡鞏?},
-{code:'pt',name:'Portugu锚s',native:'Portugu锚s'},
-{code:'ru',name:'袪褍褋褋泻懈泄',native:'袪褍褋褋泻懈泄'},
-{code:'ar',name:'丕賱毓乇亘賷丞',native:'丕賱毓乇亘賷丞'},
+{code:'ja',name:'日本語',native:'日本語'},
+{code:'ko',name:'한국어',native:'한국어'},
+{code:'pt',name:'Português',native:'Português'},
+{code:'ru',name:'Русский',native:'Русский'},
+{code:'ar',name:'العربية',native:'العربية'},
 {code:'it',name:'Italiano',native:'Italiano'},
-{code:'hi',name:'啶灌た啶ㄠ啶︵',native:'啶灌た啶ㄠ啶︵'},
+{code:'hi',name:'हिन्दी',native:'हिन्दी'},
 {code:'id',name:'Bahasa Indonesia',native:'Bahasa Indonesia'},
 {code:'nl',name:'Nederlands',native:'Nederlands'},
 {code:'pl',name:'Polski',native:'Polski'},
-{code:'th',name:'喙勦笚喔?,native:'喙勦笚喔?},
-{code:'vi',name:'Ti岷縩g Vi峄噒',native:'Ti岷縩g Vi峄噒'},
-{code:'tr',name:'T眉rk莽e',native:'T眉rk莽e'},
+{code:'th',name:'ไทย',native:'ไทย'},
+{code:'vi',name:'Tiếng Việt',native:'Tiếng Việt'},
+{code:'tr',name:'Türkçe',native:'Türkçe'},
 ];
 
 const I18N={zh:{
-title:'涓?鍥?璞?妫?,selectMode:'閫夋嫨娓告垙妯″紡',gameMode:'娓告垙鏂瑰紡',computerLevel:'鐢佃剳闅惧害',
-modePvp:'鍙屼汉瀵规垬',modePvc:'浜烘満瀵规垬',
-diffEasy:'绠€鍗?,diffNormal:'鏅€?,diffHard:'鍥伴毦',
-diffDescEasy:'鍋舵湁澶辫锛岄噸鍦ㄥ瓙鍔涳紝閫傚悎鏂版墜鍏ラ棬',diffDescNormal:'绋冲仴璧版硶锛屽吋椤炬敾闃诧紝閫傚悎杩涢樁瀵瑰紙',diffDescHard:'鏀绘潃鍑屽帀锛岀潃鐪煎皢闂紝閫傚悎楂樻墜鎸戞垬',
-turnRed:'绾㈡柟璧版',turnBlack:'榛戞柟璧版',checkSuffix:'锛堝皢鍐涳紒锛?,
-aiThinking:'AI鎬濊€冧腑鈥?,pleaseWait:'璇风◢鍊?,yourTurn:'杞埌浣犺蛋妫?,computerThinking:'鐢佃剳鎬濊€冧腑鈥?,
-checkmate:'灏嗘潃锛亄winner}鑳滐紒',stalemate:'鍜屾锛堝洶姣欙級',clickNewGame:'鐐瑰嚮銆岄噸寮€銆嶅啀鏉ヤ竴灞€',
-hintPvp:'{name}璧版 路 鐐瑰嚮/WASD 鎿嶄綔',hintPvcHuman:'杞埌浣犺蛋妫?,hintPvcAI:'鐢佃剳鎬濊€冧腑鈥?,
-winnerRed:'绾㈡柟',winnerBlack:'榛戞柟',btnMenu:'鑿滃崟',btnReset:'閲嶅紑',
-startGame:'寮€ 濮?娓?鎴?,modeTagPvp:'鍙屼汉瀵规垬',modeTagPvc:'浜烘満路{diff}',
-langLabel:'Language / 璇█',
+title:'中 国 象 棋',selectMode:'选择游戏模式',gameMode:'游戏方式',computerLevel:'电脑难度',
+modePvp:'双人对战',modePvc:'人机对战',
+diffEasy:'简单',diffNormal:'普通',diffHard:'困难',
+diffDescEasy:'偶有失误，重在子力，适合新手入门',diffDescNormal:'稳健走法，兼顾攻防，适合进阶对弈',diffDescHard:'攻杀凌厉，着眼将门，适合高手挑战',
+turnRed:'红方走棋',turnBlack:'黑方走棋',checkSuffix:'（将军！）',
+aiThinking:'AI思考中…',pleaseWait:'请稍候',yourTurn:'轮到你走棋',computerThinking:'电脑思考中…',
+checkmate:'将杀！{winner}胜！',stalemate:'和棋（困毙）',clickNewGame:'点击「重开」再来一局',
+hintPvp:'{name}走棋 · 点击/WASD 操作',hintPvcHuman:'轮到你走棋',hintPvcAI:'电脑思考中…',
+winnerRed:'红方',winnerBlack:'黑方',btnMenu:'菜单',btnReset:'重开',
+startGame:'开 始 游 戏',modeTagPvp:'双人对战',modeTagPvc:'人机·{diff}',
+langLabel:'Language / 语言',
 },'zh-tw':{
-title:'涓?鍦?璞?妫?,selectMode:'閬告搰閬婃埐妯″紡',gameMode:'閬婃埐鏂瑰紡',computerLevel:'闆昏叇闆ｅ害',
-modePvp:'闆欎汉灏嶆埌',modePvc:'浜烘灏嶆埌',
-diffEasy:'绨″柈',diffNormal:'鏅€?,diffHard:'鍥伴洠',
-diffDescEasy:'鍋舵湁澶辫锛岄噸鍦ㄥ瓙鍔涳紝閬╁悎鏂版墜鍏ラ杸',diffDescNormal:'绌╁仴璧版硶锛屽吋椤ф敾闃诧紝閬╁悎閫查殠灏嶅紙',diffDescHard:'鏀绘鍑屽幉锛岃憲鐪煎皣闁€锛岄仼鍚堥珮鎵嬫寫鎴?,
-turnRed:'绱呮柟璧版',turnBlack:'榛戞柟璧版',checkSuffix:'锛堝皣杌嶏紒锛?,
-aiThinking:'AI鎬濊€冧腑鈥?,pleaseWait:'璜嬬◢鍊?,yourTurn:'杓埌浣犺蛋妫?,computerThinking:'闆昏叇鎬濊€冧腑鈥?,
-checkmate:'灏囨锛亄winner}鍕濓紒',stalemate:'鍜屾锛堝洶鏂冿級',clickNewGame:'榛炴搳銆岄噸闁嬨€嶅啀渚嗕竴灞€',
-hintPvp:'{name}璧版 路 榛炴搳/WASD 鎿嶄綔',hintPvcHuman:'杓埌浣犺蛋妫?,hintPvcAI:'闆昏叇鎬濊€冧腑鈥?,
-winnerRed:'绱呮柟',winnerBlack:'榛戞柟',btnMenu:'鑿滃柈',btnReset:'閲嶉枊',
-startGame:'闁?濮?閬?鎴?,modeTagPvp:'闆欎汉灏嶆埌',modeTagPvc:'浜烘路{diff}',
-langLabel:'Language / 瑾炶█',
+title:'中 國 象 棋',selectMode:'選擇遊戲模式',gameMode:'遊戲方式',computerLevel:'電腦難度',
+modePvp:'雙人對戰',modePvc:'人機對戰',
+diffEasy:'簡單',diffNormal:'普通',diffHard:'困難',
+diffDescEasy:'偶有失誤，重在子力，適合新手入門',diffDescNormal:'穩健走法，兼顧攻防，適合進階對弈',diffDescHard:'攻殺凌厲，著眼將門，適合高手挑戰',
+turnRed:'紅方走棋',turnBlack:'黑方走棋',checkSuffix:'（將軍！）',
+aiThinking:'AI思考中…',pleaseWait:'請稍候',yourTurn:'輪到你走棋',computerThinking:'電腦思考中…',
+checkmate:'將殺！{winner}勝！',stalemate:'和棋（困斃）',clickNewGame:'點擊「重開」再來一局',
+hintPvp:'{name}走棋 · 點擊/WASD 操作',hintPvcHuman:'輪到你走棋',hintPvcAI:'電腦思考中…',
+winnerRed:'紅方',winnerBlack:'黑方',btnMenu:'菜單',btnReset:'重開',
+startGame:'開 始 遊 戲',modeTagPvp:'雙人對戰',modeTagPvc:'人機·{diff}',
+langLabel:'Language / 語言',
 },en:{
 title:'Chinese Chess',selectMode:'Select Game Mode',gameMode:'Game Mode',computerLevel:'Computer Level',
 modePvp:'Player vs Player',modePvc:'Player vs Computer',
 diffEasy:'Easy',diffNormal:'Normal',diffHard:'Hard',
 diffDescEasy:'Occasional mistakes, material-focused, for beginners',diffDescNormal:'Solid play, balanced attack/defense, for intermediates',diffDescHard:'Aggressive tactics, king-hunting, for experts',
 turnRed:"Red's Turn",turnBlack:"Black's Turn",checkSuffix:' (Check!)',
-aiThinking:'AI thinking鈥?,pleaseWait:'Please wait',yourTurn:'Your turn',computerThinking:'Computer thinking鈥?,
+aiThinking:'AI thinking…',pleaseWait:'Please wait',yourTurn:'Your turn',computerThinking:'Computer thinking…',
 checkmate:'Checkmate! {winner} wins!',stalemate:'Stalemate (Draw)',
 clickNewGame:'Click "Reset" to start a new game',
-hintPvp:'{name} to move 路 Click/WASD',hintPvcHuman:'Your turn',hintPvcAI:'Computer thinking鈥?,
+hintPvp:'{name} to move · Click/WASD',hintPvcHuman:'Your turn',hintPvcAI:'Computer thinking…',
 winnerRed:'Red',winnerBlack:'Black',btnMenu:'Menu',btnReset:'Reset',
-startGame:'Start Game',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+startGame:'Start Game',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Language',
 },es:{
 title:'Ajedrez Chino',selectMode:'Seleccionar Modo',gameMode:'Modo de Juego',computerLevel:'Nivel CPU',
 modePvp:'Jugador vs Jugador',modePvc:'Jugador vs CPU',
-diffEasy:'F谩cil',diffNormal:'Normal',diffHard:'Dif铆cil',
-diffDescEasy:'Errores ocasionales, para principiantes',diffDescNormal:'Juego s贸lido, para intermedios',diffDescHard:'T谩ctica agresiva, para expertos',
+diffEasy:'Fácil',diffNormal:'Normal',diffHard:'Difícil',
+diffDescEasy:'Errores ocasionales, para principiantes',diffDescNormal:'Juego sólido, para intermedios',diffDescHard:'Táctica agresiva, para expertos',
 turnRed:'Turno de Rojas',turnBlack:'Turno de Negras',checkSuffix:' (Jaque!)',
-aiThinking:'CPU pensando鈥?,pleaseWait:'Espere',yourTurn:'Tu turno',computerThinking:'CPU pensando鈥?,
-checkmate:'隆Jaque mate! 隆Gana {winner}!',stalemate:'Tablas (Ahogado)',
+aiThinking:'CPU pensando…',pleaseWait:'Espere',yourTurn:'Tu turno',computerThinking:'CPU pensando…',
+checkmate:'¡Jaque mate! ¡Gana {winner}!',stalemate:'Tablas (Ahogado)',
 clickNewGame:'Haga clic en "Reiniciar"',
-hintPvp:'{name} juega 路 Click/WASD',hintPvcHuman:'Tu turno',hintPvcAI:'CPU pensando鈥?,
-winnerRed:'Rojas',winnerBlack:'Negras',btnMenu:'Men煤',btnReset:'Reiniciar',
-startGame:'Comenzar',modeTagPvp:'JvJ',modeTagPvc:'vs CPU 路 {diff}',
+hintPvp:'{name} juega · Click/WASD',hintPvcHuman:'Tu turno',hintPvcAI:'CPU pensando…',
+winnerRed:'Rojas',winnerBlack:'Negras',btnMenu:'Menú',btnReset:'Reiniciar',
+startGame:'Comenzar',modeTagPvp:'JvJ',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Idioma',
 },fr:{
-title:'脡checs Chinois',selectMode:'Choisir le Mode',gameMode:'Mode de Jeu',computerLevel:'Niveau CPU',
+title:'Échecs Chinois',selectMode:'Choisir le Mode',gameMode:'Mode de Jeu',computerLevel:'Niveau CPU',
 modePvp:'Joueur vs Joueur',modePvc:'Joueur vs Ordinateur',
 diffEasy:'Facile',diffNormal:'Normal',diffHard:'Difficile',
-diffDescEasy:'Erreurs occasionnelles, pour d茅butants',diffDescNormal:'Jeu solide, pour interm茅diaires',diffDescHard:'Tactique agressive, pour experts',
-turnRed:'Tour Rouge',turnBlack:'Tour Noir',checkSuffix:' (脡chec!)',
-aiThinking:'IA r茅fl茅chit鈥?,pleaseWait:'Veuillez patienter',yourTurn:'脌 toi de jouer',computerThinking:'Ordinateur r茅fl茅chit鈥?,
-checkmate:'脡chec et mat! {winner} gagne!',stalemate:'Pat (Nulle)',
+diffDescEasy:'Erreurs occasionnelles, pour débutants',diffDescNormal:'Jeu solide, pour intermédiaires',diffDescHard:'Tactique agressive, pour experts',
+turnRed:'Tour Rouge',turnBlack:'Tour Noir',checkSuffix:' (Échec!)',
+aiThinking:'IA réfléchit…',pleaseWait:'Veuillez patienter',yourTurn:'À toi de jouer',computerThinking:'Ordinateur réfléchit…',
+checkmate:'Échec et mat! {winner} gagne!',stalemate:'Pat (Nulle)',
 clickNewGame:'Cliquez "Rejouer"',
-hintPvp:'{name} joue 路 Click/WASD',hintPvcHuman:'Ton tour',hintPvcAI:'Ordinateur r茅fl茅chit鈥?,
+hintPvp:'{name} joue · Click/WASD',hintPvcHuman:'Ton tour',hintPvcAI:'Ordinateur réfléchit…',
 winnerRed:'Rouge',winnerBlack:'Noir',btnMenu:'Menu',btnReset:'Rejouer',
-startGame:'Commencer',modeTagPvp:'JcJ',modeTagPvc:'vs CPU 路 {diff}',
+startGame:'Commencer',modeTagPvp:'JcJ',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Langue',
 },de:{
-title:'Chinesisches Schach',selectMode:'Spielmodus w盲hlen',gameMode:'Spielmodus',computerLevel:'CPU-Stufe',
+title:'Chinesisches Schach',selectMode:'Spielmodus wählen',gameMode:'Spielmodus',computerLevel:'CPU-Stufe',
 modePvp:'Spieler vs Spieler',modePvc:'Spieler vs Computer',
 diffEasy:'Einfach',diffNormal:'Normal',diffHard:'Schwer',
-diffDescEasy:'Gelegentliche Fehler, f眉r Anf盲nger',diffDescNormal:'Solides Spiel, f眉r Fortgeschrittene',diffDescHard:'Aggressive Taktik, f眉r Experten',
+diffDescEasy:'Gelegentliche Fehler, für Anfänger',diffDescNormal:'Solides Spiel, für Fortgeschrittene',diffDescHard:'Aggressive Taktik, für Experten',
 turnRed:'Rot am Zug',turnBlack:'Schwarz am Zug',checkSuffix:' (Schach!)',
-aiThinking:'KI denkt鈥?,pleaseWait:'Bitte warten',yourTurn:'Du bist dran',computerThinking:'Computer denkt鈥?,
+aiThinking:'KI denkt…',pleaseWait:'Bitte warten',yourTurn:'Du bist dran',computerThinking:'Computer denkt…',
 checkmate:'Schachmatt! {winner} gewinnt!',stalemate:'Patt (Unentschieden)',
 clickNewGame:'Klicke "Neustart"',
-hintPvp:'{name} am Zug 路 Click/WASD',hintPvcHuman:'Du bist dran',hintPvcAI:'Computer denkt鈥?,
-winnerRed:'Rot',winnerBlack:'Schwarz',btnMenu:'Men眉',btnReset:'Neustart',
-startGame:'Starten',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+hintPvp:'{name} am Zug · Click/WASD',hintPvcHuman:'Du bist dran',hintPvcAI:'Computer denkt…',
+winnerRed:'Rot',winnerBlack:'Schwarz',btnMenu:'Menü',btnReset:'Neustart',
+startGame:'Starten',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Sprache',
 },ja:{
-title:'涓浗灏嗘',selectMode:'銈层兗銉犮儮銉笺儔閬告姙',gameMode:'銈层兗銉犮儮銉笺儔',computerLevel:'銈炽兂銉斻儱銉笺偪銉儥銉?,
-modePvp:'瀵句汉鎴?,modePvc:'瀵綜PU鎴?,
-diffEasy:'鍒濈礆',diffNormal:'涓礆',diffHard:'涓婄礆',
-diffDescEasy:'鏅傘€呫儫銈广亗銈娿€佸垵蹇冭€呭悜銇?,diffDescNormal:'瀹夊畾銇椼仧鎸囥仐鎵嬨€佷腑绱氳€呭悜銇?,diffDescHard:'閶亜鏀汇倎銆佷笂绱氳€呭悜銇?,
-turnRed:'绱呫伄鐣?,turnBlack:'榛掋伄鐣?,checkSuffix:' (鐜嬫墜!)',
-aiThinking:'AI鎬濊€冧腑鈥?,pleaseWait:'銇婂緟銇°亸銇犮仌銇?,yourTurn:'銇傘仾銇熴伄鐣?,computerThinking:'銈炽兂銉斻儱銉笺偪鎬濊€冧腑鈥?,
-checkmate:'瑭般伩锛亄winner}銇嫕銇★紒',stalemate:'銈广儐銈ゃ儷銉°偆銉堬紙寮曘亶鍒嗐亼锛?,
-clickNewGame:'銆屻儶銈汇儍銉堛€嶃倰銈儶銉冦偗',
-hintPvp:'{name}銇暘 路 銈儶銉冦偗/WASD',hintPvcHuman:'銇傘仾銇熴伄鐣?,hintPvcAI:'銈炽兂銉斻儱銉笺偪鎬濊€冧腑鈥?,
-winnerRed:'绱?,winnerBlack:'榛?,btnMenu:'銉°儖銉ャ兗',btnReset:'銉偦銉冦儓',
-startGame:'闁嬪',modeTagPvp:'瀵句汉',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'瑷€瑾?,
+title:'中国将棋',selectMode:'ゲームモード選択',gameMode:'ゲームモード',computerLevel:'コンピュータレベル',
+modePvp:'対人戦',modePvc:'対CPU戦',
+diffEasy:'初級',diffNormal:'中級',diffHard:'上級',
+diffDescEasy:'時々ミスあり、初心者向け',diffDescNormal:'安定した指し手、中級者向け',diffDescHard:'鋭い攻め、上級者向け',
+turnRed:'紅の番',turnBlack:'黒の番',checkSuffix:' (王手!)',
+aiThinking:'AI思考中…',pleaseWait:'お待ちください',yourTurn:'あなたの番',computerThinking:'コンピュータ思考中…',
+checkmate:'詰み！{winner}の勝ち！',stalemate:'ステイルメイト（引き分け）',
+clickNewGame:'「リセット」をクリック',
+hintPvp:'{name}の番 · クリック/WASD',hintPvcHuman:'あなたの番',hintPvcAI:'コンピュータ思考中…',
+winnerRed:'紅',winnerBlack:'黒',btnMenu:'メニュー',btnReset:'リセット',
+startGame:'開始',modeTagPvp:'対人',modeTagPvc:'vs CPU · {diff}',
+langLabel:'言語',
 },ko:{
-title:'欷戧淡 鞛リ赴',selectMode:'瓴岇瀯 氇摐 靹犿儩',gameMode:'瓴岇瀯 氇摐',computerLevel:'旎错摠韯?霠堧波',
-modePvp:'雽€鞚胳爠',modePvc:'雽€ 旎错摠韯办爠',
-diffEasy:'齑堦笁',diffNormal:'欷戧笁',diffHard:'瓿犼笁',
-diffDescEasy:'臧€雭?鞁れ垬, 齑堧炒鞛愳毄',diffDescNormal:'鞎堨爼鞝侅澑 頂岆爤鞚? 欷戧笁鞛愳毄',diffDescHard:'雮犾勾搿滌毚 瓿店博, 瓿犼笁鞛愳毄',
-turnRed:'頇嶌儔 彀',turnBlack:'頋戩儔 彀',checkSuffix:' (鞛リ蛋!)',
-aiThinking:'AI 靸濌皝 欷戔€?,pleaseWait:'鞛犾嫓 旮半嫟霠?欤检劯鞖?,yourTurn:'雼轨嫚 彀',computerThinking:'旎错摠韯?靸濌皝 欷戔€?,
-checkmate:'鞛リ蛋! {winner} 鞀闺Μ!',stalemate:'鞀ろ厡鞚茧鞚错姼 (氍挫姽攵€)',
-clickNewGame:'銆岇灛鞁滌瀾銆嶍伌毽?,
-hintPvp:'{name} 彀 路 韥措Ν/WASD',hintPvcHuman:'雼轨嫚 彀',hintPvcAI:'旎错摠韯?靸濌皝 欷戔€?,
-winnerRed:'頇嶌儔',winnerBlack:'頋戩儔',btnMenu:'氅旊壌',btnReset:'鞛嫓鞛?,
-startGame:'鞁滌瀾',modeTagPvp:'雽€鞚?,modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'鞏胳柎',
+title:'중국 장기',selectMode:'게임 모드 선택',gameMode:'게임 모드',computerLevel:'컴퓨터 레벨',
+modePvp:'대인전',modePvc:'대 컴퓨터전',
+diffEasy:'초급',diffNormal:'중급',diffHard:'고급',
+diffDescEasy:'가끔 실수, 초보자용',diffDescNormal:'안정적인 플레이, 중급자용',diffDescHard:'날카로운 공격, 고급자용',
+turnRed:'홍색 차례',turnBlack:'흑색 차례',checkSuffix:' (장군!)',
+aiThinking:'AI 생각 중…',pleaseWait:'잠시 기다려 주세요',yourTurn:'당신 차례',computerThinking:'컴퓨터 생각 중…',
+checkmate:'장군! {winner} 승리!',stalemate:'스테일메이트 (무승부)',
+clickNewGame:'「재시작」클릭',
+hintPvp:'{name} 차례 · 클릭/WASD',hintPvcHuman:'당신 차례',hintPvcAI:'컴퓨터 생각 중…',
+winnerRed:'홍색',winnerBlack:'흑색',btnMenu:'메뉴',btnReset:'재시작',
+startGame:'시작',modeTagPvp:'대인',modeTagPvc:'vs CPU · {diff}',
+langLabel:'언어',
 },pt:{
-title:'Xadrez Chin锚s',selectMode:'Selecionar Modo',gameMode:'Modo de Jogo',computerLevel:'N铆vel CPU',
+title:'Xadrez Chinês',selectMode:'Selecionar Modo',gameMode:'Modo de Jogo',computerLevel:'Nível CPU',
 modePvp:'Jogador vs Jogador',modePvc:'Jogador vs Computador',
-diffEasy:'F谩cil',diffNormal:'Normal',diffHard:'Dif铆cil',
-diffDescEasy:'Erros ocasionais, para iniciantes',diffDescNormal:'Jogo s贸lido, para intermedi谩rios',diffDescHard:'T谩tica agressiva, para especialistas',
+diffEasy:'Fácil',diffNormal:'Normal',diffHard:'Difícil',
+diffDescEasy:'Erros ocasionais, para iniciantes',diffDescNormal:'Jogo sólido, para intermediários',diffDescHard:'Tática agressiva, para especialistas',
 turnRed:'Vez do Vermelho',turnBlack:'Vez do Preto',checkSuffix:' (Xeque!)',
-aiThinking:'IA pensando鈥?,pleaseWait:'Aguarde',yourTurn:'Sua vez',computerThinking:'Computador pensando鈥?,
+aiThinking:'IA pensando…',pleaseWait:'Aguarde',yourTurn:'Sua vez',computerThinking:'Computador pensando…',
 checkmate:'Xeque-mate! {winner} venceu!',stalemate:'Afogamento (Empate)',
 clickNewGame:'Clique "Reiniciar"',
-hintPvp:'{name} joga 路 Clique/WASD',hintPvcHuman:'Sua vez',hintPvcAI:'Computador pensando鈥?,
+hintPvp:'{name} joga · Clique/WASD',hintPvcHuman:'Sua vez',hintPvcAI:'Computador pensando…',
 winnerRed:'Vermelho',winnerBlack:'Preto',btnMenu:'Menu',btnReset:'Reiniciar',
-startGame:'Iniciar',modeTagPvp:'JvJ',modeTagPvc:'vs CPU 路 {diff}',
+startGame:'Iniciar',modeTagPvp:'JvJ',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Idioma',
 },ru:{
-title:'袣懈褌邪泄褋泻懈械 褕邪褏屑邪褌褘',selectMode:'袙褘斜芯褉 褉械卸懈屑邪',gameMode:'袪械卸懈屑 懈谐褉褘',computerLevel:'校褉芯胁械薪褜 CPU',
-modePvp:'袠谐褉芯泻 vs 袠谐褉芯泻',modePvc:'袠谐褉芯泻 vs 袣芯屑锌褜褞褌械褉',
-diffEasy:'袥械谐泻懈泄',diffNormal:'小褉械写薪懈泄',diffHard:'小谢芯卸薪褘泄',
-diffDescEasy:'小谢褍褔邪泄薪褘械 芯褕懈斜泻懈, 写谢褟 薪芯胁懈褔泻芯胁',diffDescNormal:'小褌邪斜懈谢褜薪邪褟 懈谐褉邪, 写谢褟 褋褉械写薪械谐芯 褍褉芯胁薪褟',diffDescHard:'袗谐褉械褋褋懈胁薪邪褟 褌邪泻褌懈泻邪, 写谢褟 褝泻褋锌械褉褌芯胁',
-turnRed:'啸芯写 袣褉邪褋薪褘褏',turnBlack:'啸芯写 效械褉薪褘褏',checkSuffix:' (楔邪褏!)',
-aiThinking:'袠袠 写褍屑邪械褌鈥?,pleaseWait:'袩芯写芯卸写懈褌械',yourTurn:'袙邪褕 褏芯写',computerThinking:'袣芯屑锌褜褞褌械褉 写褍屑邪械褌鈥?,
-checkmate:'袦邪褌! {winner} 锌芯斜械写懈谢!',stalemate:'袩邪褌 (袧懈褔褜褟)',
-clickNewGame:'袧邪卸屑懈褌械 芦小斜褉芯褋禄',
-hintPvp:'{name} 褏芯写懈褌 路 袣谢懈泻/WASD',hintPvcHuman:'袙邪褕 褏芯写',hintPvcAI:'袣芯屑锌褜褞褌械褉 写褍屑邪械褌鈥?,
-winnerRed:'袣褉邪褋薪褘械',winnerBlack:'效械褉薪褘械',btnMenu:'袦械薪褞',btnReset:'小斜褉芯褋',
-startGame:'袧邪褔邪褌褜',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'携蟹褘泻',
+title:'Китайские шахматы',selectMode:'Выбор режима',gameMode:'Режим игры',computerLevel:'Уровень CPU',
+modePvp:'Игрок vs Игрок',modePvc:'Игрок vs Компьютер',
+diffEasy:'Легкий',diffNormal:'Средний',diffHard:'Сложный',
+diffDescEasy:'Случайные ошибки, для новичков',diffDescNormal:'Стабильная игра, для среднего уровня',diffDescHard:'Агрессивная тактика, для экспертов',
+turnRed:'Ход Красных',turnBlack:'Ход Черных',checkSuffix:' (Шах!)',
+aiThinking:'ИИ думает…',pleaseWait:'Подождите',yourTurn:'Ваш ход',computerThinking:'Компьютер думает…',
+checkmate:'Мат! {winner} победил!',stalemate:'Пат (Ничья)',
+clickNewGame:'Нажмите «Сброс»',
+hintPvp:'{name} ходит · Клик/WASD',hintPvcHuman:'Ваш ход',hintPvcAI:'Компьютер думает…',
+winnerRed:'Красные',winnerBlack:'Черные',btnMenu:'Меню',btnReset:'Сброс',
+startGame:'Начать',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
+langLabel:'Язык',
 },ar:{
-title:'丕賱卮胤乇賳噩 丕賱氐賷賳賷',selectMode:'丕禺鬲乇 丕賱賵囟毓',gameMode:'賵囟毓 丕賱賱毓亘丞',computerLevel:'賲爻鬲賵賶 丕賱賰賲亘賷賵鬲乇',
-modePvp:'賱丕毓亘 囟丿 賱丕毓亘',modePvc:'賱丕毓亘 囟丿 丕賱賰賲亘賷賵鬲乇',
-diffEasy:'爻賴賱',diffNormal:'賲鬲賵爻胤',diffHard:'氐毓亘',
-diffDescEasy:'兀禺胤丕亍 毓乇囟賷丞貙 賱賱賲亘鬲丿卅賷賳',diffDescNormal:'賱毓亘 賲鬲賵丕夭賳貙 賱賱賲鬲賵爻胤賷賳',diffDescHard:'鬲賰鬲賷賰丕鬲 賴噩賵賲賷丞貙 賱賱禺亘乇丕亍',
-turnRed:'丿賵乇 丕賱兀丨賲乇',turnBlack:'丿賵乇 丕賱兀爻賵丿',checkSuffix:' (賰卮!)',
-aiThinking:'丕賱賰賲亘賷賵鬲乇 賷賮賰乇鈥?,pleaseWait:'丕賳鬲馗乇 賲賳 賮囟賱賰',yourTurn:'丿賵乇賰',computerThinking:'丕賱賰賲亘賷賵鬲乇 賷賮賰乇鈥?,
-checkmate:'賰卮 賲丕鬲! {winner} 賮丕夭!',stalemate:'鬲毓丕丿賱 (噩賲賵丿)',
-clickNewGame:'丕囟睾胤 "廿毓丕丿丞"',
-hintPvp:'{name} 賷賱毓亘 路 Click/WASD',hintPvcHuman:'丿賵乇賰',hintPvcAI:'丕賱賰賲亘賷賵鬲乇 賷賮賰乇鈥?,
-winnerRed:'丕賱兀丨賲乇',winnerBlack:'丕賱兀爻賵丿',btnMenu:'賯丕卅賲丞',btnReset:'廿毓丕丿丞',
-startGame:'丕亘丿兀',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'丕賱賱睾丞',
+title:'الشطرنج الصيني',selectMode:'اختر الوضع',gameMode:'وضع اللعبة',computerLevel:'مستوى الكمبيوتر',
+modePvp:'لاعب ضد لاعب',modePvc:'لاعب ضد الكمبيوتر',
+diffEasy:'سهل',diffNormal:'متوسط',diffHard:'صعب',
+diffDescEasy:'أخطاء عرضية، للمبتدئين',diffDescNormal:'لعب متوازن، للمتوسطين',diffDescHard:'تكتيكات هجومية، للخبراء',
+turnRed:'دور الأحمر',turnBlack:'دور الأسود',checkSuffix:' (كش!)',
+aiThinking:'الكمبيوتر يفكر…',pleaseWait:'انتظر من فضلك',yourTurn:'دورك',computerThinking:'الكمبيوتر يفكر…',
+checkmate:'كش مات! {winner} فاز!',stalemate:'تعادل (جمود)',
+clickNewGame:'اضغط "إعادة"',
+hintPvp:'{name} يلعب · Click/WASD',hintPvcHuman:'دورك',hintPvcAI:'الكمبيوتر يفكر…',
+winnerRed:'الأحمر',winnerBlack:'الأسود',btnMenu:'قائمة',btnReset:'إعادة',
+startGame:'ابدأ',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
+langLabel:'اللغة',
 },it:{
-title:'Scacchi Cinesi',selectMode:'Seleziona Modalit脿',gameMode:'Modalit脿 di Gioco',computerLevel:'Livello CPU',
+title:'Scacchi Cinesi',selectMode:'Seleziona Modalità',gameMode:'Modalità di Gioco',computerLevel:'Livello CPU',
 modePvp:'Giocatore vs Giocatore',modePvc:'Giocatore vs Computer',
 diffEasy:'Facile',diffNormal:'Normale',diffHard:'Difficile',
 diffDescEasy:'Errori occasionali, per principianti',diffDescNormal:'Gioco solido, per intermedi',diffDescHard:'Tattica aggressiva, per esperti',
 turnRed:'Turno del Rosso',turnBlack:'Turno del Nero',checkSuffix:' (Scacco!)',
-aiThinking:'AI pensa鈥?,pleaseWait:'Attendere',yourTurn:'Il tuo turno',computerThinking:'Computer pensa鈥?,
+aiThinking:'AI pensa…',pleaseWait:'Attendere',yourTurn:'Il tuo turno',computerThinking:'Computer pensa…',
 checkmate:'Scacco matto! {winner} vince!',stalemate:'Stallo (Patta)',
 clickNewGame:'Clicca "Ricomincia"',
-hintPvp:'{name} muove 路 Click/WASD',hintPvcHuman:'Il tuo turno',hintPvcAI:'Computer pensa鈥?,
+hintPvp:'{name} muove · Click/WASD',hintPvcHuman:'Il tuo turno',hintPvcAI:'Computer pensa…',
 winnerRed:'Rosso',winnerBlack:'Nero',btnMenu:'Menu',btnReset:'Ricomincia',
-startGame:'Inizia',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+startGame:'Inizia',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Lingua',
 },hi:{
-title:'啶氞啶ㄠ 啶多い啶班啶?,selectMode:'啶椸啶?啶啶?啶氞啶ㄠ啶?,gameMode:'啶椸啶?啶啶?,computerLevel:'啶曕啶啶啶熰ぐ 啶膏啶むぐ',
-modePvp:'啶栢た啶侧ぞ啶∴ぜ啷€ 啶え啶距ぎ 啶栢た啶侧ぞ啶∴ぜ啷€',modePvc:'啶栢た啶侧ぞ啶∴ぜ啷€ 啶え啶距ぎ 啶曕啶啶啶熰ぐ',
-diffEasy:'啶嗋じ啶距え',diffNormal:'啶膏ぞ啶ぞ啶ㄠ啶?,diffHard:'啶曕啶苦え',
-diffDescEasy:'啶曕き啷€-啶曕き啷€ 啶椸げ啶む, 啶多啶班啶嗋い 啶曕 啶侧た啶?,diffDescNormal:'啶膏啶む啶侧た啶?啶栢啶? 啶ぇ啷嵿く啶?啶曕 啶侧た啶?,diffDescHard:'啶嗋啷嵿ぐ啶距ぎ啶?啶班ぃ啶ㄠ啶むた, 啶掂た啶多啶粪啷嵿啷嬥 啶曕 啶侧た啶?,
-turnRed:'啶侧ぞ啶?啶曕 啶ぞ啶班',turnBlack:'啶曕ぞ啶侧 啶曕 啶ぞ啶班',checkSuffix:' (啶多す!)',
-aiThinking:'AI 啶膏啶?啶班す啶?啶灌鈥?,pleaseWait:'啶曕啶く啶?啶啶班い啷€啶曕啶粪ぞ 啶曕ぐ啷囙',yourTurn:'啶嗋お啶曕 啶ぞ啶班',computerThinking:'啶曕啶啶啶熰ぐ 啶膏啶?啶班す啶?啶灌鈥?,
-checkmate:'啶多す 啶ぞ啶? {winner} 啶溹啶むぞ!',stalemate:'啶班啶曕ぞ啶掂 (啶∴啶班ぞ)',
-clickNewGame:'"啶班啶膏啶? 啶ぐ 啶曕啶侧た啶?啶曕ぐ啷囙',
-hintPvp:'{name} 啶曕 啶ぞ啶班 路 啶曕啶侧た啶?WASD',hintPvcHuman:'啶嗋お啶曕 啶ぞ啶班',hintPvcAI:'啶曕啶啶啶熰ぐ 啶膏啶?啶班す啶?啶灌鈥?,
-winnerRed:'啶侧ぞ啶?,winnerBlack:'啶曕ぞ啶侧ぞ',btnMenu:'啶啶ㄠ',btnReset:'啶班啶膏啶?,
-startGame:'啶多啶班 啶曕ぐ啷囙',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'啶ぞ啶粪ぞ',
+title:'चीनी शतरंज',selectMode:'गेम मोड चुनें',gameMode:'गेम मोड',computerLevel:'कंप्यूटर स्तर',
+modePvp:'खिलाड़ी बनाम खिलाड़ी',modePvc:'खिलाड़ी बनाम कंप्यूटर',
+diffEasy:'आसान',diffNormal:'सामान्य',diffHard:'कठिन',
+diffDescEasy:'कभी-कभी गलती, शुरुआत के लिए',diffDescNormal:'संतुलित खेल, मध्यम के लिए',diffDescHard:'आक्रामक रणनीति, विशेषज्ञों के लिए',
+turnRed:'लाल की बारी',turnBlack:'काले की बारी',checkSuffix:' (शह!)',
+aiThinking:'AI सोच रहा है…',pleaseWait:'कृपया प्रतीक्षा करें',yourTurn:'आपकी बारी',computerThinking:'कंप्यूटर सोच रहा है…',
+checkmate:'शह मात! {winner} जीता!',stalemate:'रुकावट (ड्रा)',
+clickNewGame:'"रीसेट" पर क्लिक करें',
+hintPvp:'{name} की बारी · क्लिक/WASD',hintPvcHuman:'आपकी बारी',hintPvcAI:'कंप्यूटर सोच रहा है…',
+winnerRed:'लाल',winnerBlack:'काला',btnMenu:'मेनू',btnReset:'रीसेट',
+startGame:'शुरू करें',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
+langLabel:'भाषा',
 },id:{
 title:'Catur Cina',selectMode:'Pilih Mode',gameMode:'Mode Permainan',computerLevel:'Tingkat CPU',
 modePvp:'Pemain vs Pemain',modePvc:'Pemain vs Komputer',
 diffEasy:'Mudah',diffNormal:'Sedang',diffHard:'Sulit',
 diffDescEasy:'Kadang salah, untuk pemula',diffDescNormal:'Permainan solid, untuk menengah',diffDescHard:'Taktik agresif, untuk ahli',
 turnRed:'Giliran Merah',turnBlack:'Giliran Hitam',checkSuffix:' (Skak!)',
-aiThinking:'AI berpikir鈥?,pleaseWait:'Harap tunggu',yourTurn:'Giliranmu',computerThinking:'Komputer berpikir鈥?,
+aiThinking:'AI berpikir…',pleaseWait:'Harap tunggu',yourTurn:'Giliranmu',computerThinking:'Komputer berpikir…',
 checkmate:'Skak mat! {winner} menang!',stalemate:'Stalemate (Seri)',
 clickNewGame:'Klik "Ulang"',
-hintPvp:'{name} jalan 路 Klik/WASD',hintPvcHuman:'Giliranmu',hintPvcAI:'Komputer berpikir鈥?,
+hintPvp:'{name} jalan · Klik/WASD',hintPvcHuman:'Giliranmu',hintPvcAI:'Komputer berpikir…',
 winnerRed:'Merah',winnerBlack:'Hitam',btnMenu:'Menu',btnReset:'Ulang',
-startGame:'Mulai',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+startGame:'Mulai',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Bahasa',
 },nl:{
 title:'Chinees Schaken',selectMode:'Kies Modus',gameMode:'Spelmodus',computerLevel:'CPU-niveau',
@@ -332,64 +332,64 @@ modePvp:'Speler vs Speler',modePvc:'Speler vs Computer',
 diffEasy:'Makkelijk',diffNormal:'Normaal',diffHard:'Moeilijk',
 diffDescEasy:'Af en toe fouten, voor beginners',diffDescNormal:'Solide spel, voor gevorderden',diffDescHard:'Agressieve tactiek, voor experts',
 turnRed:'Rood aan zet',turnBlack:'Zwart aan zet',checkSuffix:' (Schaak!)',
-aiThinking:'AI denkt鈥?,pleaseWait:'Even geduld',yourTurn:'Jouw beurt',computerThinking:'Computer denkt鈥?,
+aiThinking:'AI denkt…',pleaseWait:'Even geduld',yourTurn:'Jouw beurt',computerThinking:'Computer denkt…',
 checkmate:'Schaakmat! {winner} wint!',stalemate:'Pat (Gelijkspel)',
 clickNewGame:'Klik "Reset"',
-hintPvp:'{name} aan zet 路 Klik/WASD',hintPvcHuman:'Jouw beurt',hintPvcAI:'Computer denkt鈥?,
+hintPvp:'{name} aan zet · Klik/WASD',hintPvcHuman:'Jouw beurt',hintPvcAI:'Computer denkt…',
 winnerRed:'Rood',winnerBlack:'Zwart',btnMenu:'Menu',btnReset:'Reset',
-startGame:'Start',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+startGame:'Start',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Taal',
 },pl:{
-title:'Chi艅skie Szachy',selectMode:'Wybierz Tryb',gameMode:'Tryb Gry',computerLevel:'Poziom CPU',
+title:'Chińskie Szachy',selectMode:'Wybierz Tryb',gameMode:'Tryb Gry',computerLevel:'Poziom CPU',
 modePvp:'Gracz vs Gracz',modePvc:'Gracz vs Komputer',
-diffEasy:'艁atwy',diffNormal:'Normalny',diffHard:'Trudny',
-diffDescEasy:'Okazjonalne b艂臋dy, dla pocz膮tkuj膮cych',diffDescNormal:'Solidna gra, dla 艣redniozaawansowanych',diffDescHard:'Agresywna taktyka, dla ekspert贸w',
+diffEasy:'Łatwy',diffNormal:'Normalny',diffHard:'Trudny',
+diffDescEasy:'Okazjonalne błędy, dla początkujących',diffDescNormal:'Solidna gra, dla średniozaawansowanych',diffDescHard:'Agresywna taktyka, dla ekspertów',
 turnRed:'Ruch Czerwonych',turnBlack:'Ruch Czarnych',checkSuffix:' (Szach!)',
-aiThinking:'AI my艣li鈥?,pleaseWait:'Prosz臋 czeka膰',yourTurn:'Tw贸j ruch',computerThinking:'Komputer my艣li鈥?,
+aiThinking:'AI myśli…',pleaseWait:'Proszę czekać',yourTurn:'Twój ruch',computerThinking:'Komputer myśli…',
 checkmate:'Mat! {winner} wygrywa!',stalemate:'Pat (Remis)',
 clickNewGame:'Kliknij "Reset"',
-hintPvp:'{name} rusza 路 Klik/WASD',hintPvcHuman:'Tw贸j ruch',hintPvcAI:'Komputer my艣li鈥?,
+hintPvp:'{name} rusza · Klik/WASD',hintPvcHuman:'Twój ruch',hintPvcAI:'Komputer myśli…',
 winnerRed:'Czerwoni',winnerBlack:'Czarni',btnMenu:'Menu',btnReset:'Reset',
-startGame:'Start',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'J臋zyk',
+startGame:'Start',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
+langLabel:'Język',
 },th:{
-title:'喔浮喔侧竵喔｀父喔佮笀喔掂笝',selectMode:'喙€喔ム阜喔竵喙傕斧喔∴笖',gameMode:'喙傕斧喔∴笖喙€喔佮浮',computerLevel:'喔｀赴喔斷副喔?CPU',
-modePvp:'喔溹腹喙夃箑喔ム箞喔?vs 喔溹腹喙夃箑喔ム箞喔?,modePvc:'喔溹腹喙夃箑喔ム箞喔?vs 喔勦腑喔∴笧喔脆抚喙€喔曕腑喔｀箤',
-diffEasy:'喔囙箞喔侧涪',diffNormal:'喔涏覆喔權竵喔ム覆喔?,diffHard:'喔⑧覆喔?,
-diffDescEasy:'喔溹复喔斷笧喔ム覆喔斷笟喙夃覆喔囙笟喔侧竾喔勦福喔编箟喔?喔赋喔福喔编笟喔∴阜喔箖喔浮喙?,diffDescNormal:'喔佮覆喔｀箑喔ム箞喔權笚喔掂箞喔∴副喙堗笝喔勦竾 喔赋喔福喔编笟喔｀赴喔斷副喔氞竵喔ム覆喔?,diffDescHard:'喔佮弗喔⑧父喔椸笜喙屶福喔膏竵喙佮福喔?喔赋喔福喔编笟喔溹腹喙夃箑喔娻傅喙堗涪喔о笂喔侧笉',
-turnRed:'喔曕覆喙佮笖喔?,turnBlack:'喔曕覆喔斷赋',checkSuffix:' (喔｀父喔?)',
-aiThinking:'AI 喔佮赋喔ム副喔囙竸喔脆笖鈥?,pleaseWait:'喙傕笡喔｀笖喔｀腑',yourTurn:'喔曕覆喔勦父喔?,computerThinking:'喔勦腑喔∴笧喔脆抚喙€喔曕腑喔｀箤喔佮赋喔ム副喔囙竸喔脆笖鈥?,
-checkmate:'喔｀父喔佮竼喔侧笗! {winner} 喔娻笝喔?',stalemate:'喙€喔浮喔?,
-clickNewGame:'喔勦弗喔脆竵 "喙€喔｀复喙堗浮喙冟斧喔∴箞"',
-hintPvp:'{name} 喙€喔斷复喔?路 喔勦弗喔脆竵/WASD',hintPvcHuman:'喔曕覆喔勦父喔?,hintPvcAI:'喔勦腑喔∴笧喔脆抚喙€喔曕腑喔｀箤喔佮赋喔ム副喔囙竸喔脆笖鈥?,
-winnerRed:'喙佮笖喔?,winnerBlack:'喔斷赋',btnMenu:'喙€喔∴笝喔?,btnReset:'喙€喔｀复喙堗浮喙冟斧喔∴箞',
-startGame:'喙€喔｀复喙堗浮',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'喔犩覆喔┼覆',
+title:'หมากรุกจีน',selectMode:'เลือกโหมด',gameMode:'โหมดเกม',computerLevel:'ระดับ CPU',
+modePvp:'ผู้เล่น vs ผู้เล่น',modePvc:'ผู้เล่น vs คอมพิวเตอร์',
+diffEasy:'ง่าย',diffNormal:'ปานกลาง',diffHard:'ยาก',
+diffDescEasy:'ผิดพลาดบ้างบางครั้ง สำหรับมือใหม่',diffDescNormal:'การเล่นที่มั่นคง สำหรับระดับกลาง',diffDescHard:'กลยุทธ์รุกแรง สำหรับผู้เชี่ยวชาญ',
+turnRed:'ตาแดง',turnBlack:'ตาดำ',checkSuffix:' (รุก!)',
+aiThinking:'AI กำลังคิด…',pleaseWait:'โปรดรอ',yourTurn:'ตาคุณ',computerThinking:'คอมพิวเตอร์กำลังคิด…',
+checkmate:'รุกฆาต! {winner} ชนะ!',stalemate:'เสมอ',
+clickNewGame:'คลิก "เริ่มใหม่"',
+hintPvp:'{name} เดิน · คลิก/WASD',hintPvcHuman:'ตาคุณ',hintPvcAI:'คอมพิวเตอร์กำลังคิด…',
+winnerRed:'แดง',winnerBlack:'ดำ',btnMenu:'เมนู',btnReset:'เริ่มใหม่',
+startGame:'เริ่ม',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
+langLabel:'ภาษา',
 },vi:{
-title:'C峄?T瓢峄沶g',selectMode:'Ch峄峮 Ch岷?膼峄?,gameMode:'Ch岷?膼峄?Ch啤i',computerLevel:'C岷 膼峄?CPU',
-modePvp:'Ng瓢峄漣 vs Ng瓢峄漣',modePvc:'Ng瓢峄漣 vs M谩y',
-diffEasy:'D峄?,diffNormal:'Trung B矛nh',diffHard:'Kh贸',
-diffDescEasy:'Th峄塶h tho岷g sai l岷, cho ng瓢峄漣 m峄沬',diffDescNormal:'L峄慽 ch啤i v峄痭g ch岷痗, cho trung c岷',diffDescHard:'Chi岷縩 thu岷璽 t岷 c么ng, cho cao th峄?,
-turnRed:'L瓢峄 膼峄?,turnBlack:'L瓢峄 膼en',checkSuffix:' (Chi岷縰!)',
-aiThinking:'M谩y 膽ang suy ngh末鈥?,pleaseWait:'Vui l貌ng 膽峄',yourTurn:'L瓢峄 b岷',computerThinking:'M谩y 膽ang suy ngh末鈥?,
-checkmate:'Chi岷縰 h岷縯! {winner} th岷痭g!',stalemate:'H貌a (B岷?t岷痗)',
-clickNewGame:'Nh岷 "Ch啤i l岷"',
-hintPvp:'{name} 膽i 路 Click/WASD',hintPvcHuman:'L瓢峄 b岷',hintPvcAI:'M谩y 膽ang suy ngh末鈥?,
-winnerRed:'膼峄?,winnerBlack:'膼en',btnMenu:'Menu',btnReset:'Ch啤i l岷',
-startGame:'B岷痶 膼岷',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
-langLabel:'Ng么n ng峄?,
+title:'Cờ Tướng',selectMode:'Chọn Chế Độ',gameMode:'Chế Độ Chơi',computerLevel:'Cấp Độ CPU',
+modePvp:'Người vs Người',modePvc:'Người vs Máy',
+diffEasy:'Dễ',diffNormal:'Trung Bình',diffHard:'Khó',
+diffDescEasy:'Thỉnh thoảng sai lầm, cho người mới',diffDescNormal:'Lối chơi vững chắc, cho trung cấp',diffDescHard:'Chiến thuật tấn công, cho cao thủ',
+turnRed:'Lượt Đỏ',turnBlack:'Lượt Đen',checkSuffix:' (Chiếu!)',
+aiThinking:'Máy đang suy nghĩ…',pleaseWait:'Vui lòng đợi',yourTurn:'Lượt bạn',computerThinking:'Máy đang suy nghĩ…',
+checkmate:'Chiếu hết! {winner} thắng!',stalemate:'Hòa (Bế tắc)',
+clickNewGame:'Nhấn "Chơi lại"',
+hintPvp:'{name} đi · Click/WASD',hintPvcHuman:'Lượt bạn',hintPvcAI:'Máy đang suy nghĩ…',
+winnerRed:'Đỏ',winnerBlack:'Đen',btnMenu:'Menu',btnReset:'Chơi lại',
+startGame:'Bắt Đầu',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
+langLabel:'Ngôn ngữ',
 },tr:{
-title:'脟in Satranc谋',selectMode:'Oyun Modu Se莽',gameMode:'Oyun Modu',computerLevel:'CPU Seviyesi',
+title:'Çin Satrancı',selectMode:'Oyun Modu Seç',gameMode:'Oyun Modu',computerLevel:'CPU Seviyesi',
 modePvp:'Oyuncu vs Oyuncu',modePvc:'Oyuncu vs Bilgisayar',
 diffEasy:'Kolay',diffNormal:'Normal',diffHard:'Zor',
-diffDescEasy:'Ara s谋ra hata, yeni ba艧layanlar i莽in',diffDescNormal:'Sa臒lam oyun, orta seviye i莽in',diffDescHard:'Sald谋rgan taktik, uzmanlar i莽in',
-turnRed:'K谋rm谋z谋\'n谋n S谋ras谋',turnBlack:'Siyah\'谋n S谋ras谋',checkSuffix:' (艦ah!)',
-aiThinking:'AI d眉艧眉n眉yor鈥?,pleaseWait:'L眉tfen bekleyin',yourTurn:'Senin s谋ran',computerThinking:'Bilgisayar d眉艧眉n眉yor鈥?,
-checkmate:'艦ah mat! {winner} kazand谋!',stalemate:'Pat (Beraberlik)',
-clickNewGame:'"S谋f谋rla"ya t谋klay谋n',
-hintPvp:'{name} oynuyor 路 T谋kla/WASD',hintPvcHuman:'Senin s谋ran',hintPvcAI:'Bilgisayar d眉艧眉n眉yor鈥?,
-winnerRed:'K谋rm谋z谋',winnerBlack:'Siyah',btnMenu:'Men眉',btnReset:'S谋f谋rla',
-startGame:'Ba艧la',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+diffDescEasy:'Ara sıra hata, yeni başlayanlar için',diffDescNormal:'Sağlam oyun, orta seviye için',diffDescHard:'Saldırgan taktik, uzmanlar için',
+turnRed:'Kırmızı\'nın Sırası',turnBlack:'Siyah\'ın Sırası',checkSuffix:' (Şah!)',
+aiThinking:'AI düşünüyor…',pleaseWait:'Lütfen bekleyin',yourTurn:'Senin sıran',computerThinking:'Bilgisayar düşünüyor…',
+checkmate:'Şah mat! {winner} kazandı!',stalemate:'Pat (Beraberlik)',
+clickNewGame:'"Sıfırla"ya tıklayın',
+hintPvp:'{name} oynuyor · Tıkla/WASD',hintPvcHuman:'Senin sıran',hintPvcAI:'Bilgisayar düşünüyor…',
+winnerRed:'Kırmızı',winnerBlack:'Siyah',btnMenu:'Menü',btnReset:'Sıfırla',
+startGame:'Başla',modeTagPvp:'PvP',modeTagPvc:'vs CPU · {diff}',
 langLabel:'Dil',
 }};
 
@@ -409,8 +409,8 @@ function applyLanguage(){
  modalTitle.textContent=t('title');
  modalSub.textContent=t('selectMode');
  modeLabel.textContent=t('gameMode');
- modePvpBtn.textContent='馃懁 '+t('modePvp');
- modePvcBtn.textContent='馃 '+t('modePvc');
+ modePvpBtn.textContent='👤 '+t('modePvp');
+ modePvcBtn.textContent='🤖 '+t('modePvc');
  diffLabel.textContent=t('computerLevel');
  diffEasyBtn.textContent=t('diffEasy');
  diffNormalBtn.textContent=t('diffNormal');
