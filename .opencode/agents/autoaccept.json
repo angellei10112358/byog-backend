@@ -1,0 +1,19 @@
+{
+  "name": "autoaccept",
+  "description": "Auto-accept agent for non-interactive file generation. Grants write, edit, read, and search tools without user confirmation.",
+  "tools": [
+    "read",
+    "write",
+    "edit",
+    "search",
+    "grep",
+    "glob",
+    "bash"
+  ],
+  "permissions": {
+    "write": "allow",
+    "edit": "allow",
+    "read": "allow",
+    "bash": "allow"
+  }
+}

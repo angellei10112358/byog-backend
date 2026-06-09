@@ -1,0 +1,16 @@
+{
+  "name": "build-your-own-games-backend",
+  "version": "1.0.0",
+  "description": "Backend for Build Your Own Games — spawns opencode CLI to generate HTML games",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "uuid": "^10.0.0"
+  }
+}
