@@ -62,16 +62,6 @@ router.post('/:sessionId/messages', async (req, res, next) => {
         return;
       }
     }
-      const html = getPrebuiltHtml(prebuiltKey);
-      const version = addVersion(session.sessionId, html, PREBUILT_GAMES[prebuiltKey].label);
-      res.status(200).json({
-        versionId: version.versionId,
-        prebuilt: true,
-        html: version.html,
-        createdAt: version.createdAt,
-      });
-      return;
-    }
 
     if (!session.opencodeSessionId) {
       const { html, opencodeSessionId } = await generateGame(
