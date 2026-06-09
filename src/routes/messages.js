@@ -45,9 +45,23 @@ router.post('/:sessionId/messages', async (req, res, next) => {
       return;
     }
 
-    const normalized = message.trim().toLowerCase();
-    const prebuiltKey = Object.keys(PREBUILT_GAMES).find(k => normalized === k || normalized === k.replace(/\s+/g, ''));
-    if (prebuiltKey) {
+    const normalized = message.trim();
+    const PRE_CMD = '$pre-case$';
+    if (normalized.startsWith(PRE_CMD)) {
+      const key = normalized.slice(PRE_CMD.length).trim().toLowerCase();
+      const game = PREBUILT_GAMES[key];
+      if (game) {
+        const html = getPrebuiltHtml(key);
+        const version = addVersion(session.sessionId, html, game.label);
+        res.status(200).json({
+          versionId: version.versionId,
+          prebuilt: true,
+          html: version.html,
+          createdAt: version.createdAt,
+        });
+        return;
+      }
+    }
       const html = getPrebuiltHtml(prebuiltKey);
       const version = addVersion(session.sessionId, html, PREBUILT_GAMES[prebuiltKey].label);
       res.status(200).json({
