@@ -1,0 +1,761 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>2048</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+body {
+  background: #faf8ef;
+  font-family: 'Segoe UI', 'Clear Sans', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 16px;
+}
+.container {
+  width: 100%;
+  max-width: 500px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.title {
+  font-size: 64px;
+  font-weight: 900;
+  color: #776e65;
+  line-height: 1;
+}
+.scores {
+  display: flex;
+  gap: 8px;
+}
+.score-box {
+  background: #bbada0;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 16px;
+  text-align: center;
+  min-width: 72px;
+}
+.score-box .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+.score-box .value {
+  font-size: 22px;
+  font-weight: 700;
+}
+.sub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.hint {
+  color: #776e65;
+  font-size: 13px;
+  opacity: 0.7;
+}
+.btn {
+  background: #8f7a66;
+  color: #f9f6f2;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: #7a6656; }
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.settings label {
+  font-size: 13px;
+  color: #776e65;
+  font-weight: 600;
+}
+.settings input,
+.settings select {
+  padding: 4px 8px;
+  border: 2px solid #d6cdc4;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  color: #776e65;
+  background: #fff;
+  outline: none;
+}
+.settings input { width: 52px; }
+.settings select { width: auto; min-width: 90px; cursor: pointer; }
+.settings input:focus,
+.settings select:focus { border-color: #8f7a66; }
+.settings .btn-resize { font-size: 13px; padding: 4px 14px; }
+.grid-container {
+  position: relative;
+  background: #bbada0;
+  border-radius: 8px;
+  padding: 8px;
+  touch-action: none;
+}
+.grid {
+  display: grid;
+  gap: 8px;
+}
+.cell {
+  background: rgba(238, 228, 218, 0.35);
+  border-radius: 4px;
+  aspect-ratio: 1;
+}
+.tile-container {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+}
+.tile {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  border-radius: 4px;
+  transition: left 0.1s ease, top 0.1s ease;
+  z-index: 1;
+}
+.tile-new {
+  animation: appear 0.2s ease;
+}
+.tile-merged {
+  animation: pop 0.2s ease;
+  z-index: 2;
+}
+@keyframes appear {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(250, 248, 239, 0.73);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  z-index: 10;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.overlay.hidden { display: none; }
+.overlay .msg { font-size: 48px; font-weight: 900; color: #776e65; }
+.overlay .sub-msg { font-size: 18px; color: #776e65; }
+.overlay .btn { font-size: 16px; padding: 10px 28px; }
+.tile-2    { background: #eee4da; color: #776e65; }
+.tile-4    { background: #ede0c8; color: #776e65; }
+.tile-8    { background: #f2b179; color: #f9f6f2; }
+.tile-16   { background: #f59563; color: #f9f6f2; }
+.tile-32   { background: #f67c5f; color: #f9f6f2; }
+.tile-64   { background: #f65e3b; color: #f9f6f2; }
+.tile-128  { background: #edcf72; color: #f9f6f2; font-size: 0.9em; }
+.tile-256  { background: #edcc61; color: #f9f6f2; font-size: 0.9em; }
+.tile-512  { background: #edc850; color: #f9f6f2; font-size: 0.9em; }
+.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 0.7em; }
+.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 0.7em; }
+.tile-super { background: #3c3a32; color: #f9f6f2; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="header">
+    <div class="title">2048</div>
+    <div class="scores">
+      <div class="score-box"><div class="label" data-i18n="score">SCORE</div><div class="value" id="score">0</div></div>
+      <div class="score-box"><div class="label" data-i18n="best">BEST</div><div class="value" id="best">0</div></div>
+    </div>
+  </div>
+  <div class="sub-header">
+    <span class="hint" data-i18n="hint">Arrow / WASD or swipe</span>
+    <button class="btn" data-i18n="newGame" id="newGameBtn">New Game</button>
+  </div>
+  <div class="settings">
+    <label data-i18n="rows">Rows:</label><input type="number" id="rowsInput" value="4" min="2" max="10">
+    <label data-i18n="cols">Cols:</label><input type="number" id="colsInput" value="4" min="2" max="10">
+    <button class="btn btn-resize" data-i18n="resize" id="resizeBtn">Resize</button>
+    <label data-i18n="lang">Lang:</label>
+    <select id="langSelect">
+      <option value="en">English</option>
+      <option value="zh-CN">绠€浣撲腑鏂?/option>
+      <option value="zh-TW">绻侀珨涓枃</option>
+      <option value="ja">鏃ユ湰瑾?/option>
+      <option value="ko">頃滉淡鞏?/option>
+      <option value="es">Espa帽ol</option>
+      <option value="fr">Fran莽ais</option>
+      <option value="de">Deutsch</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Portugu锚s</option>
+      <option value="ru">袪褍褋褋泻懈泄</option>
+      <option value="ar">丕賱毓乇亘賷丞</option>
+      <option value="hi">啶灌た啶ㄠ啶︵</option>
+      <option value="nl">Nederlands</option>
+      <option value="pl">Polski</option>
+      <option value="tr">T眉rk莽e</option>
+      <option value="vi">Ti岷縩g Vi峄噒</option>
+      <option value="th">喙勦笚喔?/option>
+      <option value="id">Bahasa Indonesia</option>
+      <option value="sv">Svenska</option>
+      <option value="cs">膶e拧tina</option>
+      <option value="ro">Rom芒n膬</option>
+      <option value="uk">校泻褉邪褩薪褋褜泻邪</option>
+      <option value="el">螘位位畏谓喂魏维</option>
+      <option value="he">注讘专讬转</option>
+    </select>
+  </div>
+  <div class="grid-container" id="gridContainer">
+    <div class="grid" id="grid"></div>
+    <div class="tile-container" id="tileContainer"></div>
+    <div class="overlay hidden" id="overlay">
+      <div class="msg" id="overlayMsg">You Win!</div>
+      <div class="sub-msg" id="overlaySub"></div>
+      <button class="btn" id="overlayBtn">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const LANG = {
+    en: {
+      score:'SCORE', best:'BEST', hint:'Arrow / WASD or swipe',
+      newGame:'New Game', rows:'Rows:', cols:'Cols:', resize:'Resize', lang:'Lang:',
+      youWin:'You Win!', reached:'You reached 2048!', keepPlaying:'Keep Playing',
+      gameOver:'Game Over', finalScore:'Final Score', tryAgain:'Try Again',
+    },
+    'zh-CN': {
+      score:'寰楀垎', best:'鏈€楂?, hint:'鏂瑰悜閿?/ WASD 鎴栭紶鏍囨嫋鍔?,
+      newGame:'鏂版父鎴?, rows:'琛?', cols:'鍒?', resize:'璋冩暣', lang:'璇█:',
+      youWin:'璧簡锛?, reached:'浣犺揪鍒颁簡 2048锛?, keepPlaying:'缁х画鐜?,
+      gameOver:'娓告垙缁撴潫', finalScore:'鏈€缁堝緱鍒?, tryAgain:'鍐嶆潵涓€灞€',
+    },
+    'zh-TW': {
+      score:'寰楀垎', best:'鏈€楂?, hint:'鏂瑰悜閸?/ WASD 鎴栨粦榧犳嫋鏇?,
+      newGame:'鏂伴亰鎴?, rows:'琛?', cols:'鍒?', resize:'瑾挎暣', lang:'瑾炶█:',
+      youWin:'璐忎簡锛?, reached:'浣犻仈鍒颁簡 2048锛?, keepPlaying:'绻肩簩鐜?,
+      gameOver:'閬婃埐绲愭潫', finalScore:'鏈€绲傚緱鍒?, tryAgain:'鍐嶄締涓€灞€',
+    },
+    ja: {
+      score:'銈广偝銈?, best:'銉欍偣銉?, hint:'鐭㈠嵃銈兗 / WASD 銇俱仧銇偣銉偆銉?,
+      newGame:'鏂拌銈层兗銉?, rows:'琛?', cols:'鍒?', resize:'澶夋洿', lang:'瑷€瑾?',
+      youWin:'銈儶銈紒', reached:'2048 銇埌閬旓紒', keepPlaying:'缍氥亼銈?,
+      gameOver:'銈层兗銉犮偑銉笺儛銉?, finalScore:'鏈€绲傘偣銈炽偄', tryAgain:'銈傘亞涓€搴?,
+    },
+    ko: {
+      score:'鞝愳垬', best:'斓滉碃', hint:'氚╉枼韨?/ WASD 霕愲姅 鞀れ檧鞚错攧',
+      newGame:'靸?瓴岇瀯', rows:'頄?', cols:'鞐?', resize:'氤€瓴?, lang:'鞏胳柎:',
+      youWin:'鞀闺Μ!', reached:'2048 鞐?霃勲嫭!', keepPlaying:'瓿勳啀頃橁赴',
+      gameOver:'瓴岇瀯 鞓る矂', finalScore:'斓滌 鞝愳垬', tryAgain:'雼れ嫓 頃橁赴',
+    },
+    es: {
+      score:'PUNTOS', best:'R脡CORD', hint:'Flechas / WASD o deslizar',
+      newGame:'Nuevo', rows:'Filas:', cols:'Columnas:', resize:'Cambiar', lang:'Idioma:',
+      youWin:'隆Ganaste!', reached:'隆Llegaste a 2048!', keepPlaying:'Seguir',
+      gameOver:'Fin del Juego', finalScore:'Puntaje Final', tryAgain:'Reintentar',
+    },
+    fr: {
+      score:'SCORE', best:'MEILLEUR', hint:'Fl猫ches / WASD ou glisser',
+      newGame:'Nouveau', rows:'Lignes:', cols:'Colonnes:', resize:'Redim.', lang:'Langue:',
+      youWin:'Gagn茅 !', reached:'Tu as atteint 2048 !', keepPlaying:'Continuer',
+      gameOver:'Game Over', finalScore:'Score Final', tryAgain:'R茅essayer',
+    },
+    de: {
+      score:'PUNKTE', best:'BESTE', hint:'Pfeile / WASD oder wischen',
+      newGame:'Neues Spiel', rows:'Zeilen:', cols:'Spalten:', resize:'脛ndern', lang:'Sprache:',
+      youWin:'Gewonnen!', reached:'2048 erreicht!', keepPlaying:'Weiter',
+      gameOver:'Spiel vorbei', finalScore:'Endpunktzahl', tryAgain:'Nochmal',
+    },
+    it: {
+      score:'PUNTI', best:'RECORD', hint:'Frecce / WASD o scorrere',
+      newGame:'Nuovo', rows:'Righe:', cols:'Colonne:', resize:'Ridim.', lang:'Lingua:',
+      youWin:'Vinto!', reached:'Hai raggiunto 2048!', keepPlaying:'Continua',
+      gameOver:'Game Over', finalScore:'Punteggio Finale', tryAgain:'Riprova',
+    },
+    pt: {
+      score:'PONTOS', best:'RECORDE', hint:'Setas / WASD ou arrastar',
+      newGame:'Novo', rows:'Linhas:', cols:'Colunas:', resize:'Redim.', lang:'Idioma:',
+      youWin:'Ganhou!', reached:'Chegou a 2048!', keepPlaying:'Continuar',
+      gameOver:'Fim de Jogo', finalScore:'Pontua莽茫o Final', tryAgain:'Tentar de Novo',
+    },
+    ru: {
+      score:'袨效袣袠', best:'袪袝袣袨袪袛', hint:'小褌褉械谢泻懈 / WASD 懈谢懈 褋屑邪褏懈胁邪褌褜',
+      newGame:'袧芯胁邪褟 懈谐褉邪', rows:'小褌褉芯泻:', cols:'小褌芯谢斜褑芯胁:', resize:'袠蟹屑械薪懈褌褜', lang:'携蟹褘泻:',
+      youWin:'袩芯斜械写邪!', reached:'袙褘 褋芯斜褉邪谢懈 2048!', keepPlaying:'袩褉芯写芯谢卸懈褌褜',
+      gameOver:'袠谐褉邪 袨泻芯薪褔械薪邪', finalScore:'肖懈薪邪谢褜薪褘泄 小褔械褌', tryAgain:'袟邪薪芯胁芯',
+    },
+    ar: {
+      score:'丕賱賳賯丕胤', best:'丕賱兀賮囟賱', hint:'丕賱兀爻賴賲 / WASD 兀賵 丕賱爻丨亘',
+      newGame:'賱毓亘丞 噩丿賷丿丞', rows:'氐賮賵賮:', cols:'兀毓賲丿丞:', resize:'鬲睾賷賷乇', lang:'丕賱賱睾丞:',
+      youWin:'賮賵夭!', reached:'賵氐賱鬲 廿賱賶 2048!', keepPlaying:'丕爻鬲賲乇丕乇',
+      gameOver:'丕賳鬲賴鬲 丕賱賱毓亘丞', finalScore:'丕賱賳鬲賷噩丞 丕賱賳賴丕卅賷丞', tryAgain:'賲丨丕賵賱丞 噩丿賷丿丞',
+    },
+    hi: {
+      score:'啶膏啶曕啶?, best:'啶膏ぐ啷嵿さ啶多啶班啶粪啶?, hint:'啶む啶?/ WASD 啶ぞ 啶膏啶掂ぞ啶囙お',
+      newGame:'啶ㄠく啶?啶椸啶?, rows:'啶啶曕啶むた啶ぞ啶?', cols:'啶膏啶む啶?', resize:'啶嗋啶距ぐ 啶う啶侧啶?, lang:'啶ぞ啶粪ぞ:',
+      youWin:'啶溹啶?啶椸!', reached:'啶嗋お 2048 啶む 啶す啷佮啶?啶椸!', keepPlaying:'啶溹ぞ啶班 啶班啷囙',
+      gameOver:'啶椸啶?啶撪さ啶?, finalScore:'啶呧啶むた啶?啶膏啶曕啶?, tryAgain:'啶啶ㄠ 啶啶班く啶距じ',
+    },
+    nl: {
+      score:'SCORE', best:'BESTE', hint:'Pijlen / WASD of vegen',
+      newGame:'Nieuw spel', rows:'Rijen:', cols:'Kolommen:', resize:'Herschalen', lang:'Taal:',
+      youWin:'Gewonnen!', reached:'Je hebt 2048 gehaald!', keepPlaying:'Doorgaan',
+      gameOver:'Game Over', finalScore:'Eindscore', tryAgain:'Opnieuw',
+    },
+    pl: {
+      score:'PUNKTY', best:'NAJLEPSZY', hint:'Strza艂ki / WASD lub przesu艅',
+      newGame:'Nowa gra', rows:'Wiersze:', cols:'Kolumny:', resize:'Zmie艅', lang:'J臋zyk:',
+      youWin:'Wygrana!', reached:'Osi膮gn膮艂e艣 2048!', keepPlaying:'Kontynuuj',
+      gameOver:'Koniec Gry', finalScore:'Wynik Ko艅cowy', tryAgain:'Spr贸buj Ponownie',
+    },
+    tr: {
+      score:'SKOR', best:'EN 陌Y陌', hint:'Oklar / WASD veya kayd谋rma',
+      newGame:'Yeni Oyun', rows:'Sat谋r:', cols:'S眉tun:', resize:'Yeniden Boyutland谋r', lang:'Dil:',
+      youWin:'Kazand谋n!', reached:'2048\'e ula艧t谋n!', keepPlaying:'Devam Et',
+      gameOver:'Oyun Bitti', finalScore:'Son Skor', tryAgain:'Tekrar Dene',
+    },
+    vi: {
+      score:'膼I峄侻', best:'CAO NH岷', hint:'Ph铆m m农i t锚n / WASD ho岷穋 vu峄憈',
+      newGame:'Game M峄沬', rows:'H脿ng:', cols:'C峄檛:', resize:'Thay 膽峄昳', lang:'Ng么n ng峄?',
+      youWin:'Th岷痭g!', reached:'B岷 膽茫 膽岷 2048!', keepPlaying:'Ti岷縫 T峄',
+      gameOver:'Game Over', finalScore:'膼i峄僲 Cu峄慽', tryAgain:'Ch啤i L岷',
+    },
+    th: {
+      score:'喔勦赴喙佮笝喔?, best:'喔腹喔囙釜喔膏笖', hint:'喔ム腹喔佮辅喔?/ WASD 喔福喔粪腑喔涏副喔?,
+      newGame:'喙€喔佮浮喙冟斧喔∴箞', rows:'喙佮笘喔?', cols:'喔勦腑喔ム副喔∴笝喙?', resize:'喔涏福喔编笟喔傕笝喔侧笖', lang:'喔犩覆喔┼覆:',
+      youWin:'喔娻笝喔?', reached:'喔勦父喔撪笘喔多竾 2048 喙佮弗喙夃抚!', keepPlaying:'喙€喔ム箞喔權笗喙堗腑',
+      gameOver:'喔堗笟喙€喔佮浮', finalScore:'喔勦赴喙佮笝喔權釜喔膏笖喔椸箟喔侧涪', tryAgain:'喔ム腑喔囙箖喔浮喙?,
+    },
+    id: {
+      score:'SKOR', best:'TERBAIK', hint:'Panah / WASD atau geser',
+      newGame:'Game Baru', rows:'Baris:', cols:'Kolom:', resize:'Ubah Ukuran', lang:'Bahasa:',
+      youWin:'Menang!', reached:'Kamu mencapai 2048!', keepPlaying:'Lanjutkan',
+      gameOver:'Game Over', finalScore:'Skor Akhir', tryAgain:'Coba Lagi',
+    },
+    sv: {
+      score:'PO脛NG', best:'B脛STA', hint:'Pilar / WASD eller svepa',
+      newGame:'Nytt Spel', rows:'Rader:', cols:'Kolumner:', resize:'脛ndra', lang:'Spr氓k:',
+      youWin:'Vinst!', reached:'Du n氓dde 2048!', keepPlaying:'Forts盲tt',
+      gameOver:'Game Over', finalScore:'Slutpo盲ng', tryAgain:'F枚rs枚k Igen',
+    },
+    cs: {
+      score:'BODY', best:'NEJLEP艩脥', hint:'艩ipky / WASD nebo p艡ejet铆',
+      newGame:'Nov谩 Hra', rows:'艠谩dky:', cols:'Sloupce:', resize:'Zm臎nit', lang:'Jazyk:',
+      youWin:'V媒hra!', reached:'Dos谩hl jsi 2048!', keepPlaying:'Pokra膷ovat',
+      gameOver:'Konec Hry', finalScore:'Kone膷n茅 Sk贸re', tryAgain:'Zkusit Znovu',
+    },
+    ro: {
+      score:'SCOR', best:'RECORD', hint:'S膬ge葲i / WASD sau glisare',
+      newGame:'Joc Nou', rows:'R芒nduri:', cols:'Coloane:', resize:'Redimensionare', lang:'Limb膬:',
+      youWin:'Ai C芒葯tigat!', reached:'Ai atins 2048!', keepPlaying:'Continu膬',
+      gameOver:'Game Over', finalScore:'Scor Final', tryAgain:'脦ncearc膬 Din Nou',
+    },
+    uk: {
+      score:'袨效袣袠', best:'袪袝袣袨袪袛', hint:'小褌褉褨谢泻懈 / WASD 邪斜芯 锌褉芯胁械写械薪薪褟',
+      newGame:'袧芯胁邪 谐褉邪', rows:'袪褟写泻褨胁:', cols:'小褌芯胁锌褑褨胁:', resize:'袟屑褨薪懈褌懈', lang:'袦芯胁邪:',
+      youWin:'袩械褉械屑芯谐邪!', reached:'袙懈 写芯褋褟谐谢懈 2048!', keepPlaying:'袩褉芯写芯胁卸懈褌懈',
+      gameOver:'袚褉邪 袟邪胁械褉褕械薪邪', finalScore:'肖褨薪邪谢褜薪懈泄 袪邪褏褍薪芯泻', tryAgain:'小锌褉芯斜褍胁邪褌懈 袟薪芯胁褍',
+    },
+    el: {
+      score:'危螝螣巍', best:'螝螒螞违韦螘巍螣', hint:'螔苇位畏 / WASD 萎 蟽蠉蟻蟽喂渭慰',
+      newGame:'螡苇慰 螤伪喂蠂谓委未喂', rows:'螕蟻伪渭渭苇蟼:', cols:'危蟿萎位蔚蟼:', resize:'螒位位伪纬萎', lang:'螕位蠋蟽蟽伪:',
+      youWin:'螡委魏畏!', reached:'螆蠁蟿伪蟽蔚蟼 蟽蟿慰 2048!', keepPlaying:'危蠀谓苇蠂蔚喂伪',
+      gameOver:'韦苇位慰蟼 螤伪喂蠂谓喂未喂慰蠉', finalScore:'韦蔚位喂魏蠈 危魏慰蟻', tryAgain:'螖慰魏委渭伪蟽蔚 螢伪谓维',
+    },
+    he: {
+      score:'谞讬拽讜讚', best:'砖讬讗', hint:'讞爪讬诐 / WASD 讗讜 讛讞诇拽讛',
+      newGame:'诪砖讞拽 讞讚砖', rows:'砖讜专讜转:', cols:'注诪讜讚讜转:', resize:'砖讬谞讜讬 讙讜讚诇', lang:'砖驻讛:',
+      youWin:'谞讬爪讞讜谉!', reached:'讛讙注转 诇-2048!', keepPlaying:'讛诪砖讱 诇砖讞拽',
+      gameOver:'讛诪砖讞拽 谞讙诪专', finalScore:'谞讬拽讜讚 住讜驻讬', tryAgain:'谞住讛 砖讜讘',
+    },
+  };
+
+  const gridEl = document.getElementById('grid');
+  const tileContainer = document.getElementById('tileContainer');
+  const container = document.getElementById('gridContainer');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const overlay = document.getElementById('overlay');
+  const overlayMsg = document.getElementById('overlayMsg');
+  const overlaySub = document.getElementById('overlaySub');
+  const overlayBtn = document.getElementById('overlayBtn');
+  const rowsInput = document.getElementById('rowsInput');
+  const colsInput = document.getElementById('colsInput');
+  const langSelect = document.getElementById('langSelect');
+
+  let grid = [];
+  let rows = 4, cols = 4;
+  let score = 0;
+  let best = parseInt(localStorage.getItem('2048best')) || 0;
+  let cellGap = 8;
+  let cellSize = 0;
+  let gameOver = false;
+  let won = false;
+  let keepPlaying = false;
+  let overlayMode = null;
+
+  bestEl.textContent = best;
+
+  const TILE_COLORS = {
+    2: '#eee4da', 4: '#ede0c8', 8: '#f2b179', 16: '#f59563',
+    32: '#f67c5f', 64: '#f65e3b', 128: '#edcf72', 256: '#edcc61',
+    512: '#edc850', 1024: '#edc53f', 2048: '#edc22e'
+  };
+  const LIGHT_TEXT = '#f9f6f2';
+  const DARK_TEXT = '#776e65';
+
+  let currentLang = localStorage.getItem('2048lang') || 'en';
+  langSelect.value = currentLang;
+
+  function t(key) {
+    return (LANG[currentLang] && LANG[currentLang][key]) || LANG.en[key] || key;
+  }
+
+  function applyLanguage() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = t(key);
+    });
+    if (!overlay.classList.contains('hidden')) {
+      if (overlayMode === 'win') {
+        overlayMsg.textContent = t('youWin');
+        overlaySub.textContent = t('reached');
+        overlayBtn.textContent = t('keepPlaying');
+      } else if (overlayMode === 'over') {
+        overlayMsg.textContent = t('gameOver');
+        overlaySub.textContent = t('finalScore') + ': ' + score;
+        overlayBtn.textContent = t('tryAgain');
+      }
+    }
+  }
+
+  langSelect.addEventListener('change', () => {
+    currentLang = langSelect.value;
+    localStorage.setItem('2048lang', currentLang);
+    applyLanguage();
+  });
+
+  function tileColor(val) {
+    return TILE_COLORS[val] || '#3c3a32';
+  }
+  function textColor(val) {
+    return val <= 4 ? DARK_TEXT : LIGHT_TEXT;
+  }
+  function tileFontSize(val) {
+    const s = val.toString().length;
+    if (s <= 2) return cellSize * 0.45;
+    if (s === 3) return cellSize * 0.35;
+    if (s === 4) return cellSize * 0.28;
+    return cellSize * 0.22;
+  }
+
+  function computeCellSize() {
+    const w = container.getBoundingClientRect().width;
+    const contentW = w - 16;
+    cellSize = Math.floor((contentW - cellGap * (cols - 1)) / cols);
+  }
+
+  function cellPos(r, c) {
+    return {
+      left: c * (cellSize + cellGap),
+      top: r * (cellSize + cellGap)
+    };
+  }
+
+  function initGrid(r, c) {
+    rows = r; cols = c;
+    grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+    score = 0;
+    gameOver = false;
+    won = false;
+    keepPlaying = false;
+    overlayMode = null;
+    scoreEl.textContent = '0';
+    overlay.classList.add('hidden');
+    renderGrid();
+    addRandomTile();
+    addRandomTile();
+    renderTiles(null);
+  }
+
+  function renderGrid() {
+    gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    gridEl.innerHTML = '';
+    for (let i = 0; i < rows * cols; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      gridEl.appendChild(cell);
+    }
+    computeCellSize();
+  }
+
+  function renderTiles(anim) {
+    tileContainer.innerHTML = '';
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const val = grid[r][c];
+        if (val === 0) continue;
+        const el = document.createElement('div');
+        el.className = 'tile';
+        const pos = cellPos(r, c);
+        el.style.width = cellSize + 'px';
+        el.style.height = cellSize + 'px';
+        el.style.left = pos.left + 'px';
+        el.style.top = pos.top + 'px';
+        el.style.background = tileColor(val);
+        el.style.color = textColor(val);
+        el.style.fontSize = tileFontSize(val) + 'px';
+        el.textContent = val;
+        if (anim) {
+          if (anim.newPos && anim.newPos.r === r && anim.newPos.c === c) {
+            el.classList.add('tile-new');
+          }
+          if (anim.merged && anim.merged.some(m => m.r === r && m.c === c)) {
+            el.classList.add('tile-merged');
+          }
+        }
+        tileContainer.appendChild(el);
+      }
+    }
+  }
+
+  function addRandomTile() {
+    const empty = [];
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        if (grid[r][c] === 0) empty.push([r, c]);
+    if (empty.length === 0) return null;
+    const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+    grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+    return { r, c };
+  }
+
+  function slideLine(line) {
+    const filtered = line.filter(v => v !== 0);
+    const result = [];
+    let scored = 0;
+    let i = 0;
+    while (i < filtered.length) {
+      if (i + 1 < filtered.length && filtered[i] === filtered[i + 1]) {
+        const v = filtered[i] * 2;
+        result.push(v);
+        scored += v;
+        i += 2;
+      } else {
+        result.push(filtered[i]);
+        i++;
+      }
+    }
+    while (result.length < line.length) result.push(0);
+    return { merged: result, scored };
+  }
+
+  function moveLeft() {
+    let moved = false, total = 0;
+    for (let r = 0; r < rows; r++) {
+      const { merged, scored } = slideLine(grid[r]);
+      total += scored;
+      for (let c = 0; c < cols; c++) {
+        if (grid[r][c] !== merged[c]) moved = true;
+        grid[r][c] = merged[c];
+      }
+    }
+    return { moved, score: total };
+  }
+
+  function moveRight() {
+    let moved = false, total = 0;
+    for (let r = 0; r < rows; r++) {
+      const rev = [...grid[r]].reverse();
+      const { merged, scored } = slideLine(rev);
+      total += scored;
+      const result = merged.reverse();
+      for (let c = 0; c < cols; c++) {
+        if (grid[r][c] !== result[c]) moved = true;
+        grid[r][c] = result[c];
+      }
+    }
+    return { moved, score: total };
+  }
+
+  function moveUp() {
+    let moved = false, total = 0;
+    for (let c = 0; c < cols; c++) {
+      const col = [];
+      for (let r = 0; r < rows; r++) col.push(grid[r][c]);
+      const { merged, scored } = slideLine(col);
+      total += scored;
+      for (let r = 0; r < rows; r++) {
+        if (grid[r][c] !== merged[r]) moved = true;
+        grid[r][c] = merged[r];
+      }
+    }
+    return { moved, score: total };
+  }
+
+  function moveDown() {
+    let moved = false, total = 0;
+    for (let c = 0; c < cols; c++) {
+      const col = [];
+      for (let r = rows - 1; r >= 0; r--) col.push(grid[r][c]);
+      const { merged, scored } = slideLine(col);
+      total += scored;
+      const result = merged.reverse();
+      for (let r = 0; r < rows; r++) {
+        if (grid[r][c] !== result[r]) moved = true;
+        grid[r][c] = result[r];
+      }
+    }
+    return { moved, score: total };
+  }
+
+  function isGameOver() {
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++) {
+        if (grid[r][c] === 0) return false;
+        if (c + 1 < cols && grid[r][c] === grid[r][c + 1]) return false;
+        if (r + 1 < rows && grid[r][c] === grid[r + 1][c]) return false;
+      }
+    return true;
+  }
+
+  function hasWon() {
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        if (grid[r][c] === 2048) return true;
+    return false;
+  }
+
+  function handleMove(dir) {
+    if (gameOver) return;
+    let result;
+    switch (dir) {
+      case 'left': result = moveLeft(); break;
+      case 'right': result = moveRight(); break;
+      case 'up': result = moveUp(); break;
+      case 'down': result = moveDown(); break;
+    }
+    if (!result.moved) return;
+    score += result.score;
+    scoreEl.textContent = score;
+    if (score > best) {
+      best = score;
+      bestEl.textContent = best;
+      localStorage.setItem('2048best', best);
+    }
+    const tile = addRandomTile();
+    renderTiles({ newPos: tile, merged: [] });
+    if (hasWon() && !keepPlaying) {
+      won = true;
+      overlayMode = 'win';
+      overlayMsg.textContent = t('youWin');
+      overlaySub.textContent = t('reached');
+      overlayBtn.textContent = t('keepPlaying');
+      overlay.classList.remove('hidden');
+      return;
+    }
+    if (isGameOver()) {
+      gameOver = true;
+      overlayMode = 'over';
+      overlayMsg.textContent = t('gameOver');
+      overlaySub.textContent = t('finalScore') + ': ' + score;
+      overlayBtn.textContent = t('tryAgain');
+      overlay.classList.remove('hidden');
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const map = {
+      ArrowLeft: 'left', ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down',
+      a: 'left', w: 'up', d: 'right', s: 'down',
+      A: 'left', W: 'up', D: 'right', S: 'down'
+    };
+    const dir = map[e.key];
+    if (dir) { e.preventDefault(); handleMove(dir); }
+  });
+
+  let startX = 0, startY = 0, dragging = false;
+  container.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.btn') || e.target.closest('.settings')) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    dragging = true;
+    container.setPointerCapture(e.pointerId);
+  });
+  container.addEventListener('pointerup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+    handleMove(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+  });
+  container.addEventListener('pointercancel', () => { dragging = false; });
+
+  overlayBtn.addEventListener('click', () => {
+    if (overlayMode === 'win') {
+      keepPlaying = true;
+      overlayMode = null;
+      overlay.classList.add('hidden');
+      if (isGameOver()) {
+        gameOver = true;
+        overlayMode = 'over';
+        overlayMsg.textContent = t('gameOver');
+        overlaySub.textContent = t('finalScore') + ': ' + score;
+        overlayBtn.textContent = t('tryAgain');
+        overlay.classList.remove('hidden');
+      }
+    } else {
+      resizeGame();
+    }
+  });
+
+  function resizeGame() {
+    let r = parseInt(rowsInput.value) || 4;
+    let c = parseInt(colsInput.value) || 4;
+    r = Math.max(2, Math.min(10, r));
+    c = Math.max(2, Math.min(10, c));
+    rowsInput.value = r;
+    colsInput.value = c;
+    initGrid(r, c);
+  }
+
+  document.getElementById('newGameBtn').addEventListener('click', resizeGame);
+  document.getElementById('resizeBtn').addEventListener('click', resizeGame);
+
+  initGrid(4, 4);
+  applyLanguage();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>涓浗璞℃</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2c2c2c;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:"Microsoft YaHei","SimHei",sans-serif;user-select:none}
+.container{background:#3a3028;padding:25px 30px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+h1{text-align:center;color:#d4a76a;font-size:24px;font-weight:normal;letter-spacing:6px;margin-bottom:12px}
+canvas{display:block;cursor:pointer;border-radius:6px}
+.status-bar{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:8px 12px;background:#2a221c;border-radius:8px;color:#c0a080;font-size:14px;min-height:38px;gap:6px;flex-wrap:wrap}
+.status-bar .turn-indicator{font-weight:bold;font-size:15px;flex-shrink:0}
+.status-bar .turn-indicator.red{color:#e74c3c}
+.status-bar .turn-indicator.black{color:#aaa;text-shadow:0 0 2px #666}
+.status-bar .hint{color:#887060;font-size:12px;text-align:center;flex:1;min-width:80px}
+.status-bar .mode-tag{font-size:11px;color:#7a6a5a;background:#1a1410;padding:2px 8px;border-radius:10px;flex-shrink:0}
+.btn{background:#5a4a3a;border:none;color:#d4a76a;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit;transition:background .15s;flex-shrink:0}
+.btn:hover{background:#6a5a4a}
+.lang-select{background:#2a221c;border:1px solid #4a3a2a;color:#c0a080;padding:3px 4px;border-radius:4px;font-size:11px;font-family:inherit;cursor:pointer;flex-shrink:0;max-width:100px}
+.lang-select option{background:#2a221c;color:#c0a080}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:flex;justify-content:center;align-items:center;z-index:100}
+.modal{background:#3a3028;padding:35px 45px;border-radius:16px;text-align:center;color:#d4a76a;box-shadow:0 12px 48px rgba(0,0,0,.6);max-width:420px;width:90%}
+.modal h2{font-size:28px;letter-spacing:8px;margin-bottom:6px;font-weight:normal}
+.modal .sub{color:#8a7a6a;font-size:13px;margin-bottom:24px}
+.modal .section{margin-bottom:18px}
+.modal .section-label{font-size:13px;color:#a09080;margin-bottom:8px}
+.mode-options{display:flex;gap:10px;justify-content:center}
+.mode-btn{flex:1;padding:12px 8px;border:2px solid #5a4a3a;border-radius:10px;background:transparent;color:#c0a080;font-size:15px;font-family:inherit;cursor:pointer;transition:all .15s}
+.mode-btn:hover{border-color:#8a7a6a}
+.mode-btn.active{border-color:#d4a76a;background:rgba(212,167,106,.12);color:#e8d4b0}
+.diff-options{display:flex;gap:8px;justify-content:center}
+.diff-btn{flex:1;padding:10px 6px;border:2px solid #5a4a3a;border-radius:8px;background:transparent;color:#c0a080;font-size:14px;font-family:inherit;cursor:pointer;transition:all .15s}
+.diff-btn:hover{border-color:#8a7a6a}
+.diff-btn.active{border-color:#d4a76a;background:rgba(212,167,106,.12);color:#e8d4b0}
+.diff-desc{font-size:11px;color:#7a6a5a;min-height:18px;margin-top:6px}
+.lang-modal-section{margin-bottom:18px}
+.lang-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px}
+.lang-opt-btn{padding:6px 4px;border:1px solid #4a3a2a;border-radius:6px;background:transparent;color:#c0a080;font-size:13px;font-family:inherit;cursor:pointer;transition:all .12s}
+.lang-opt-btn:hover{border-color:#8a7a6a;background:rgba(128,96,64,.1)}
+.lang-opt-btn.active{border-color:#d4a76a;background:rgba(212,167,106,.12);color:#e8d4b0}
+.start-btn{margin-top:20px;padding:10px 40px;background:#7a5a30;border:none;border-radius:8px;color:#e8d4b0;font-size:16px;font-family:inherit;letter-spacing:4px;cursor:pointer;transition:background .15s}
+.start-btn:hover{background:#8a6a40}
+.start-btn:disabled{opacity:.4;cursor:default}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1 id="title">涓?鍥?璞?妫?/h1>
+    <canvas id="boardCanvas"></canvas>
+    <div class="status-bar">
+        <span class="mode-tag" id="modeTag">鍙屼汉瀵规垬</span>
+        <span class="turn-indicator red" id="turnText">绾㈡柟璧版</span>
+        <span class="hint" id="hintText">鐐瑰嚮妫嬪瓙鎴?WASD 绉诲姩</span>
+        <select class="lang-select" id="langSelect"><option value="zh">涓枃</option></select>
+        <button class="btn" id="menuBtn">鑿滃崟</button>
+        <button class="btn" id="resetBtn">閲嶅紑</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modeModal">
+    <div class="modal">
+        <h2 id="modalTitle">涓?鍥?璞?妫?/h2>
+        <div class="sub" id="modalSub">閫夋嫨娓告垙妯″紡</div>
+        <div class="section">
+            <div class="section-label" id="modeLabel">娓告垙鏂瑰紡</div>
+            <div class="mode-options">
+                <button class="mode-btn active" data-mode="pvp" id="modePvpBtn">馃懁 鍙屼汉瀵规垬</button>
+                <button class="mode-btn" data-mode="pvc" id="modePvcBtn">馃 浜烘満瀵规垬</button>
+            </div>
+        </div>
+        <div class="section" id="diffSection" style="display:none">
+            <div class="section-label" id="diffLabel">鐢佃剳闅惧害</div>
+            <div class="diff-options">
+                <button class="diff-btn active" data-diff="easy" id="diffEasyBtn">绠€鍗?/button>
+                <button class="diff-btn" data-diff="normal" id="diffNormalBtn">鏅€?/button>
+                <button class="diff-btn" data-diff="hard" id="diffHardBtn">鍥伴毦</button>
+            </div>
+            <div class="diff-desc" id="diffDesc">鍋舵湁澶辫锛岄噸鍦ㄥ瓙鍔涳紝閫傚悎鏂版墜鍏ラ棬</div>
+        </div>
+        <div class="section lang-modal-section">
+            <div class="section-label" id="langLabel">Language / 璇█</div>
+            <div class="lang-grid" id="langGrid"></div>
+        </div>
+        <button class="start-btn" id="startBtn">寮€ 濮?娓?鎴?/button>
+    </div>
+</div>
+
+<script>
+const canvas=document.getElementById('boardCanvas');
+const ctx=canvas.getContext('2d');
+const turnText=document.getElementById('turnText');
+const hintText=document.getElementById('hintText');
+const modeTag=document.getElementById('modeTag');
+const resetBtn=document.getElementById('resetBtn');
+const menuBtn=document.getElementById('menuBtn');
+const modeModal=document.getElementById('modeModal');
+const diffSection=document.getElementById('diffSection');
+const diffDesc=document.getElementById('diffDesc');
+const startBtn=document.getElementById('startBtn');
+const modeBtns=document.querySelectorAll('.mode-btn');
+const diffBtns=document.querySelectorAll('.diff-btn');
+const langGrid=document.getElementById('langGrid');
+const langSelect=document.getElementById('langSelect');
+const titleEl=document.getElementById('title');
+const modalTitle=document.getElementById('modalTitle');
+const modalSub=document.getElementById('modalSub');
+const modeLabel=document.getElementById('modeLabel');
+const modePvpBtn=document.getElementById('modePvpBtn');
+const modePvcBtn=document.getElementById('modePvcBtn');
+const diffLabel=document.getElementById('diffLabel');
+const diffEasyBtn=document.getElementById('diffEasyBtn');
+const diffNormalBtn=document.getElementById('diffNormalBtn');
+const diffHardBtn=document.getElementById('diffHardBtn');
+const langLabel=document.getElementById('langLabel');
+
+const CELL=60,PAD=50,PIECE_R=25,ROWS=10,COLS=9;
+const CW=PAD*2+(COLS-1)*CELL,CH=PAD*2+(ROWS-1)*CELL;
+const dpr=window.devicePixelRatio||1;
+canvas.width=CW*dpr;canvas.height=CH*dpr;
+canvas.style.width=CW+'px';canvas.style.height=CH+'px';
+ctx.scale(dpr,dpr);
+
+const NAMES={red:{K:'甯?,A:'浠?,E:'鐩?,H:'椹?,R:'杞?,C:'鐐?,S:'鍏?},black:{K:'灏?,A:'澹?,E:'璞?,H:'椹?,R:'杞?,C:'鐐?,S:'鍗?}};
+
+const LANGUAGES=[
+{code:'zh',name:'绠€浣撲腑鏂?,native:'绠€浣撲腑鏂?},
+{code:'zh-tw',name:'绻侀珨涓枃',native:'绻侀珨涓枃'},
+{code:'en',name:'English',native:'English'},
+{code:'es',name:'Espa帽ol',native:'Espa帽ol'},
+{code:'fr',name:'Fran莽ais',native:'Fran莽ais'},
+{code:'de',name:'Deutsch',native:'Deutsch'},
+{code:'ja',name:'鏃ユ湰瑾?,native:'鏃ユ湰瑾?},
+{code:'ko',name:'頃滉淡鞏?,native:'頃滉淡鞏?},
+{code:'pt',name:'Portugu锚s',native:'Portugu锚s'},
+{code:'ru',name:'袪褍褋褋泻懈泄',native:'袪褍褋褋泻懈泄'},
+{code:'ar',name:'丕賱毓乇亘賷丞',native:'丕賱毓乇亘賷丞'},
+{code:'it',name:'Italiano',native:'Italiano'},
+{code:'hi',name:'啶灌た啶ㄠ啶︵',native:'啶灌た啶ㄠ啶︵'},
+{code:'id',name:'Bahasa Indonesia',native:'Bahasa Indonesia'},
+{code:'nl',name:'Nederlands',native:'Nederlands'},
+{code:'pl',name:'Polski',native:'Polski'},
+{code:'th',name:'喙勦笚喔?,native:'喙勦笚喔?},
+{code:'vi',name:'Ti岷縩g Vi峄噒',native:'Ti岷縩g Vi峄噒'},
+{code:'tr',name:'T眉rk莽e',native:'T眉rk莽e'},
+];
+
+const I18N={zh:{
+title:'涓?鍥?璞?妫?,selectMode:'閫夋嫨娓告垙妯″紡',gameMode:'娓告垙鏂瑰紡',computerLevel:'鐢佃剳闅惧害',
+modePvp:'鍙屼汉瀵规垬',modePvc:'浜烘満瀵规垬',
+diffEasy:'绠€鍗?,diffNormal:'鏅€?,diffHard:'鍥伴毦',
+diffDescEasy:'鍋舵湁澶辫锛岄噸鍦ㄥ瓙鍔涳紝閫傚悎鏂版墜鍏ラ棬',diffDescNormal:'绋冲仴璧版硶锛屽吋椤炬敾闃诧紝閫傚悎杩涢樁瀵瑰紙',diffDescHard:'鏀绘潃鍑屽帀锛岀潃鐪煎皢闂紝閫傚悎楂樻墜鎸戞垬',
+turnRed:'绾㈡柟璧版',turnBlack:'榛戞柟璧版',checkSuffix:'锛堝皢鍐涳紒锛?,
+aiThinking:'AI鎬濊€冧腑鈥?,pleaseWait:'璇风◢鍊?,yourTurn:'杞埌浣犺蛋妫?,computerThinking:'鐢佃剳鎬濊€冧腑鈥?,
+checkmate:'灏嗘潃锛亄winner}鑳滐紒',stalemate:'鍜屾锛堝洶姣欙級',clickNewGame:'鐐瑰嚮銆岄噸寮€銆嶅啀鏉ヤ竴灞€',
+hintPvp:'{name}璧版 路 鐐瑰嚮/WASD 鎿嶄綔',hintPvcHuman:'杞埌浣犺蛋妫?,hintPvcAI:'鐢佃剳鎬濊€冧腑鈥?,
+winnerRed:'绾㈡柟',winnerBlack:'榛戞柟',btnMenu:'鑿滃崟',btnReset:'閲嶅紑',
+startGame:'寮€ 濮?娓?鎴?,modeTagPvp:'鍙屼汉瀵规垬',modeTagPvc:'浜烘満路{diff}',
+langLabel:'Language / 璇█',
+},'zh-tw':{
+title:'涓?鍦?璞?妫?,selectMode:'閬告搰閬婃埐妯″紡',gameMode:'閬婃埐鏂瑰紡',computerLevel:'闆昏叇闆ｅ害',
+modePvp:'闆欎汉灏嶆埌',modePvc:'浜烘灏嶆埌',
+diffEasy:'绨″柈',diffNormal:'鏅€?,diffHard:'鍥伴洠',
+diffDescEasy:'鍋舵湁澶辫锛岄噸鍦ㄥ瓙鍔涳紝閬╁悎鏂版墜鍏ラ杸',diffDescNormal:'绌╁仴璧版硶锛屽吋椤ф敾闃诧紝閬╁悎閫查殠灏嶅紙',diffDescHard:'鏀绘鍑屽幉锛岃憲鐪煎皣闁€锛岄仼鍚堥珮鎵嬫寫鎴?,
+turnRed:'绱呮柟璧版',turnBlack:'榛戞柟璧版',checkSuffix:'锛堝皣杌嶏紒锛?,
+aiThinking:'AI鎬濊€冧腑鈥?,pleaseWait:'璜嬬◢鍊?,yourTurn:'杓埌浣犺蛋妫?,computerThinking:'闆昏叇鎬濊€冧腑鈥?,
+checkmate:'灏囨锛亄winner}鍕濓紒',stalemate:'鍜屾锛堝洶鏂冿級',clickNewGame:'榛炴搳銆岄噸闁嬨€嶅啀渚嗕竴灞€',
+hintPvp:'{name}璧版 路 榛炴搳/WASD 鎿嶄綔',hintPvcHuman:'杓埌浣犺蛋妫?,hintPvcAI:'闆昏叇鎬濊€冧腑鈥?,
+winnerRed:'绱呮柟',winnerBlack:'榛戞柟',btnMenu:'鑿滃柈',btnReset:'閲嶉枊',
+startGame:'闁?濮?閬?鎴?,modeTagPvp:'闆欎汉灏嶆埌',modeTagPvc:'浜烘路{diff}',
+langLabel:'Language / 瑾炶█',
+},en:{
+title:'Chinese Chess',selectMode:'Select Game Mode',gameMode:'Game Mode',computerLevel:'Computer Level',
+modePvp:'Player vs Player',modePvc:'Player vs Computer',
+diffEasy:'Easy',diffNormal:'Normal',diffHard:'Hard',
+diffDescEasy:'Occasional mistakes, material-focused, for beginners',diffDescNormal:'Solid play, balanced attack/defense, for intermediates',diffDescHard:'Aggressive tactics, king-hunting, for experts',
+turnRed:"Red's Turn",turnBlack:"Black's Turn",checkSuffix:' (Check!)',
+aiThinking:'AI thinking鈥?,pleaseWait:'Please wait',yourTurn:'Your turn',computerThinking:'Computer thinking鈥?,
+checkmate:'Checkmate! {winner} wins!',stalemate:'Stalemate (Draw)',
+clickNewGame:'Click "Reset" to start a new game',
+hintPvp:'{name} to move 路 Click/WASD',hintPvcHuman:'Your turn',hintPvcAI:'Computer thinking鈥?,
+winnerRed:'Red',winnerBlack:'Black',btnMenu:'Menu',btnReset:'Reset',
+startGame:'Start Game',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Language',
+},es:{
+title:'Ajedrez Chino',selectMode:'Seleccionar Modo',gameMode:'Modo de Juego',computerLevel:'Nivel CPU',
+modePvp:'Jugador vs Jugador',modePvc:'Jugador vs CPU',
+diffEasy:'F谩cil',diffNormal:'Normal',diffHard:'Dif铆cil',
+diffDescEasy:'Errores ocasionales, para principiantes',diffDescNormal:'Juego s贸lido, para intermedios',diffDescHard:'T谩ctica agresiva, para expertos',
+turnRed:'Turno de Rojas',turnBlack:'Turno de Negras',checkSuffix:' (Jaque!)',
+aiThinking:'CPU pensando鈥?,pleaseWait:'Espere',yourTurn:'Tu turno',computerThinking:'CPU pensando鈥?,
+checkmate:'隆Jaque mate! 隆Gana {winner}!',stalemate:'Tablas (Ahogado)',
+clickNewGame:'Haga clic en "Reiniciar"',
+hintPvp:'{name} juega 路 Click/WASD',hintPvcHuman:'Tu turno',hintPvcAI:'CPU pensando鈥?,
+winnerRed:'Rojas',winnerBlack:'Negras',btnMenu:'Men煤',btnReset:'Reiniciar',
+startGame:'Comenzar',modeTagPvp:'JvJ',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Idioma',
+},fr:{
+title:'脡checs Chinois',selectMode:'Choisir le Mode',gameMode:'Mode de Jeu',computerLevel:'Niveau CPU',
+modePvp:'Joueur vs Joueur',modePvc:'Joueur vs Ordinateur',
+diffEasy:'Facile',diffNormal:'Normal',diffHard:'Difficile',
+diffDescEasy:'Erreurs occasionnelles, pour d茅butants',diffDescNormal:'Jeu solide, pour interm茅diaires',diffDescHard:'Tactique agressive, pour experts',
+turnRed:'Tour Rouge',turnBlack:'Tour Noir',checkSuffix:' (脡chec!)',
+aiThinking:'IA r茅fl茅chit鈥?,pleaseWait:'Veuillez patienter',yourTurn:'脌 toi de jouer',computerThinking:'Ordinateur r茅fl茅chit鈥?,
+checkmate:'脡chec et mat! {winner} gagne!',stalemate:'Pat (Nulle)',
+clickNewGame:'Cliquez "Rejouer"',
+hintPvp:'{name} joue 路 Click/WASD',hintPvcHuman:'Ton tour',hintPvcAI:'Ordinateur r茅fl茅chit鈥?,
+winnerRed:'Rouge',winnerBlack:'Noir',btnMenu:'Menu',btnReset:'Rejouer',
+startGame:'Commencer',modeTagPvp:'JcJ',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Langue',
+},de:{
+title:'Chinesisches Schach',selectMode:'Spielmodus w盲hlen',gameMode:'Spielmodus',computerLevel:'CPU-Stufe',
+modePvp:'Spieler vs Spieler',modePvc:'Spieler vs Computer',
+diffEasy:'Einfach',diffNormal:'Normal',diffHard:'Schwer',
+diffDescEasy:'Gelegentliche Fehler, f眉r Anf盲nger',diffDescNormal:'Solides Spiel, f眉r Fortgeschrittene',diffDescHard:'Aggressive Taktik, f眉r Experten',
+turnRed:'Rot am Zug',turnBlack:'Schwarz am Zug',checkSuffix:' (Schach!)',
+aiThinking:'KI denkt鈥?,pleaseWait:'Bitte warten',yourTurn:'Du bist dran',computerThinking:'Computer denkt鈥?,
+checkmate:'Schachmatt! {winner} gewinnt!',stalemate:'Patt (Unentschieden)',
+clickNewGame:'Klicke "Neustart"',
+hintPvp:'{name} am Zug 路 Click/WASD',hintPvcHuman:'Du bist dran',hintPvcAI:'Computer denkt鈥?,
+winnerRed:'Rot',winnerBlack:'Schwarz',btnMenu:'Men眉',btnReset:'Neustart',
+startGame:'Starten',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Sprache',
+},ja:{
+title:'涓浗灏嗘',selectMode:'銈层兗銉犮儮銉笺儔閬告姙',gameMode:'銈层兗銉犮儮銉笺儔',computerLevel:'銈炽兂銉斻儱銉笺偪銉儥銉?,
+modePvp:'瀵句汉鎴?,modePvc:'瀵綜PU鎴?,
+diffEasy:'鍒濈礆',diffNormal:'涓礆',diffHard:'涓婄礆',
+diffDescEasy:'鏅傘€呫儫銈广亗銈娿€佸垵蹇冭€呭悜銇?,diffDescNormal:'瀹夊畾銇椼仧鎸囥仐鎵嬨€佷腑绱氳€呭悜銇?,diffDescHard:'閶亜鏀汇倎銆佷笂绱氳€呭悜銇?,
+turnRed:'绱呫伄鐣?,turnBlack:'榛掋伄鐣?,checkSuffix:' (鐜嬫墜!)',
+aiThinking:'AI鎬濊€冧腑鈥?,pleaseWait:'銇婂緟銇°亸銇犮仌銇?,yourTurn:'銇傘仾銇熴伄鐣?,computerThinking:'銈炽兂銉斻儱銉笺偪鎬濊€冧腑鈥?,
+checkmate:'瑭般伩锛亄winner}銇嫕銇★紒',stalemate:'銈广儐銈ゃ儷銉°偆銉堬紙寮曘亶鍒嗐亼锛?,
+clickNewGame:'銆屻儶銈汇儍銉堛€嶃倰銈儶銉冦偗',
+hintPvp:'{name}銇暘 路 銈儶銉冦偗/WASD',hintPvcHuman:'銇傘仾銇熴伄鐣?,hintPvcAI:'銈炽兂銉斻儱銉笺偪鎬濊€冧腑鈥?,
+winnerRed:'绱?,winnerBlack:'榛?,btnMenu:'銉°儖銉ャ兗',btnReset:'銉偦銉冦儓',
+startGame:'闁嬪',modeTagPvp:'瀵句汉',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'瑷€瑾?,
+},ko:{
+title:'欷戧淡 鞛リ赴',selectMode:'瓴岇瀯 氇摐 靹犿儩',gameMode:'瓴岇瀯 氇摐',computerLevel:'旎错摠韯?霠堧波',
+modePvp:'雽€鞚胳爠',modePvc:'雽€ 旎错摠韯办爠',
+diffEasy:'齑堦笁',diffNormal:'欷戧笁',diffHard:'瓿犼笁',
+diffDescEasy:'臧€雭?鞁れ垬, 齑堧炒鞛愳毄',diffDescNormal:'鞎堨爼鞝侅澑 頂岆爤鞚? 欷戧笁鞛愳毄',diffDescHard:'雮犾勾搿滌毚 瓿店博, 瓿犼笁鞛愳毄',
+turnRed:'頇嶌儔 彀',turnBlack:'頋戩儔 彀',checkSuffix:' (鞛リ蛋!)',
+aiThinking:'AI 靸濌皝 欷戔€?,pleaseWait:'鞛犾嫓 旮半嫟霠?欤检劯鞖?,yourTurn:'雼轨嫚 彀',computerThinking:'旎错摠韯?靸濌皝 欷戔€?,
+checkmate:'鞛リ蛋! {winner} 鞀闺Μ!',stalemate:'鞀ろ厡鞚茧鞚错姼 (氍挫姽攵€)',
+clickNewGame:'銆岇灛鞁滌瀾銆嶍伌毽?,
+hintPvp:'{name} 彀 路 韥措Ν/WASD',hintPvcHuman:'雼轨嫚 彀',hintPvcAI:'旎错摠韯?靸濌皝 欷戔€?,
+winnerRed:'頇嶌儔',winnerBlack:'頋戩儔',btnMenu:'氅旊壌',btnReset:'鞛嫓鞛?,
+startGame:'鞁滌瀾',modeTagPvp:'雽€鞚?,modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'鞏胳柎',
+},pt:{
+title:'Xadrez Chin锚s',selectMode:'Selecionar Modo',gameMode:'Modo de Jogo',computerLevel:'N铆vel CPU',
+modePvp:'Jogador vs Jogador',modePvc:'Jogador vs Computador',
+diffEasy:'F谩cil',diffNormal:'Normal',diffHard:'Dif铆cil',
+diffDescEasy:'Erros ocasionais, para iniciantes',diffDescNormal:'Jogo s贸lido, para intermedi谩rios',diffDescHard:'T谩tica agressiva, para especialistas',
+turnRed:'Vez do Vermelho',turnBlack:'Vez do Preto',checkSuffix:' (Xeque!)',
+aiThinking:'IA pensando鈥?,pleaseWait:'Aguarde',yourTurn:'Sua vez',computerThinking:'Computador pensando鈥?,
+checkmate:'Xeque-mate! {winner} venceu!',stalemate:'Afogamento (Empate)',
+clickNewGame:'Clique "Reiniciar"',
+hintPvp:'{name} joga 路 Clique/WASD',hintPvcHuman:'Sua vez',hintPvcAI:'Computador pensando鈥?,
+winnerRed:'Vermelho',winnerBlack:'Preto',btnMenu:'Menu',btnReset:'Reiniciar',
+startGame:'Iniciar',modeTagPvp:'JvJ',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Idioma',
+},ru:{
+title:'袣懈褌邪泄褋泻懈械 褕邪褏屑邪褌褘',selectMode:'袙褘斜芯褉 褉械卸懈屑邪',gameMode:'袪械卸懈屑 懈谐褉褘',computerLevel:'校褉芯胁械薪褜 CPU',
+modePvp:'袠谐褉芯泻 vs 袠谐褉芯泻',modePvc:'袠谐褉芯泻 vs 袣芯屑锌褜褞褌械褉',
+diffEasy:'袥械谐泻懈泄',diffNormal:'小褉械写薪懈泄',diffHard:'小谢芯卸薪褘泄',
+diffDescEasy:'小谢褍褔邪泄薪褘械 芯褕懈斜泻懈, 写谢褟 薪芯胁懈褔泻芯胁',diffDescNormal:'小褌邪斜懈谢褜薪邪褟 懈谐褉邪, 写谢褟 褋褉械写薪械谐芯 褍褉芯胁薪褟',diffDescHard:'袗谐褉械褋褋懈胁薪邪褟 褌邪泻褌懈泻邪, 写谢褟 褝泻褋锌械褉褌芯胁',
+turnRed:'啸芯写 袣褉邪褋薪褘褏',turnBlack:'啸芯写 效械褉薪褘褏',checkSuffix:' (楔邪褏!)',
+aiThinking:'袠袠 写褍屑邪械褌鈥?,pleaseWait:'袩芯写芯卸写懈褌械',yourTurn:'袙邪褕 褏芯写',computerThinking:'袣芯屑锌褜褞褌械褉 写褍屑邪械褌鈥?,
+checkmate:'袦邪褌! {winner} 锌芯斜械写懈谢!',stalemate:'袩邪褌 (袧懈褔褜褟)',
+clickNewGame:'袧邪卸屑懈褌械 芦小斜褉芯褋禄',
+hintPvp:'{name} 褏芯写懈褌 路 袣谢懈泻/WASD',hintPvcHuman:'袙邪褕 褏芯写',hintPvcAI:'袣芯屑锌褜褞褌械褉 写褍屑邪械褌鈥?,
+winnerRed:'袣褉邪褋薪褘械',winnerBlack:'效械褉薪褘械',btnMenu:'袦械薪褞',btnReset:'小斜褉芯褋',
+startGame:'袧邪褔邪褌褜',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'携蟹褘泻',
+},ar:{
+title:'丕賱卮胤乇賳噩 丕賱氐賷賳賷',selectMode:'丕禺鬲乇 丕賱賵囟毓',gameMode:'賵囟毓 丕賱賱毓亘丞',computerLevel:'賲爻鬲賵賶 丕賱賰賲亘賷賵鬲乇',
+modePvp:'賱丕毓亘 囟丿 賱丕毓亘',modePvc:'賱丕毓亘 囟丿 丕賱賰賲亘賷賵鬲乇',
+diffEasy:'爻賴賱',diffNormal:'賲鬲賵爻胤',diffHard:'氐毓亘',
+diffDescEasy:'兀禺胤丕亍 毓乇囟賷丞貙 賱賱賲亘鬲丿卅賷賳',diffDescNormal:'賱毓亘 賲鬲賵丕夭賳貙 賱賱賲鬲賵爻胤賷賳',diffDescHard:'鬲賰鬲賷賰丕鬲 賴噩賵賲賷丞貙 賱賱禺亘乇丕亍',
+turnRed:'丿賵乇 丕賱兀丨賲乇',turnBlack:'丿賵乇 丕賱兀爻賵丿',checkSuffix:' (賰卮!)',
+aiThinking:'丕賱賰賲亘賷賵鬲乇 賷賮賰乇鈥?,pleaseWait:'丕賳鬲馗乇 賲賳 賮囟賱賰',yourTurn:'丿賵乇賰',computerThinking:'丕賱賰賲亘賷賵鬲乇 賷賮賰乇鈥?,
+checkmate:'賰卮 賲丕鬲! {winner} 賮丕夭!',stalemate:'鬲毓丕丿賱 (噩賲賵丿)',
+clickNewGame:'丕囟睾胤 "廿毓丕丿丞"',
+hintPvp:'{name} 賷賱毓亘 路 Click/WASD',hintPvcHuman:'丿賵乇賰',hintPvcAI:'丕賱賰賲亘賷賵鬲乇 賷賮賰乇鈥?,
+winnerRed:'丕賱兀丨賲乇',winnerBlack:'丕賱兀爻賵丿',btnMenu:'賯丕卅賲丞',btnReset:'廿毓丕丿丞',
+startGame:'丕亘丿兀',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'丕賱賱睾丞',
+},it:{
+title:'Scacchi Cinesi',selectMode:'Seleziona Modalit脿',gameMode:'Modalit脿 di Gioco',computerLevel:'Livello CPU',
+modePvp:'Giocatore vs Giocatore',modePvc:'Giocatore vs Computer',
+diffEasy:'Facile',diffNormal:'Normale',diffHard:'Difficile',
+diffDescEasy:'Errori occasionali, per principianti',diffDescNormal:'Gioco solido, per intermedi',diffDescHard:'Tattica aggressiva, per esperti',
+turnRed:'Turno del Rosso',turnBlack:'Turno del Nero',checkSuffix:' (Scacco!)',
+aiThinking:'AI pensa鈥?,pleaseWait:'Attendere',yourTurn:'Il tuo turno',computerThinking:'Computer pensa鈥?,
+checkmate:'Scacco matto! {winner} vince!',stalemate:'Stallo (Patta)',
+clickNewGame:'Clicca "Ricomincia"',
+hintPvp:'{name} muove 路 Click/WASD',hintPvcHuman:'Il tuo turno',hintPvcAI:'Computer pensa鈥?,
+winnerRed:'Rosso',winnerBlack:'Nero',btnMenu:'Menu',btnReset:'Ricomincia',
+startGame:'Inizia',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Lingua',
+},hi:{
+title:'啶氞啶ㄠ 啶多い啶班啶?,selectMode:'啶椸啶?啶啶?啶氞啶ㄠ啶?,gameMode:'啶椸啶?啶啶?,computerLevel:'啶曕啶啶啶熰ぐ 啶膏啶むぐ',
+modePvp:'啶栢た啶侧ぞ啶∴ぜ啷€ 啶え啶距ぎ 啶栢た啶侧ぞ啶∴ぜ啷€',modePvc:'啶栢た啶侧ぞ啶∴ぜ啷€ 啶え啶距ぎ 啶曕啶啶啶熰ぐ',
+diffEasy:'啶嗋じ啶距え',diffNormal:'啶膏ぞ啶ぞ啶ㄠ啶?,diffHard:'啶曕啶苦え',
+diffDescEasy:'啶曕き啷€-啶曕き啷€ 啶椸げ啶む, 啶多啶班啶嗋い 啶曕 啶侧た啶?,diffDescNormal:'啶膏啶む啶侧た啶?啶栢啶? 啶ぇ啷嵿く啶?啶曕 啶侧た啶?,diffDescHard:'啶嗋啷嵿ぐ啶距ぎ啶?啶班ぃ啶ㄠ啶むた, 啶掂た啶多啶粪啷嵿啷嬥 啶曕 啶侧た啶?,
+turnRed:'啶侧ぞ啶?啶曕 啶ぞ啶班',turnBlack:'啶曕ぞ啶侧 啶曕 啶ぞ啶班',checkSuffix:' (啶多す!)',
+aiThinking:'AI 啶膏啶?啶班す啶?啶灌鈥?,pleaseWait:'啶曕啶く啶?啶啶班い啷€啶曕啶粪ぞ 啶曕ぐ啷囙',yourTurn:'啶嗋お啶曕 啶ぞ啶班',computerThinking:'啶曕啶啶啶熰ぐ 啶膏啶?啶班す啶?啶灌鈥?,
+checkmate:'啶多す 啶ぞ啶? {winner} 啶溹啶むぞ!',stalemate:'啶班啶曕ぞ啶掂 (啶∴啶班ぞ)',
+clickNewGame:'"啶班啶膏啶? 啶ぐ 啶曕啶侧た啶?啶曕ぐ啷囙',
+hintPvp:'{name} 啶曕 啶ぞ啶班 路 啶曕啶侧た啶?WASD',hintPvcHuman:'啶嗋お啶曕 啶ぞ啶班',hintPvcAI:'啶曕啶啶啶熰ぐ 啶膏啶?啶班す啶?啶灌鈥?,
+winnerRed:'啶侧ぞ啶?,winnerBlack:'啶曕ぞ啶侧ぞ',btnMenu:'啶啶ㄠ',btnReset:'啶班啶膏啶?,
+startGame:'啶多啶班 啶曕ぐ啷囙',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'啶ぞ啶粪ぞ',
+},id:{
+title:'Catur Cina',selectMode:'Pilih Mode',gameMode:'Mode Permainan',computerLevel:'Tingkat CPU',
+modePvp:'Pemain vs Pemain',modePvc:'Pemain vs Komputer',
+diffEasy:'Mudah',diffNormal:'Sedang',diffHard:'Sulit',
+diffDescEasy:'Kadang salah, untuk pemula',diffDescNormal:'Permainan solid, untuk menengah',diffDescHard:'Taktik agresif, untuk ahli',
+turnRed:'Giliran Merah',turnBlack:'Giliran Hitam',checkSuffix:' (Skak!)',
+aiThinking:'AI berpikir鈥?,pleaseWait:'Harap tunggu',yourTurn:'Giliranmu',computerThinking:'Komputer berpikir鈥?,
+checkmate:'Skak mat! {winner} menang!',stalemate:'Stalemate (Seri)',
+clickNewGame:'Klik "Ulang"',
+hintPvp:'{name} jalan 路 Klik/WASD',hintPvcHuman:'Giliranmu',hintPvcAI:'Komputer berpikir鈥?,
+winnerRed:'Merah',winnerBlack:'Hitam',btnMenu:'Menu',btnReset:'Ulang',
+startGame:'Mulai',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Bahasa',
+},nl:{
+title:'Chinees Schaken',selectMode:'Kies Modus',gameMode:'Spelmodus',computerLevel:'CPU-niveau',
+modePvp:'Speler vs Speler',modePvc:'Speler vs Computer',
+diffEasy:'Makkelijk',diffNormal:'Normaal',diffHard:'Moeilijk',
+diffDescEasy:'Af en toe fouten, voor beginners',diffDescNormal:'Solide spel, voor gevorderden',diffDescHard:'Agressieve tactiek, voor experts',
+turnRed:'Rood aan zet',turnBlack:'Zwart aan zet',checkSuffix:' (Schaak!)',
+aiThinking:'AI denkt鈥?,pleaseWait:'Even geduld',yourTurn:'Jouw beurt',computerThinking:'Computer denkt鈥?,
+checkmate:'Schaakmat! {winner} wint!',stalemate:'Pat (Gelijkspel)',
+clickNewGame:'Klik "Reset"',
+hintPvp:'{name} aan zet 路 Klik/WASD',hintPvcHuman:'Jouw beurt',hintPvcAI:'Computer denkt鈥?,
+winnerRed:'Rood',winnerBlack:'Zwart',btnMenu:'Menu',btnReset:'Reset',
+startGame:'Start',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Taal',
+},pl:{
+title:'Chi艅skie Szachy',selectMode:'Wybierz Tryb',gameMode:'Tryb Gry',computerLevel:'Poziom CPU',
+modePvp:'Gracz vs Gracz',modePvc:'Gracz vs Komputer',
+diffEasy:'艁atwy',diffNormal:'Normalny',diffHard:'Trudny',
+diffDescEasy:'Okazjonalne b艂臋dy, dla pocz膮tkuj膮cych',diffDescNormal:'Solidna gra, dla 艣redniozaawansowanych',diffDescHard:'Agresywna taktyka, dla ekspert贸w',
+turnRed:'Ruch Czerwonych',turnBlack:'Ruch Czarnych',checkSuffix:' (Szach!)',
+aiThinking:'AI my艣li鈥?,pleaseWait:'Prosz臋 czeka膰',yourTurn:'Tw贸j ruch',computerThinking:'Komputer my艣li鈥?,
+checkmate:'Mat! {winner} wygrywa!',stalemate:'Pat (Remis)',
+clickNewGame:'Kliknij "Reset"',
+hintPvp:'{name} rusza 路 Klik/WASD',hintPvcHuman:'Tw贸j ruch',hintPvcAI:'Komputer my艣li鈥?,
+winnerRed:'Czerwoni',winnerBlack:'Czarni',btnMenu:'Menu',btnReset:'Reset',
+startGame:'Start',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'J臋zyk',
+},th:{
+title:'喔浮喔侧竵喔｀父喔佮笀喔掂笝',selectMode:'喙€喔ム阜喔竵喙傕斧喔∴笖',gameMode:'喙傕斧喔∴笖喙€喔佮浮',computerLevel:'喔｀赴喔斷副喔?CPU',
+modePvp:'喔溹腹喙夃箑喔ム箞喔?vs 喔溹腹喙夃箑喔ム箞喔?,modePvc:'喔溹腹喙夃箑喔ム箞喔?vs 喔勦腑喔∴笧喔脆抚喙€喔曕腑喔｀箤',
+diffEasy:'喔囙箞喔侧涪',diffNormal:'喔涏覆喔權竵喔ム覆喔?,diffHard:'喔⑧覆喔?,
+diffDescEasy:'喔溹复喔斷笧喔ム覆喔斷笟喙夃覆喔囙笟喔侧竾喔勦福喔编箟喔?喔赋喔福喔编笟喔∴阜喔箖喔浮喙?,diffDescNormal:'喔佮覆喔｀箑喔ム箞喔權笚喔掂箞喔∴副喙堗笝喔勦竾 喔赋喔福喔编笟喔｀赴喔斷副喔氞竵喔ム覆喔?,diffDescHard:'喔佮弗喔⑧父喔椸笜喙屶福喔膏竵喙佮福喔?喔赋喔福喔编笟喔溹腹喙夃箑喔娻傅喙堗涪喔о笂喔侧笉',
+turnRed:'喔曕覆喙佮笖喔?,turnBlack:'喔曕覆喔斷赋',checkSuffix:' (喔｀父喔?)',
+aiThinking:'AI 喔佮赋喔ム副喔囙竸喔脆笖鈥?,pleaseWait:'喙傕笡喔｀笖喔｀腑',yourTurn:'喔曕覆喔勦父喔?,computerThinking:'喔勦腑喔∴笧喔脆抚喙€喔曕腑喔｀箤喔佮赋喔ム副喔囙竸喔脆笖鈥?,
+checkmate:'喔｀父喔佮竼喔侧笗! {winner} 喔娻笝喔?',stalemate:'喙€喔浮喔?,
+clickNewGame:'喔勦弗喔脆竵 "喙€喔｀复喙堗浮喙冟斧喔∴箞"',
+hintPvp:'{name} 喙€喔斷复喔?路 喔勦弗喔脆竵/WASD',hintPvcHuman:'喔曕覆喔勦父喔?,hintPvcAI:'喔勦腑喔∴笧喔脆抚喙€喔曕腑喔｀箤喔佮赋喔ム副喔囙竸喔脆笖鈥?,
+winnerRed:'喙佮笖喔?,winnerBlack:'喔斷赋',btnMenu:'喙€喔∴笝喔?,btnReset:'喙€喔｀复喙堗浮喙冟斧喔∴箞',
+startGame:'喙€喔｀复喙堗浮',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'喔犩覆喔┼覆',
+},vi:{
+title:'C峄?T瓢峄沶g',selectMode:'Ch峄峮 Ch岷?膼峄?,gameMode:'Ch岷?膼峄?Ch啤i',computerLevel:'C岷 膼峄?CPU',
+modePvp:'Ng瓢峄漣 vs Ng瓢峄漣',modePvc:'Ng瓢峄漣 vs M谩y',
+diffEasy:'D峄?,diffNormal:'Trung B矛nh',diffHard:'Kh贸',
+diffDescEasy:'Th峄塶h tho岷g sai l岷, cho ng瓢峄漣 m峄沬',diffDescNormal:'L峄慽 ch啤i v峄痭g ch岷痗, cho trung c岷',diffDescHard:'Chi岷縩 thu岷璽 t岷 c么ng, cho cao th峄?,
+turnRed:'L瓢峄 膼峄?,turnBlack:'L瓢峄 膼en',checkSuffix:' (Chi岷縰!)',
+aiThinking:'M谩y 膽ang suy ngh末鈥?,pleaseWait:'Vui l貌ng 膽峄',yourTurn:'L瓢峄 b岷',computerThinking:'M谩y 膽ang suy ngh末鈥?,
+checkmate:'Chi岷縰 h岷縯! {winner} th岷痭g!',stalemate:'H貌a (B岷?t岷痗)',
+clickNewGame:'Nh岷 "Ch啤i l岷"',
+hintPvp:'{name} 膽i 路 Click/WASD',hintPvcHuman:'L瓢峄 b岷',hintPvcAI:'M谩y 膽ang suy ngh末鈥?,
+winnerRed:'膼峄?,winnerBlack:'膼en',btnMenu:'Menu',btnReset:'Ch啤i l岷',
+startGame:'B岷痶 膼岷',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Ng么n ng峄?,
+},tr:{
+title:'脟in Satranc谋',selectMode:'Oyun Modu Se莽',gameMode:'Oyun Modu',computerLevel:'CPU Seviyesi',
+modePvp:'Oyuncu vs Oyuncu',modePvc:'Oyuncu vs Bilgisayar',
+diffEasy:'Kolay',diffNormal:'Normal',diffHard:'Zor',
+diffDescEasy:'Ara s谋ra hata, yeni ba艧layanlar i莽in',diffDescNormal:'Sa臒lam oyun, orta seviye i莽in',diffDescHard:'Sald谋rgan taktik, uzmanlar i莽in',
+turnRed:'K谋rm谋z谋\'n谋n S谋ras谋',turnBlack:'Siyah\'谋n S谋ras谋',checkSuffix:' (艦ah!)',
+aiThinking:'AI d眉艧眉n眉yor鈥?,pleaseWait:'L眉tfen bekleyin',yourTurn:'Senin s谋ran',computerThinking:'Bilgisayar d眉艧眉n眉yor鈥?,
+checkmate:'艦ah mat! {winner} kazand谋!',stalemate:'Pat (Beraberlik)',
+clickNewGame:'"S谋f谋rla"ya t谋klay谋n',
+hintPvp:'{name} oynuyor 路 T谋kla/WASD',hintPvcHuman:'Senin s谋ran',hintPvcAI:'Bilgisayar d眉艧眉n眉yor鈥?,
+winnerRed:'K谋rm谋z谋',winnerBlack:'Siyah',btnMenu:'Men眉',btnReset:'S谋f谋rla',
+startGame:'Ba艧la',modeTagPvp:'PvP',modeTagPvc:'vs CPU 路 {diff}',
+langLabel:'Dil',
+}};
+
+let currentLang=localStorage.getItem('chessLang')||'zh';
+
+function t(key,params){
+ let text=I18N[currentLang]?.[key];
+ if(text===undefined)text=I18N['en'][key];
+ if(text===undefined)text=I18N['zh'][key];
+ if(text===undefined)return key;
+ if(params)for(const[k,v]of Object.entries(params))text=text.replace(/{([^}]+)}/g,(_,m)=>m===k?v:_);
+ return text;
+}
+
+function applyLanguage(){
+ titleEl.textContent=t('title');
+ modalTitle.textContent=t('title');
+ modalSub.textContent=t('selectMode');
+ modeLabel.textContent=t('gameMode');
+ modePvpBtn.textContent='馃懁 '+t('modePvp');
+ modePvcBtn.textContent='馃 '+t('modePvc');
+ diffLabel.textContent=t('computerLevel');
+ diffEasyBtn.textContent=t('diffEasy');
+ diffNormalBtn.textContent=t('diffNormal');
+ diffHardBtn.textContent=t('diffHard');
+ langLabel.textContent=t('langLabel');
+ startBtn.textContent=t('startGame');
+ menuBtn.textContent=t('btnMenu');
+ resetBtn.textContent=t('btnReset');
+ // build language grid
+ langGrid.innerHTML='';
+ for(const lang of LANGUAGES){
+  const btn=document.createElement('button');
+  btn.className='lang-opt-btn'+(lang.code===currentLang?' active':'');
+  btn.textContent=lang.native;
+  btn.dataset.code=lang.code;
+  btn.addEventListener('click',()=>{
+   currentLang=lang.code;
+   localStorage.setItem('chessLang',lang.code);
+   document.querySelectorAll('.lang-opt-btn').forEach(b=>b.classList.toggle('active',b.dataset.code===currentLang));
+   applyLanguage();
+   if(board.length>0&&typeof updateStatus==='function')updateStatus();
+   if(board.length>0&&typeof render==='function')render();
+  });
+  langGrid.appendChild(btn);
+ }
+}
+
+let board=[],turn='red',selected=null,cursor={row:9,col:4},validMoves=[],gameOver=false,lastMove=null,moveHistory=[];
+let gameMode='pvp',difficulty='easy',aiThinking=false;
+
+function inBoard(r,c){return r>=0&&r<ROWS&&c>=0&&c<COLS}
+function inPalace(r,c,color){if(c<3||c>5)return false;return color==='red'?(r>=7&&r<=9):(r>=0&&r<=2)}
+function onOwnSide(r,color){return color==='red'?r>=5:r<=4}
+function p(r,c){return board[r][c]}
+function isEnemy(r,c,color){const pc=p(r,c);return pc&&pc.color!==color}
+function isFriend(r,c,color){const pc=p(r,c);return pc&&pc.color===color}
+function cloneBoard(b){return b.map(r=>r.map(c=>c?{...c}:null))}
+function findGeneral(b,color){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(b[r][c]&&b[r][c].type==='K'&&b[r][c].color===color)return{row:r,col:c};return null}
+
+function generalsFacing(b){
+ const rg=findGeneral(b,'red'),bg=findGeneral(b,'black');
+ if(!rg||!bg||rg.col!==bg.col)return false;
+ const minR=Math.min(rg.row,bg.row),maxR=Math.max(rg.row,bg.row);
+ for(let r=minR+1;r<maxR;r++)if(b[r][rg.col])return false;
+ return true;
+}
+
+function getRawMoves(b,row,col){
+ const piece=b[row][col];if(!piece)return[];
+ const{type,color}=piece;const moves=[];
+ switch(type){
+  case'K':for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){const nr=row+dr,nc=col+dc;if(inBoard(nr,nc)&&inPalace(nr,nc,color)&&!isFriend(nr,nc,color))moves.push({row:nr,col:nc})}break;
+  case'A':for(const[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){const nr=row+dr,nc=col+dc;if(inBoard(nr,nc)&&inPalace(nr,nc,color)&&!isFriend(nr,nc,color))moves.push({row:nr,col:nc})}break;
+  case'E':for(const[dr,dc,br,bc]of[[-2,-2,-1,-1],[-2,2,-1,1],[2,-2,1,-1],[2,2,1,1]]){const nr=row+dr,nc=col+dc,brr=row+br,bcc=col+bc;if(inBoard(nr,nc)&&onOwnSide(nr,color)&&!b[brr][bcc]&&!isFriend(nr,nc,color))moves.push({row:nr,col:nc})}break;
+  case'H':{const hBlocks=[[-2,-1,-1,0],[-2,1,-1,0],[2,-1,1,0],[2,1,1,0],[-1,-2,0,-1],[-1,2,0,1],[1,-2,0,-1],[1,2,0,1]];for(const[dr,dc,br,bc]of hBlocks){const nr=row+dr,nc=col+dc,brr=row+br,bcc=col+bc;if(inBoard(nr,nc)&&inBoard(brr,bcc)&&!b[brr][bcc]&&!isFriend(nr,nc,color))moves.push({row:nr,col:nc})}}break;
+  case'R':for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){let nr=row+dr,nc=col+dc;while(inBoard(nr,nc)){if(b[nr][nc]){if(isEnemy(nr,nc,color))moves.push({row:nr,col:nc});break}moves.push({row:nr,col:nc});nr+=dr;nc+=dc}}break;
+  case'C':for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){let nr=row+dr,nc=col+dc,j=false;while(inBoard(nr,nc)){if(!j){if(b[nr][nc])j=true;else moves.push({row:nr,col:nc})}else{if(b[nr][nc]){if(isEnemy(nr,nc,color))moves.push({row:nr,col:nc});break}}nr+=dr;nc+=dc}}break;
+  case'S':{const fwd=color==='red'?-1:1,crossed=!onOwnSide(row,color),fr=row+fwd;if(inBoard(fr,col)&&!isFriend(fr,col,color))moves.push({row:fr,col});if(crossed){for(const dc of[-1,1]){const nc=col+dc;if(inBoard(row,nc)&&!isFriend(row,nc,color))moves.push({row,col:nc})}}}break;
+ }return moves;
+}
+
+function isInCheck(b,color){
+ const gen=findGeneral(b,color);if(!gen)return true;
+ if(generalsFacing(b))return true;
+ const enemy=color==='red'?'black':'red';
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(b[r][c]&&b[r][c].color===enemy){const raw=getRawMoves(b,r,c);if(raw.some(m=>m.row===gen.row&&m.col===gen.col))return true}
+ return false;
+}
+
+function isLegalMove(b,fr,fc,tr,tc){
+ const nb=cloneBoard(b);nb[tr][tc]=nb[fr][fc];nb[fr][fc]=null;
+ return !isInCheck(nb,b[fr][fc].color);
+}
+
+function getLegalMoves(b,r,c){const raw=getRawMoves(b,r,c);return raw.filter(m=>isLegalMove(b,r,c,m.row,m.col))}
+function hasLegalMove(b,color){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(b[r][c]&&b[r][c].color===color&&getLegalMoves(b,r,c).length>0)return true;return false}
+function applyMove(b,fr,fc,tr,tc){b[tr][tc]=b[fr][fc];b[fr][fc]=null}
+function checkGameState(b,color){if(!hasLegalMove(b,color)){if(isInCheck(b,color))return'checkmate';return'stalemate'}if(isInCheck(b,color))return'check';return'normal'}
+
+const AI={
+ PIECE_VAL:{K:10000,R:900,H:400,C:450,A:200,E:200,S:100},
+ eval(b,aiColor){
+  const enemy=aiColor==='red'?'black':'red',enemyKing=findGeneral(b,enemy);let score=0;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+   const p=b[r][c];if(!p)continue;let v=this.PIECE_VAL[p.type];const isAI=p.color===aiColor;
+   if(p.type==='S'){if(!onOwnSide(r,p.color)){v=200;const adv=p.color==='red'?(5-r):(r-4);if(adv>0)v+=adv*12}else v=80}
+   if(p.type==='H'){const cr=p.color==='red'?r:9-r,dist=Math.abs(c-4)+Math.abs(cr-4.5)*0.6;v+=Math.max(0,7-dist)*7}
+   if(p.type==='K'){if(c===4)v+=50;else if(c===3||c===5)v+=20;if(p.color==='red')v+=r>=8?30:r>=6?10:-30;else v+=r<=1?30:r<=3?10:-30}
+   if((p.type==='E'||p.type==='A')&&c>=3&&c<=5)v+=20
+   if(p.type==='R'){let own=-1;for(let rr=0;rr<ROWS;rr++)if(b[rr][c]&&b[rr][c].color===p.color)own++;if(own<=1)v+=40}
+   if(p.type==='C'){let tot=0;for(let rr=0;rr<ROWS;rr++)if(b[rr][c])tot++;if(tot>=3)v+=30;if(c>=3&&c<=5)v+=15}
+   if(enemyKing&&isAI){const kd=Math.abs(r-enemyKing.row)+Math.abs(c-enemyKing.col);if(kd<=4){let bns=(5-kd)*25;if(p.type==='R')bns+=30;else if(p.type==='H')bns+=20;else if(p.type==='C')bns+=15;else if(p.type==='S')bns+=20;v+=bns}}
+   let nearby=0;for(const[dr,dc]of[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){const nr=r+dr,nc=c+dc;if(inBoard(nr,nc)&&b[nr][nc]&&b[nr][nc].color===p.color)nearby++}
+   if(isAI)v+=nearby*5;else if(nearby===0)v+=15
+   if(isAI)score+=v;else score-=v
+  }return score
+ },
+ getAllLegalMoves(b,color){const a=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(b[r][c]&&b[r][c].color===color)for(const m of getLegalMoves(b,r,c))a.push({fromR:r,fromC:c,toR:m.row,toC:m.col});return a},
+ getCaptures(b,color){const c=[];for(let r=0;r<ROWS;r++)for(let cc=0;cc<COLS;cc++)if(b[r][cc]&&b[r][cc].color===color)for(const m of getLegalMoves(b,r,cc))if(b[m.row][m.col])c.push({fromR:r,fromC:cc,toR:m.row,toC:m.col});return c},
+ moveScore(b,mv){let s=0;const cap=mv.toR!=null&&b[mv.toR]&&b[mv.toR][mv.toC];if(cap)s+=this.PIECE_VAL[cap.type]*10;if(cap&&mv.fromR!=null&&b[mv.fromR]&&b[mv.fromR][mv.fromC])s-=this.PIECE_VAL[b[mv.fromR][mv.fromC].type];return s},
+ orderMoves(b,mvs){return mvs.sort((a,m)=>this.moveScore(b,m)-this.moveScore(b,a))},
+ quiescence(b,alpha,beta,isMax,aiColor,qd){
+  if(qd>6)return this.eval(b,aiColor);const sp=this.eval(b,aiColor);
+  if(isMax){if(sp>=beta)return beta;if(sp>alpha)alpha=sp;const caps=this.getCaptures(b,aiColor);this.orderMoves(b,caps);for(const cap of caps){const nb=cloneBoard(b);nb[cap.toR][cap.toC]=nb[cap.fromR][cap.fromC];nb[cap.fromR][cap.fromC]=null;const sc=this.quiescence(nb,alpha,beta,false,aiColor,qd+1);if(sc>alpha)alpha=sc;if(alpha>=beta)break}return alpha}
+  else{if(sp<=alpha)return alpha;if(sp<beta)beta=sp;const opp=aiColor==='red'?'black':'red',caps=this.getCaptures(b,opp);this.orderMoves(b,caps);for(const cap of caps){const nb=cloneBoard(b);nb[cap.toR][cap.toC]=nb[cap.fromR][cap.fromC];nb[cap.fromR][cap.fromC]=null;const sc=this.quiescence(nb,alpha,beta,true,aiColor,qd+1);if(sc<beta)beta=sc;if(alpha>=beta)break}return beta}
+ },
+ minimax(b,depth,alpha,beta,isMax,aiColor,extra){
+  const color=isMax?aiColor:(aiColor==='red'?'black':'red');
+  if(depth===0)return this.quiescence(b,alpha,beta,isMax,aiColor,0);
+  const moves=this.getAllLegalMoves(b,color);if(moves.length===0){if(isInCheck(b,color))return isMax?-9999999:9999999;return 0}
+  this.orderMoves(b,moves);
+  if(isMax){let maxE=-Infinity;for(const mv of moves){const nb=cloneBoard(b);nb[mv.toR][mv.toC]=nb[mv.fromR][mv.fromC];nb[mv.fromR][mv.fromC]=null;const givesCheck=isInCheck(nb,color==='red'?'black':'red'),ext=(givesCheck&&extra<2)?1:0;const ev=this.minimax(nb,depth-1+ext,alpha,beta,false,aiColor,extra+ext);maxE=Math.max(maxE,ev);alpha=Math.max(alpha,ev);if(beta<=alpha)break}return maxE}
+  else{let minE=Infinity;for(const mv of moves){const nb=cloneBoard(b);nb[mv.toR][mv.toC]=nb[mv.fromR][mv.fromC];nb[mv.fromR][mv.fromC]=null;const givesCheck=isInCheck(nb,color==='red'?'black':'red'),ext=(givesCheck&&extra<2)?1:0;const ev=this.minimax(nb,depth-1+ext,alpha,beta,true,aiColor,extra+ext);minE=Math.min(minE,ev);beta=Math.min(beta,ev);if(beta<=alpha)break}return minE}
+ },
+ findBestMove(b,aiColor,difficulty,callback){
+  const configs={easy:{maxDepth:2,timeBudget:4e3,noise:.15,randomChance:.12},normal:{maxDepth:3,timeBudget:6e3,noise:0},hard:{maxDepth:4,timeBudget:1e4,noise:0}};
+  const cfg=configs[difficulty],start=Date.now(),moves=this.getAllLegalMoves(b,aiColor);
+  if(!moves.length){callback(null);return}
+  this.orderMoves(b,moves);
+  if(difficulty==='easy'&&Math.random()<cfg.randomChance){const ri=Math.floor(Math.random()*moves.length);callback(moves[ri]);return}
+  let bestMove=moves[0],bestScore=-Infinity,idx=0;
+  const next=()=>{if(idx>=moves.length||Date.now()-start>cfg.timeBudget){callback(bestMove);return}const mv=moves[idx++],nb=cloneBoard(b);nb[mv.toR][mv.toC]=nb[mv.fromR][mv.fromC];nb[mv.fromR][mv.fromC]=null;const score=this.minimax(nb,cfg.maxDepth-1,-Infinity,Infinity,false,aiColor,0),fs=cfg.noise>0?score*(1+(Math.random()-.5)*cfg.noise*2):score;if(fs>bestScore){bestScore=fs;bestMove=mv}setTimeout(next,0)};
+  next()
+ }
+};
+
+/* opening book */
+const OPENING_BOOK={
+"7774":"0122","7174":"0726","6252":"0122","6050":"0122","6454":"3444","6656":"0726","6858":"0726","9776":"0122","9172":"0726","9080":"0122","9888":"0726","9384":"0122","9584":"0726","9274":"0726","9674":"0122",
+"7774,0122,9776":"0001","7774,0122,9172":"0001","7774,0122,6252":"3242","7774,0122,6454":"3242","7774,0122,9080":"0001","7774,0122,9086":"3242","7174,0726,9776":"0807","6252,0122,7774":"0726","6252,0122,9172":"0001","9776,0122,6252":"0726","9776,0122,7774":"0001","9172,0726,6252":"0122","9172,0726,7774":"0807",
+"7774,0122,9776,0001,6252":"3242","7774,0122,9776,0001,0504":"0726","7774,0122,9776,3242,6252":"0726",
+};
+
+function getBookMove(){
+ const parts=[];for(const e of moveHistory)parts.push(`${e.from.row}${e.from.col}${e.to.row}${e.to.col}`);
+ const key=parts.join(','),bm=OPENING_BOOK[key];if(!bm)return null;
+ const fr=+bm[0],fc=+bm[1],tr=+bm[2],tc=+bm[3],pc=board[fr]&&board[fr][fc];
+ if(!pc||pc.color!==turn)return null;
+ const leg=getLegalMoves(board,fr,fc);if(!leg.some(m=>m.row===tr&&m.col===tc))return null;
+ return{fromR:fr,fromC:fc,toR:tr,toC:tc};
+}
+
+function updateStatus(){
+ if(gameOver)return;
+ if(aiThinking){turnText.textContent=t('aiThinking');turnText.className='turn-indicator';hintText.textContent=t('pleaseWait');return}
+ const state=checkGameState(board,turn),name=t(turn==='red'?'winnerRed':'winnerBlack');
+ let msg=name+t('checkSuffix');
+ turnText.textContent=name+(state==='check'?t('checkSuffix'):t(turn==='red'?'turnRed':'turnBlack').replace(name,''));
+ turnText.className='turn-indicator '+turn;
+ if(gameMode==='pvc')hintText.textContent=turn==='red'?t('yourTurn'):t('computerThinking');
+ else hintText.textContent=t('hintPvp',{name});
+}
+
+function makeMove(fr,fc,tr,tc){
+ const captured=board[tr][tc],piece=board[fr][fc];
+ moveHistory.push({from:{row:fr,col:fc},to:{row:tr,col:tc},piece,captured});
+ applyMove(board,fr,fc,tr,tc);
+ lastMove={from:{row:fr,col:fc},to:{row:tr,col:tc}};
+ turn=turn==='red'?'black':'red';selected=null;validMoves=[];
+ const state=checkGameState(board,turn);
+ if(state==='checkmate'){gameOver=true;const winner=t(turn==='red'?'winnerRed':'winnerBlack');turnText.textContent=t('checkmate',{winner});turnText.className='turn-indicator';hintText.textContent=t('clickNewGame');render();return}
+ if(state==='stalemate'){gameOver=true;turnText.textContent=t('stalemate');turnText.className='turn-indicator';hintText.textContent=t('clickNewGame');render();return}
+ updateStatus();render();
+ if(!gameOver&&gameMode==='pvc'&&turn==='black')scheduleAIMove();
+}
+
+function scheduleAIMove(){
+ if(gameOver||aiThinking)return;
+ aiThinking=true;updateStatus();render();
+ setTimeout(()=>{
+  if(gameOver||turn!=='black'||gameMode!=='pvc'){aiThinking=false;render();return}
+  const bm=getBookMove();
+  if(bm){aiThinking=false;if(!gameOver&&turn==='black')makeMove(bm.fromR,bm.fromC,bm.toR,bm.toC);else render();return}
+  AI.findBestMove(board,'black',difficulty,(move)=>{aiThinking=false;if(move&&!gameOver&&turn==='black')makeMove(move.fromR,move.fromC,move.toR,move.toC);else render()})
+ },80);
+}
+
+function toPixel(r,c){return{x:PAD+c*CELL,y:PAD+r*CELL}}
+
+function drawBoard(){
+ const bg=ctx.createLinearGradient(0,0,CW,CH);bg.addColorStop(0,'#e8c882');bg.addColorStop(.5,'#dbb56a');bg.addColorStop(1,'#d0a85a');ctx.fillStyle=bg;ctx.fillRect(0,0,CW,CH);
+ ctx.strokeStyle='#5a4020';ctx.lineWidth=1.2;
+ for(let r=0;r<ROWS;r++){const y=PAD+r*CELL;ctx.beginPath();ctx.moveTo(PAD,y);ctx.lineTo(PAD+8*CELL,y);ctx.stroke()}
+ for(let c=0;c<COLS;c++){const x=PAD+c*CELL;if(c===0||c===8){ctx.beginPath();ctx.moveTo(x,PAD);ctx.lineTo(x,PAD+9*CELL);ctx.stroke()}else{ctx.beginPath();ctx.moveTo(x,PAD);ctx.lineTo(x,PAD+4*CELL);ctx.stroke();ctx.beginPath();ctx.moveTo(x,PAD+5*CELL);ctx.lineTo(x,PAD+9*CELL);ctx.stroke()}}
+ ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(PAD+3*CELL,PAD);ctx.lineTo(PAD+5*CELL,PAD+2*CELL);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD+5*CELL,PAD);ctx.lineTo(PAD+3*CELL,PAD+2*CELL);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD+3*CELL,PAD+7*CELL);ctx.lineTo(PAD+5*CELL,PAD+9*CELL);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD+5*CELL,PAD+7*CELL);ctx.lineTo(PAD+3*CELL,PAD+9*CELL);ctx.stroke();
+ ctx.fillStyle='#7a5a30';ctx.font='bold 26px "KaiTi","STKaiti","SimSun",serif';ctx.textAlign='center';ctx.textBaseline='middle';const ry=PAD+4.5*CELL;ctx.fillText(t('riverLeft'),PAD+2*CELL,ry);ctx.fillText(t('riverRight'),PAD+6*CELL,ry);
+}
+
+function drawPiece(r,c,hl){
+ const{x,y}=toPixel(r,c),piece=board[r][c];if(!piece)return;
+ const{type,color}=piece,name=NAMES[color][type];
+ ctx.beginPath();ctx.arc(x+2,y+3,PIECE_R,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fill();
+ const g=ctx.createRadialGradient(x-6,y-6,2,x,y,PIECE_R);if(color==='red'){g.addColorStop(0,'#fff5e6');g.addColorStop(.7,'#f5dec6');g.addColorStop(1,'#dbb590')}else{g.addColorStop(0,'#f0f0e8');g.addColorStop(.7,'#e0d8c8');g.addColorStop(1,'#c8b898')}
+ ctx.beginPath();ctx.arc(x,y,PIECE_R,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=color==='red'?'#b22222':'#1a1a1a';ctx.lineWidth=2;ctx.stroke();
+ ctx.beginPath();ctx.arc(x,y,PIECE_R-4,0,Math.PI*2);ctx.strokeStyle=color==='red'?'#b22222':'#1a1a1a';ctx.lineWidth=1;ctx.stroke();
+ ctx.fillStyle=color==='red'?'#b22222':'#1a1a1a';ctx.font='bold 26px "KaiTi","STKaiti","SimSun","Microsoft YaHei",serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(name,x,y+1);
+ if(hl){ctx.beginPath();ctx.arc(x,y,PIECE_R+3,0,Math.PI*2);ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([])}
+}
+
+function drawValidMoves(){for(const m of validMoves){const{x,y}=toPixel(m.row,m.col);if(board[m.row][m.col]){ctx.beginPath();ctx.arc(x,y,PIECE_R+2,0,Math.PI*2);ctx.strokeStyle='rgba(255,50,50,0.6)';ctx.lineWidth=2.5;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([])}else{ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fillStyle='rgba(50,180,50,0.5)';ctx.fill();ctx.strokeStyle='rgba(50,180,50,0.7)';ctx.lineWidth=1;ctx.stroke()}}}
+function drawCursor(){const{x,y}=toPixel(cursor.row,cursor.col);ctx.save();ctx.strokeStyle='#ff6600';ctx.lineWidth=2.5;const s=18;ctx.beginPath();ctx.moveTo(x-s,y-s+8);ctx.lineTo(x-s,y-s);ctx.lineTo(x-s+8,y-s);ctx.moveTo(x+s-8,y-s);ctx.lineTo(x+s,y-s);ctx.lineTo(x+s,y-s+8);ctx.moveTo(x+s,y+s-8);ctx.lineTo(x+s,y+s);ctx.lineTo(x+s-8,y+s);ctx.moveTo(x-s+8,y+s);ctx.lineTo(x-s,y+s);ctx.lineTo(x-s,y+s-8);ctx.stroke();ctx.restore()}
+function drawLastMove(){if(!lastMove)return;for(const p of[lastMove.from,lastMove.to]){const{x,y}=toPixel(p.row,p.col);ctx.fillStyle='rgba(255,200,50,0.3)';ctx.fillRect(x-CELL/2+2,y-CELL/2+2,CELL-4,CELL-4)}}
+function render(){ctx.clearRect(0,0,CW,CH);drawBoard();drawLastMove();for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)drawPiece(r,c,selected&&selected.row===r&&selected.col===c);if(selected)drawValidMoves();if(!gameOver&&!aiThinking)drawCursor()}
+
+function posFromPixel(px,py){
+ const col=Math.round((px-PAD)/CELL),row=Math.round((py-PAD)/CELL);
+ if(!inBoard(row,col))return null;
+ if(Math.abs(px-(PAD+col*CELL))>CELL/2||Math.abs(py-(PAD+row*CELL))>CELL/2)return null;
+ return{row,col};
+}
+
+function handleClick(e){
+ if(gameOver||aiThinking)return;
+ const rect=canvas.getBoundingClientRect(),sx=CW/rect.width,sy=CH/rect.height,px=(e.clientX-rect.left)*sx,py=(e.clientY-rect.top)*sy,pos=posFromPixel(px,py);if(!pos)return;
+ const{row,col}=pos,piece=board[row][col];
+ if(selected){if(isFriend(row,col,turn)){const mv=getLegalMoves(board,row,col);if(mv.length>0){selected={row,col};validMoves=mv;cursor={row,col}}else{selected=null;validMoves=[]}}else if(validMoves.some(m=>m.row===row&&m.col===col)){makeMove(selected.row,selected.col,row,col);selected=null;validMoves=[]}else{selected=null;validMoves=[]}}
+ else{if(piece&&piece.color===turn){const mv=getLegalMoves(board,row,col);if(mv.length>0){selected={row,col};validMoves=mv;cursor={row,col}}}}
+ render();
+}
+
+function handleKeydown(e){
+ if(gameOver||aiThinking)return;const key=e.key;let h=true;
+ if(key==='ArrowUp'||key==='w'||key==='W')cursor.row=Math.max(0,cursor.row-1)
+ else if(key==='ArrowDown'||key==='s'||key==='S')cursor.row=Math.min(ROWS-1,cursor.row+1)
+ else if(key==='ArrowLeft'||key==='a'||key==='A')cursor.col=Math.max(0,cursor.col-1)
+ else if(key==='ArrowRight'||key==='d'||key==='D')cursor.col=Math.min(COLS-1,cursor.col+1)
+ else if(key===' '||key==='Space'){e.preventDefault();const{row,col}=cursor,piece=board[row][col];
+  if(selected){if(row===selected.row&&col===selected.col){selected=null;validMoves=[]}else if(validMoves.some(m=>m.row===row&&m.col===col)){makeMove(selected.row,selected.col,row,col);selected=null;validMoves=[]}else if(piece&&piece.color===turn){const mv=getLegalMoves(board,row,col);if(mv.length>0){selected={row,col};validMoves=mv}}else{selected=null;validMoves=[]}}
+  else{if(piece&&piece.color===turn){const mv=getLegalMoves(board,row,col);if(mv.length>0){selected={row,col};validMoves=mv}}}}
+ else if(key==='Escape'){selected=null;validMoves=[]}
+ else h=false;
+ if(h){e.preventDefault();render()}
+}
+
+/* mode selection */
+function showModeMenu(){modeModal.style.display='flex'}
+function hideModeMenu(){modeModal.style.display='none'}
+modeBtns.forEach(b=>b.addEventListener('click',()=>{modeBtns.forEach(x=>x.classList.remove('active'));b.classList.add('active');gameMode=b.dataset.mode;diffSection.style.display=gameMode==='pvc'?'block':'none'}));
+diffBtns.forEach(b=>b.addEventListener('click',()=>{diffBtns.forEach(x=>x.classList.remove('active'));b.classList.add('active');difficulty=b.dataset.diff;diffDesc.textContent=t('diffDesc'+difficulty.charAt(0).toUpperCase()+difficulty.slice(1))}));
+startBtn.addEventListener('click',()=>{hideModeMenu();modeTag.textContent=gameMode==='pvc'?t('modeTagPvc',{diff:t('diff'+difficulty.charAt(0).toUpperCase()+difficulty.slice(1))}):t('modeTagPvp');startGame()});
+
+/* start/reset */
+function startGame(){
+ board=[];for(let r=0;r<ROWS;r++)board.push(new Array(COLS).fill(null));
+ const bp=[[0,0,'R'],[1,0,'H'],[2,0,'E'],[3,0,'A'],[4,0,'K'],[5,0,'A'],[6,0,'E'],[7,0,'H'],[8,0,'R']];for(const[c,r,t]of bp)board[r][c]={type:t,color:'black'};
+ board[2][1]={type:'C',color:'black'};board[2][7]={type:'C',color:'black'};for(let c=0;c<=8;c+=2)board[3][c]={type:'S',color:'black'};
+ const rp=[[0,9,'R'],[1,9,'H'],[2,9,'E'],[3,9,'A'],[4,9,'K'],[5,9,'A'],[6,9,'E'],[7,9,'H'],[8,9,'R']];for(const[c,r,t]of rp)board[r][c]={type:t,color:'red'};
+ board[7][1]={type:'C',color:'red'};board[7][7]={type:'C',color:'red'};for(let c=0;c<=8;c+=2)board[6][c]={type:'S',color:'red'};
+ turn='red';selected=null;validMoves=[];cursor={row:9,col:4};gameOver=false;aiThinking=false;lastMove=null;moveHistory=[];
+ updateStatus();render();
+}
+
+/* init */
+canvas.addEventListener('click',handleClick);
+window.addEventListener('keydown',handleKeydown);
+resetBtn.addEventListener('click',startGame);
+menuBtn.addEventListener('click',showModeMenu);
+
+// initialize language system
+langSelect.innerHTML=LANGUAGES.map(l=>`<option value="${l.code}"${l.code===currentLang?' selected':''}>${l.native}</option>`).join('');
+langSelect.addEventListener('change',()=>{currentLang=langSelect.value;localStorage.setItem('chessLang',currentLang);applyLanguage();if(board.length>0){updateStatus();render()}});
+
+// apply language and show menu
+applyLanguage();
+showModeMenu();
+
+window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});
+</script>
+</body>
+</html>

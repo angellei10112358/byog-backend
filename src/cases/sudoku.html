@@ -1,0 +1,674 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudoku</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #1a1a2e; color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; user-select: none;
+}
+#app {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    padding: 20px;
+}
+h1 { font-weight: 300; font-size: 28px; letter-spacing: 4px; color: #ccc; }
+
+/* Controls */
+#controls {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    align-items: center;
+}
+.btn {
+    padding: 6px 18px; border: 1px solid #444; border-radius: 4px;
+    background: #2a2a3e; color: #ccc; cursor: pointer; font-size: 14px;
+    transition: all .15s;
+}
+.btn:hover { background: #3a3a5e; border-color: #666; }
+.btn.active { background: #4a6fa5; border-color: #5a8fc5; color: #fff; }
+.btn.danger.active { background: #a54a4a; border-color: #c55a5a; }
+.btn-primary { background: #4a6fa5; border-color: #5a8fc5; color: #fff; }
+.btn-primary:hover { background: #5a8fc5; }
+#mode-indicator { font-size: 13px; color: #888; min-width: 60px; text-align: center; }
+#timer { font-size: 14px; color: #888; min-width: 50px; text-align: right; }
+
+/* Grid */
+#grid-container { position: relative; }
+#grid {
+    display: grid; grid-template-columns: repeat(9, 1fr);
+    border: 2px solid #888; border-radius: 4px; overflow: hidden;
+    width: min(80vw, 468px); height: min(80vw, 468px);
+}
+.cell {
+    display: flex; justify-content: center; align-items: center;
+    font-size: min(5vw, 30px); cursor: pointer;
+    background: #222240; color: #e0e0e0;
+    border: 0.5px solid #333358;
+    position: relative; transition: background .1s;
+}
+.cell:nth-child(9n+3) { border-right: 1.5px solid #888; }
+.cell:nth-child(9n+6) { border-right: 1.5px solid #888; }
+.cell:nth-child(n+19):nth-child(-n+27) { border-bottom: 1.5px solid #888; }
+.cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 1.5px solid #888; }
+
+.cell.highlight { background: #2a2a50; }
+.cell.same-number { background: #2e2e55; }
+.cell.selected { background: #3a5a8a; }
+.cell.given { color: #b0b0e0; font-weight: 600; }
+.cell.user { color: #7ab0e0; }
+.cell.error { color: #e06060; }
+.cell.conflict { background: #4a2a2a !important; }
+.cell.pending { color: #7a7acc; font-style: italic; }
+.cell.input-mode { animation: pulse-border 1.2s ease-in-out infinite; }
+@keyframes pulse-border {
+    0%, 100% { box-shadow: inset 0 0 0 2px #7ab0e0; }
+    50% { box-shadow: inset 0 0 0 2px transparent; }
+}
+
+/* Pencil marks */
+.pencil-marks {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+}
+.pencil-mark {
+    display: flex; justify-content: center; align-items: center;
+    font-size: min(1.6vw, 10px); color: #7777aa;
+}
+
+/* Number pad */
+#numpad {
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+}
+.num-btn {
+    width: min(9vw, 44px); height: min(9vw, 44px);
+    border: 1px solid #444; border-radius: 4px;
+    background: #2a2a3e; color: #ccc;
+    font-size: min(4vw, 20px); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; transition: all .1s;
+}
+.num-btn:hover { background: #3a3a5e; }
+.num-btn:active { transform: scale(0.95); }
+.num-btn .count {
+    font-size: min(1.6vw, 10px); color: #666;
+    line-height: 1;
+}
+.num-btn.complete .count { color: #4a8a4a; }
+.num-btn.clear-btn {
+    font-size: min(2.5vw, 14px); color: #a55;
+    width: min(9vw, 44px); height: min(9vw, 44px);
+}
+
+/* Status */
+#status {
+    font-size: 13px; color: #888; min-height: 20px;
+    text-align: center;
+}
+
+/* Keyboard hints */
+#hints {
+    font-size: 11px; color: #555; text-align: center;
+    line-height: 1.6;
+}
+#hints kbd {
+    background: #2a2a3e; padding: 1px 6px; border-radius: 3px;
+    border: 1px solid #444; font-family: inherit; font-size: 11px;
+}
+
+/* Victory overlay */
+#victory-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); display: none;
+    justify-content: center; align-items: center; z-index: 100;
+}
+#victory-overlay.show { display: flex; }
+#victory-box {
+    background: #1a1a2e; border: 1px solid #4a6fa5; border-radius: 8px;
+    padding: 40px 60px; text-align: center;
+}
+#victory-box h2 { font-size: 32px; margin-bottom: 10px; color: #7ab0e0; }
+#victory-box p { color: #888; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+    <h1>SUDOKU</h1>
+    <div id="controls">
+        <button class="btn active" data-diff="easy">Easy</button>
+        <button class="btn" data-diff="medium">Medium</button>
+        <button class="btn" data-diff="hard">Hard</button>
+        <button class="btn" id="new-game">New Game</button>
+        <button class="btn" id="solve-btn">Solve</button>
+        <button class="btn" id="hint-btn">Hint</button>
+        <button class="btn active" id="mode-pen" data-mode="pen">&#9998; Pen</button>
+        <button class="btn" id="mode-pencil" data-mode="pencil">&#9997; Pencil</button>
+        <span id="mode-indicator">Pen</span>
+        <span id="timer">00:00</span>
+    </div>
+    <div id="grid-container">
+        <div id="grid"></div>
+    </div>
+    <div id="numpad"></div>
+    <div id="status"></div>
+    <div id="hints">
+        <kbd>W A S D</kbd> / <kbd>&#8592; &#8593; &#8595; &#8594;</kbd> move &nbsp;|&nbsp; <kbd>Space</kbd> input mode &nbsp;|&nbsp; <kbd>1-9</kbd> set/preview &nbsp;|&nbsp; <kbd>Space</kbd> confirm &nbsp;|&nbsp; <kbd>Backspace</kbd> clear &nbsp;|&nbsp; <kbd>Tab</kbd> pen/pencil
+    </div>
+</div>
+
+<div id="victory-overlay">
+    <div id="victory-box">
+        <h2>&#127881; Solved!</h2>
+        <p id="victory-time">Time: 00:00</p>
+        <button class="btn btn-primary" id="victory-new">New Game</button>
+    </div>
+</div>
+
+<script>
+// 鈹€鈹€鈹€ Sudoku Engine 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function isValid(board, row, col, num) {
+    for (let i = 0; i < 9; i++) {
+        if (board[row][i] === num) return false;
+        if (board[i][col] === num) return false;
+    }
+    const br = Math.floor(row / 3) * 3, bc = Math.floor(col / 3) * 3;
+    for (let r = br; r < br + 3; r++)
+        for (let c = bc; c < bc + 3; c++)
+            if (board[r][c] === num) return false;
+    return true;
+}
+
+function findEmpty(board) {
+    for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++)
+            if (board[r][c] === 0) return [r, c];
+    return null;
+}
+
+function solve(board) {
+    const empty = findEmpty(board);
+    if (!empty) return true;
+    const [r, c] = empty;
+    const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    for (const n of nums) {
+        if (isValid(board, r, c, n)) {
+            board[r][c] = n;
+            if (solve(board)) return true;
+            board[r][c] = 0;
+        }
+    }
+    return false;
+}
+
+function countSolutions(board, limit) {
+    let count = 0;
+    function helper(b) {
+        if (count >= limit) return;
+        const empty = findEmpty(b);
+        if (!empty) { count++; return; }
+        const [r, c] = empty;
+        for (let n = 1; n <= 9; n++) {
+            if (isValid(b, r, c, n)) {
+                b[r][c] = n;
+                helper(b);
+                b[r][c] = 0;
+                if (count >= limit) return;
+            }
+        }
+    }
+    const copy = board.map(row => [...row]);
+    helper(copy);
+    return count;
+}
+
+function generateComplete() {
+    const board = Array.from({ length: 9 }, () => Array(9).fill(0));
+    solve(board);
+    return board;
+}
+
+function createPuzzle(difficulty) {
+    const full = generateComplete();
+    const puzzle = full.map(row => [...row]);
+    const given = full.map(row => row.map(() => true));
+
+    const removeCount = { easy: 36, medium: 45, hard: 52 }[difficulty] || 36;
+    let cells = [];
+    for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++)
+            cells.push([r, c]);
+    shuffle(cells);
+
+    let removed = 0;
+    for (const [r, c] of cells) {
+        if (removed >= removeCount) break;
+        const backup = puzzle[r][c];
+        puzzle[r][c] = 0;
+        given[r][c] = false;
+
+        if (countSolutions(puzzle, 2) === 1) {
+            removed++;
+        } else {
+            puzzle[r][c] = backup;
+            given[r][c] = true;
+        }
+    }
+
+    return { puzzle, given, solution: full };
+}
+
+// 鈹€鈹€鈹€ Game State 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+const state = {
+    board: [],
+    solution: [],
+    given: [],
+    pencil: [],
+    selectedRow: 4,
+    selectedCol: 4,
+    mode: 'pen', // 'pen' | 'pencil'
+    pendingValue: 0,
+    inputMode: false,
+    difficulty: 'easy',
+    timer: 0,
+    timerInterval: null,
+    gameOver: false,
+};
+
+// 鈹€鈹€鈹€ DOM refs 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+const gridEl = document.getElementById('grid');
+const numpadEl = document.getElementById('numpad');
+const statusEl = document.getElementById('status');
+const timerEl = document.getElementById('timer');
+const modeIndicator = document.getElementById('mode-indicator');
+const victoryOverlay = document.getElementById('victory-overlay');
+const victoryTime = document.getElementById('victory-time');
+
+// 鈹€鈹€鈹€ Helpers 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+function cloneBoard(b) { return b.map(r => [...r]); }
+
+function getConflicts(board) {
+    const errors = Array.from({ length: 9 }, () => Array(9).fill(false));
+    const rows = Array.from({ length: 9 }, () => ({}));
+    const cols = Array.from({ length: 9 }, () => ({}));
+    const boxes = Array.from({ length: 9 }, () => ({}));
+
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            const v = board[r][c];
+            if (v === 0) continue;
+            const bi = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+            if (rows[r][v] !== undefined) { errors[r][c] = true; errors[r][rows[r][v]] = true; }
+            if (cols[c][v] !== undefined) { errors[r][c] = true; errors[cols[c][v]][c] = true; }
+            if (boxes[bi][v] !== undefined) {
+                const [pr, pc] = boxes[bi][v];
+                errors[r][c] = true; errors[pr][pc] = true;
+            }
+            if (rows[r][v] === undefined) rows[r][v] = c;
+            if (cols[c][v] === undefined) cols[c][v] = r;
+            if (boxes[bi][v] === undefined) boxes[bi][v] = [r, c];
+        }
+    }
+    return errors;
+}
+
+function countPlaced(board) {
+    const counts = {};
+    for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++) {
+            const v = board[r][c];
+            if (v !== 0) counts[v] = (counts[v] || 0) + 1;
+        }
+    return counts;
+}
+
+function isBoardComplete(board) {
+    for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++)
+            if (board[r][c] === 0) return false;
+    const e = getConflicts(board);
+    for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++)
+            if (e[r][c]) return false;
+    return true;
+}
+
+// 鈹€鈹€鈹€ Rendering 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+function render() {
+    const board = state.board;
+    const given = state.given;
+    const pencil = state.pencil;
+    const sr = state.selectedRow, sc = state.selectedCol;
+    const selVal = board[sr][sc];
+    const conflicts = getConflicts(board);
+    const placed = countPlaced(board);
+
+    // Grid cells
+    gridEl.innerHTML = '';
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.r = r; cell.dataset.c = c;
+
+            const v = board[r][c];
+            const isGiven = given[r][c];
+            let classes = 'cell';
+
+            // Same row/col/box
+            if (r === sr || c === sc ||
+                (Math.floor(r / 3) === Math.floor(sr / 3) &&
+                 Math.floor(c / 3) === Math.floor(sc / 3))) {
+                classes += ' highlight';
+            }
+            // Same number
+            if (selVal !== 0 && v === selVal && !(r === sr && c === sc)) {
+                classes += ' same-number';
+            }
+            // Selected
+            if (r === sr && c === sc) classes += ' selected';
+            // Given / user
+            classes += isGiven ? ' given' : ' user';
+            // Error
+            if (v !== 0 && conflicts[r][c]) classes += ' error conflict';
+            // Input mode indicator on selected cell
+            if (state.inputMode && r === sr && c === sc) classes += ' input-mode';
+            cell.className = classes;
+
+            const isPending = state.pendingValue !== 0 && r === sr && c === sc && !isGiven;
+            if (isPending) {
+                cell.textContent = state.pendingValue;
+                cell.classList.add('pending');
+            } else if (v !== 0) {
+                cell.textContent = v;
+            } else if (pencil[r] && pencil[r][c] && pencil[r][c].size > 0) {
+                const pm = document.createElement('div');
+                pm.className = 'pencil-marks';
+                for (let n = 1; n <= 9; n++) {
+                    const mark = document.createElement('span');
+                    mark.className = 'pencil-mark';
+                    mark.textContent = pencil[r][c].has(n) ? n : '';
+                    pm.appendChild(mark);
+                }
+                cell.appendChild(pm);
+            }
+
+            cell.addEventListener('click', () => selectCell(r, c));
+            gridEl.appendChild(cell);
+        }
+    }
+
+    // Numpad
+    numpadEl.innerHTML = '';
+    for (let n = 1; n <= 9; n++) {
+        const btn = document.createElement('button');
+        btn.className = 'num-btn';
+        const count = placed[n] || 0;
+        btn.innerHTML = `${n}<span class="count">${count}/9</span>`;
+        if (count >= 9) btn.classList.add('complete');
+        btn.addEventListener('click', () => inputNumber(n));
+        numpadEl.appendChild(btn);
+    }
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'num-btn clear-btn';
+    clearBtn.textContent = '鉁?;
+    clearBtn.addEventListener('click', () => clearCell());
+    numpadEl.appendChild(clearBtn);
+
+    // Timer
+    const m = String(Math.floor(state.timer / 60)).padStart(2, '0');
+    const s = String(state.timer % 60).padStart(2, '0');
+    timerEl.textContent = `${m}:${s}`;
+}
+
+function selectCell(r, c) {
+    if (state.gameOver) return;
+    if (r !== state.selectedRow || c !== state.selectedCol) {
+        state.pendingValue = 0;
+        state.inputMode = false;
+    }
+    state.selectedRow = r;
+    state.selectedCol = c;
+    render();
+}
+
+function inputNumber(n) {
+    if (state.gameOver) return;
+    const { selectedRow: r, selectedCol: c, board, given, pencil, mode } = state;
+    if (given[r][c]) return;
+    if (mode === 'pen') {
+        board[r][c] = board[r][c] === n ? 0 : n;
+        if (pencil[r][c]) pencil[r][c].clear();
+        render();
+        checkVictory();
+    } else {
+        // pencil mode: toggle candidate
+        if (!pencil[r][c]) pencil[r][c] = new Set();
+        if (board[r][c] !== 0) { board[r][c] = 0; }
+        if (pencil[r][c].has(n)) pencil[r][c].delete(n);
+        else pencil[r][c].add(n);
+        render();
+    }
+}
+
+function clearCell() {
+    if (state.gameOver) return;
+    const { selectedRow: r, selectedCol: c, board, given, pencil } = state;
+    if (given[r][c]) return;
+    board[r][c] = 0;
+    if (pencil[r][c]) pencil[r][c].clear();
+    render();
+}
+
+function setMode(mode) {
+    state.mode = mode;
+    modeIndicator.textContent = mode === 'pen' ? 'Pen' : 'Pencil';
+    document.getElementById('mode-pen').classList.toggle('active', mode === 'pen');
+    document.getElementById('mode-pencil').classList.toggle('active', mode === 'pencil');
+}
+
+function checkVictory() {
+    if (isBoardComplete(state.board)) {
+        state.gameOver = true;
+        if (state.timerInterval) {
+            clearInterval(state.timerInterval);
+            state.timerInterval = null;
+        }
+        const m = String(Math.floor(state.timer / 60)).padStart(2, '0');
+        const s = String(state.timer % 60).padStart(2, '0');
+        victoryTime.textContent = `Time: ${m}:${s}`;
+        victoryOverlay.classList.add('show');
+    }
+}
+
+// 鈹€鈹€鈹€ New Game 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+function newGame() {
+    if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+    }
+    victoryOverlay.classList.remove('show');
+    state.timer = 0;
+    state.gameOver = false;
+
+    const { puzzle, given, solution } = createPuzzle(state.difficulty);
+    state.board = puzzle;
+    state.solution = solution;
+    state.given = given;
+    state.pencil = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+    state.selectedRow = 4;
+    state.selectedCol = 4;
+    state.pendingValue = 0;
+    state.inputMode = false;
+
+    statusEl.textContent = `Difficulty: ${state.difficulty} | Given: ${given.flat().filter(Boolean).length}`;
+
+    state.timerInterval = setInterval(() => { state.timer++; render(); }, 1000);
+    render();
+}
+
+// 鈹€鈹€鈹€ Keyboard 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        setMode(state.mode === 'pen' ? 'pencil' : 'pen');
+        return;
+    }
+    if (state.gameOver) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            victoryOverlay.classList.remove('show');
+            newGame();
+        }
+        return;
+    }
+
+    const { selectedRow: r, selectedCol: c } = state;
+    let handled = true;
+
+    switch (e.key) {
+        case 'ArrowUp': case 'w': case 'W':
+            if (state.inputMode) { state.inputMode = false; state.pendingValue = 0; }
+            state.selectedRow = Math.max(0, r - 1); break;
+        case 'ArrowDown': case 's': case 'S':
+            if (state.inputMode) { state.inputMode = false; state.pendingValue = 0; }
+            state.selectedRow = Math.min(8, r + 1); break;
+        case 'ArrowLeft': case 'a': case 'A':
+            if (state.inputMode) { state.inputMode = false; state.pendingValue = 0; }
+            state.selectedCol = Math.max(0, c - 1); break;
+        case 'ArrowRight': case 'd': case 'D':
+            if (state.inputMode) { state.inputMode = false; state.pendingValue = 0; }
+            state.selectedCol = Math.min(8, c + 1); break;
+        case ' ':
+            e.preventDefault();
+            if (state.inputMode) {
+                if (state.pendingValue !== 0) {
+                    const val = state.pendingValue;
+                    state.pendingValue = 0;
+                    state.inputMode = false;
+                    inputNumber(val);
+                } else if (state.board[r][c] !== 0 && !state.given[r][c]) {
+                    state.inputMode = false;
+                    clearCell();
+                } else {
+                    state.inputMode = false;
+                }
+            } else {
+                state.inputMode = true;
+            }
+            render();
+            return;
+        case '1': case '2': case '3': case '4': case '5':
+        case '6': case '7': case '8': case '9':
+            const n = parseInt(e.key);
+            if (state.mode === 'pen' && state.inputMode && !state.given[r][c]) {
+                if (state.board[r][c] === n && state.pendingValue === n) {
+                    state.board[r][c] = 0;
+                    state.pendingValue = 0;
+                } else {
+                    state.pendingValue = n;
+                }
+                state.inputMode = false;
+            } else {
+                inputNumber(n);
+            }
+            render();
+            return;
+        case 'Backspace': case 'Delete':
+            if (state.inputMode) { state.inputMode = false; state.pendingValue = 0; }
+            clearCell(); break;
+        case 'Escape':
+            state.inputMode = false; state.pendingValue = 0; render(); return;
+        default:
+            handled = false;
+    }
+    if (handled) {
+        e.preventDefault();
+        render();
+    }
+});
+
+// 鈹€鈹€鈹€ Solve & Hint 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+function solvePuzzle() {
+    if (state.gameOver) return;
+    const copy = state.board.map(row => [...row]);
+    if (!solve(copy)) {
+        statusEl.textContent = 'No solution found!';
+        return;
+    }
+    state.board = copy;
+    state.pencil = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+    state.pendingValue = 0;
+    state.inputMode = false;
+    render();
+    checkVictory();
+}
+
+function giveHint() {
+    if (state.gameOver) return;
+    const copy = state.board.map(row => [...row]);
+    if (!solve(copy)) {
+        statusEl.textContent = 'No solution found!';
+        return;
+    }
+    state.pendingValue = 0;
+    state.inputMode = false;
+    for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++)
+            if (state.board[r][c] === 0) {
+                state.board[r][c] = copy[r][c];
+                if (state.pencil[r][c]) state.pencil[r][c].clear();
+                render();
+                checkVictory();
+                return;
+            }
+    statusEl.textContent = 'Board already complete!';
+}
+
+// 鈹€鈹€鈹€ Init 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+document.querySelectorAll('[data-diff]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-diff]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.difficulty = btn.dataset.diff;
+        newGame();
+    });
+});
+
+document.getElementById('new-game').addEventListener('click', newGame);
+document.getElementById('solve-btn').addEventListener('click', solvePuzzle);
+document.getElementById('hint-btn').addEventListener('click', giveHint);
+
+document.getElementById('mode-pen').addEventListener('click', () => setMode('pen'));
+document.getElementById('mode-pencil').addEventListener('click', () => setMode('pencil'));
+
+document.getElementById('victory-new').addEventListener('click', () => {
+    victoryOverlay.classList.remove('show');
+    newGame();
+});
+
+setMode('pen');
+newGame();
+</script>
+</body>
+</html>
