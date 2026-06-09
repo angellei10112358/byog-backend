@@ -33,6 +33,7 @@ function withHeartbeat(res, work) {
   return new Promise((resolve) => {
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
+    res.write('\n');
     const heartbeat = setInterval(() => {
       try { res.write('\n'); } catch { clearInterval(heartbeat); }
     }, 30000);
