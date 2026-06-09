@@ -4,18 +4,18 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { config } from '../config.js';
 
-function buildInitialPrompt(description) {
+function buildInitialPrompt(description, workdir) {
   return `Create a complete, self-contained single-file HTML game based on this description: "${description}".
 Requirements:
-- Write everything into a file named game.html in the current directory.
+- Write everything into a file named ${workdir}/game.html.
 - All CSS and JavaScript must be inline in that one file. No external files, no CDN links, no network requests.
 - The game must be fully playable by just opening game.html.
-Only modify game.html.`;
+Only modify ${workdir}/game.html.`;
 }
 
-function buildEditPrompt(userMessage) {
+function buildEditPrompt(userMessage, workdir) {
   return `The user is testing the game in game.html and reports: "${userMessage}".
-Fix or adjust game.html accordingly. Keep it a single self-contained file with all CSS/JS inline and no external resources. Only modify game.html.`;
+Fix or adjust ${workdir}/game.html accordingly. Keep it a single self-contained file with all CSS/JS inline and no external resources. Only modify ${workdir}/game.html.`;
 }
 
 function runOpencode(args, workdir, timeoutMs) {
@@ -65,9 +65,8 @@ function guessSessionIdFromStdout(stdout) {
 export async function generateGame(sessionId, workdir, description) {
   const args = [
     'run',
-    '--agent', 'autoaccept',
     '--model', config.opencodeModel,
-    buildInitialPrompt(description),
+    buildInitialPrompt(description, workdir),
   ];
 
   const { stdout, stderr } = await runOpencode(args, workdir, config.opencodeTimeout);
@@ -78,10 +77,9 @@ export async function generateGame(sessionId, workdir, description) {
 export async function editGame(sessionId, workdir, opencodeSessionId, userMessage) {
   const args = [
     'run',
-    '--agent', 'autoaccept',
     '--model', config.opencodeModel,
     '--session', opencodeSessionId,
-    buildEditPrompt(userMessage),
+    buildEditPrompt(userMessage, workdir),
   ];
 
   const { stdout, stderr } = await runOpencode(args, workdir, config.opencodeTimeout);
