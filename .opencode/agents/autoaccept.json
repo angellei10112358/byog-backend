@@ -7,13 +7,11 @@
     "edit",
     "search",
     "grep",
-    "glob",
-    "bash"
+    "glob"
   ],
   "permissions": {
     "write": "allow",
     "edit": "allow",
-    "read": "allow",
-    "bash": "allow"
+    "read": "allow"
   }
 }
