@@ -7,12 +7,8 @@ RUN npm install -g opencode-ai && \
 RUN mkdir -p /home/appuser/.local/share/opencode \
              /home/appuser/.config/opencode/agents
 
-COPY opencode-auth/auth.json /home/appuser/.local/share/opencode/auth.json
+RUN chown -R appuser:appgroup /home/appuser/.local /home/appuser/.config
 
-RUN chown -R appuser:appgroup /home/appuser/.local /home/appuser/.config && \
-    chmod 600 /home/appuser/.local/share/opencode/auth.json
-
-# copy autoaccept agent to global config path where opencode will find it
 COPY .opencode/agents/autoaccept.json /home/appuser/.config/opencode/agents/autoaccept.json
 
 WORKDIR /app
@@ -33,4 +29,4 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-CMD ["node", "src/index.js"]
+CMD ["/bin/sh", "-c", "mkdir -p /home/appuser/.local/share/opencode && echo \"{\\\"opencode\\\": {\\\"type\\\": \\\"api\\\", \\\"key\\\": \\\"$OPENCODE_API_KEY\\\"}}\" > /home/appuser/.local/share/opencode/auth.json && chmod 600 /home/appuser/.local/share/opencode/auth.json && node src/index.js"]

@@ -1,0 +1,4 @@
+opencode-auth/
+node_modules/
+workspaces/
+.env
