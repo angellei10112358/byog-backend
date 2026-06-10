@@ -15,6 +15,7 @@ const PREBUILT_GAMES = {
   minesweeper:   { file: 'minesweeper.html',   label: 'Minesweeper' },
   sudoku:        { file: 'sudoku.html',        label: 'Sudoku' },
   'chinese chess':{file: 'chinese_chess.html', label: 'Chinese Chess' },
+  'bubble shooter':{file: 'bubble_shooter.html', label: 'Bubble Shooter' },
   2048:          { file: '2048-game.html',     label: '2048' },
 };
 
