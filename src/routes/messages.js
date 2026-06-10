@@ -30,7 +30,7 @@ function getPrebuiltHtml(key) {
   return prebuiltHtmlCache[key];
 }
 
-function withHeartbeat(res, work) {
+function withHeartbeat(res, work, signal) {
   return new Promise((resolve) => {
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
@@ -45,7 +45,8 @@ function withHeartbeat(res, work) {
       })
       .catch((err) => {
         clearInterval(heartbeat);
-        resolve({ error: err.message });
+        if (signal?.aborted) resolve({ cancelled: true });
+        else resolve({ error: err.message });
       });
   });
 }
@@ -73,40 +74,44 @@ router.post('/:sessionId/messages', async (req, res, next) => {
       const game = PREBUILT_GAMES[key];
       if (game) {
         const html = getPrebuiltHtml(key);
-        const version = addVersion(session.sessionId, html, game.label);
+        const version = await addVersion(session.sessionId, html, game.label, session.workdir);
         res.status(200).json({
           versionId: version.versionId,
           prebuilt: true,
-          html: version.html,
+          html,
           createdAt: version.createdAt,
         });
         return;
       }
     }
 
+    const controller = new AbortController();
+    req.on('close', () => controller.abort());
+
     const { previousGameHtml } = req.body;
+    const signal = controller.signal;
     const work = previousGameHtml
       ? async () => {
           writeFileSync(join(session.workdir, 'game.html'), previousGameHtml);
-          const { html, opencodeSessionId } = await generateFromExisting(session.workdir, message);
+          const { html, opencodeSessionId } = await generateFromExisting(session.workdir, message, signal);
           if (opencodeSessionId) setOpencodeSessionId(session.sessionId, opencodeSessionId);
-          const version = addVersion(session.sessionId, html, `Edit: ${message.slice(0, 80)}`);
-          return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
+          const version = await addVersion(session.sessionId, html, `Edit: ${message.slice(0, 80)}`, session.workdir);
+          return { versionId: version.versionId, html, createdAt: version.createdAt };
         }
       : session.opencodeSessionId
         ? async () => {
-            const { html } = await editGame(session.sessionId, session.workdir, session.opencodeSessionId, message);
-            const version = addVersion(session.sessionId, html, `Edit: ${message.slice(0, 80)}`);
-            return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
+            const { html } = await editGame(session.sessionId, session.workdir, session.opencodeSessionId, message, signal);
+            const version = await addVersion(session.sessionId, html, `Edit: ${message.slice(0, 80)}`, session.workdir);
+            return { versionId: version.versionId, html, createdAt: version.createdAt };
           }
         : async () => {
-            const { html, opencodeSessionId } = await generateGame(session.sessionId, session.workdir, message);
+            const { html, opencodeSessionId } = await generateGame(session.sessionId, session.workdir, message, signal);
             if (opencodeSessionId) setOpencodeSessionId(session.sessionId, opencodeSessionId);
-            const version = addVersion(session.sessionId, html, 'Initial generation');
-            return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
+            const version = await addVersion(session.sessionId, html, 'Initial generation', session.workdir);
+            return { versionId: version.versionId, html, createdAt: version.createdAt };
           };
 
-    const result = await withHeartbeat(res, work);
+    const result = await withHeartbeat(res, work, signal);
     if (!res.writableEnded) res.end(JSON.stringify(result));
   } catch (err) {
     next(err);

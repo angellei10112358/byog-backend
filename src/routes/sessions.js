@@ -11,6 +11,7 @@ router.post('/', async (req, res, next) => {
     const session = createSession();
     const workdir = join(config.workspacesRoot, session.sessionId);
     await mkdir(workdir, { recursive: true });
+    await mkdir(join(workdir, 'versions'), { recursive: true });
     session.workdir = workdir;
     res.status(200).json({ sessionId: session.sessionId });
   } catch (err) {
