@@ -3,6 +3,7 @@ import cors from 'cors';
 import { config } from './config.js';
 import { rateLimit } from './middleware/rateLimit.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { requireAuth } from './middleware/auth.js';
 import sessionsRouter from './routes/sessions.js';
 import messagesRouter from './routes/messages.js';
 import versionsRouter from './routes/versions.js';
@@ -15,9 +16,9 @@ app.use(express.json({ limit: '1mb' }));
 app.use(rateLimit);
 
 app.use('/api', healthRouter);
-app.use('/api/sessions', sessionsRouter);
-app.use('/api/sessions', messagesRouter);
-app.use('/api/sessions', versionsRouter);
+app.use('/api/sessions', requireAuth, sessionsRouter);
+app.use('/api/sessions', requireAuth, messagesRouter);
+app.use('/api/sessions', requireAuth, versionsRouter);
 
 app.use(errorHandler);
 
