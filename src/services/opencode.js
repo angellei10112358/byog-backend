@@ -91,6 +91,19 @@ export async function editGame(sessionId, workdir, opencodeSessionId, userMessag
   return { html, opencodeSessionId: parsedSessionId || opencodeSessionId };
 }
 
+export async function generateFromExisting(workdir, userMessage) {
+  const args = [
+    'run',
+    '--model', config.opencodeModel,
+    buildEditPrompt(userMessage, workdir),
+  ];
+
+  const { stdout, stderr } = await runOpencode(args, workdir, config.opencodeTimeout);
+  const html = await readGameHtml(workdir, stdout, stderr);
+  const opencodeSessionId = guessSessionIdFromStdout(stdout);
+  return { html, opencodeSessionId };
+}
+
 async function readGameHtml(workdir, stdout = '', stderr = '') {
   const gamePath = join(workdir, 'game.html');
   if (!existsSync(gamePath)) {

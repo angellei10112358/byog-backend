@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getSession, setOpencodeSessionId, addVersion } from '../store.js';
-import { generateGame, editGame } from '../services/opencode.js';
+import { generateGame, editGame, generateFromExisting } from '../services/opencode.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CASES_DIR = join(__dirname, '..', 'cases');
@@ -83,18 +83,27 @@ router.post('/:sessionId/messages', async (req, res, next) => {
       }
     }
 
-    const work = session.opencodeSessionId
+    const { previousGameHtml } = req.body;
+    const work = previousGameHtml
       ? async () => {
-          const { html } = await editGame(session.sessionId, session.workdir, session.opencodeSessionId, message);
+          writeFileSync(join(session.workdir, 'game.html'), previousGameHtml);
+          const { html, opencodeSessionId } = await generateFromExisting(session.workdir, message);
+          if (opencodeSessionId) setOpencodeSessionId(session.sessionId, opencodeSessionId);
           const version = addVersion(session.sessionId, html, `Edit: ${message.slice(0, 80)}`);
           return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
         }
-      : async () => {
-          const { html, opencodeSessionId } = await generateGame(session.sessionId, session.workdir, message);
-          if (opencodeSessionId) setOpencodeSessionId(session.sessionId, opencodeSessionId);
-          const version = addVersion(session.sessionId, html, 'Initial generation');
-          return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
-        };
+      : session.opencodeSessionId
+        ? async () => {
+            const { html } = await editGame(session.sessionId, session.workdir, session.opencodeSessionId, message);
+            const version = addVersion(session.sessionId, html, `Edit: ${message.slice(0, 80)}`);
+            return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
+          }
+        : async () => {
+            const { html, opencodeSessionId } = await generateGame(session.sessionId, session.workdir, message);
+            if (opencodeSessionId) setOpencodeSessionId(session.sessionId, opencodeSessionId);
+            const version = addVersion(session.sessionId, html, 'Initial generation');
+            return { versionId: version.versionId, html: version.html, createdAt: version.createdAt };
+          };
 
     const result = await withHeartbeat(res, work);
     if (!res.writableEnded) res.end(JSON.stringify(result));
