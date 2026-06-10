@@ -20,11 +20,6 @@ Fix or adjust ${workdir}/game.html accordingly. Keep it a single self-contained 
 
 const MAX_BUF = 10000;
 
-function appendAndTruncate(buf, chunk) {
-  buf += chunk;
-  return buf.length > MAX_BUF * 2 ? buf.slice(-MAX_BUF) : buf;
-}
-
 function runOpencode(args, workdir, timeoutMs, signal) {
   return new Promise((resolve, reject) => {
     console.log('[opencode] spawning:', args.join(' '));
@@ -37,8 +32,11 @@ function runOpencode(args, workdir, timeoutMs, signal) {
     let stdout = '';
     let stderr = '';
 
-    child.stdout.on('data', (data) => { stdout = appendAndTruncate(stdout, data.toString()); });
-    child.stderr.on('data', (data) => { stderr = appendAndTruncate(stderr, data.toString()); });
+    child.stdout.on('data', (data) => { stdout += data.toString(); });
+    child.stderr.on('data', (data) => {
+      stderr += data.toString();
+      if (stderr.length > MAX_BUF * 2) stderr = stderr.slice(-MAX_BUF);
+    });
 
     const timer = setTimeout(() => {
       child.kill('SIGTERM');
