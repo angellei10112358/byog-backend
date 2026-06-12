@@ -22,6 +22,38 @@ const MAX_BUF = 10000;
 
 function runOpencode(args, workdir, timeoutMs, signal) {
   return new Promise((resolve, reject) => {
+    // --- DIAG: pre-flight checks ---
+    try {
+      const shOk = execSync('/bin/sh -c "echo ok"', { timeout: 3000, encoding: 'utf-8' });
+      console.log('[diag] step1 spawn+shell:', JSON.stringify(shOk.trim()));
+    } catch (e) {
+      console.log('[diag] step1 spawn+shell FAILED:', e.message);
+    }
+
+    try {
+      const ver = execSync('opencode --version', { timeout: 5000, encoding: 'utf-8' });
+      console.log('[diag] step2 opencode version:', ver.trim());
+    } catch (e) {
+      console.log('[diag] step2 opencode version FAILED:', e.message, e.stderr?.slice(-500));
+    }
+
+    try {
+      const auth = execSync('opencode auth list', { timeout: 5000, encoding: 'utf-8' });
+      console.log('[diag] step3 auth list:', auth.trim());
+    } catch (e) {
+      console.log('[diag] step3 auth list FAILED:', e.message, e.stderr?.slice(-500));
+    }
+
+    try {
+      const model = config.opencodeModel;
+      const shortPrompt = 'Write a single HTML file with hello world.';
+      const testRun = execSync(`opencode run --model "${model}" "${shortPrompt}"`, { cwd: workdir, timeout: 15000, encoding: 'utf-8' });
+      console.log('[diag] step4 test run stdout:', testRun.slice(-1000));
+    } catch (e) {
+      console.log('[diag] step4 test run FAILED:', e.message);
+      console.log('[diag] step4 test run stderr:', e.stderr?.slice(-2000));
+    }
+
     console.log('[opencode] spawning:', args.join(' '));
     const child = spawn('opencode', args, {
       cwd: workdir,
