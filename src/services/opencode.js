@@ -59,8 +59,9 @@ function runOpencode(args, workdir, timeoutMs, signal) {
     child.on('close', (code, sig) => {
       cleanup();
       console.log('[opencode] exit code:', code, 'signal:', sig);
+      console.log('[opencode] stdout tail:', stdout.slice(-1500));
+      console.log('[opencode] stderr tail:', stderr.slice(-2000));
       if (code !== 0) {
-        console.log('[opencode] stderr:', stderr.slice(-2000));
         reject(new Error(`opencode exited with code ${code} signal ${sig}\nstderr: ${stderr.slice(-2000)}`));
         return;
       }
