@@ -1,6 +1,6 @@
-import { spawn, execSync } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { config } from '../config.js';
 
@@ -20,70 +20,38 @@ Fix or adjust ${workdir}/game.html accordingly. Keep it a single self-contained 
 
 const MAX_BUF = 10000;
 
-function runOpencode(args, workdir, timeoutMs, signal) {
+async function setupOpencodeEnv(workdir) {
+  const xdgData = join(workdir, '.opencode-data');
+  const opencodeDir = join(xdgData, 'opencode');
+  await mkdir(opencodeDir, { recursive: true });
+
+  const apiKey = process.env.OPENCODE_API_KEY;
+  if (apiKey) {
+    const authPayload = JSON.stringify({ opencode: { type: 'api', key: apiKey } });
+    await writeFile(join(opencodeDir, 'auth.json'), authPayload, 'utf-8');
+  }
+
+  // Clean up stale global DB files from old deployments (harmless if absent)
+  const globalDbDir = join(process.env.HOME || '/home/appuser', '.local/share/opencode');
+  ['opencode.db', 'opencode.db-shm', 'opencode.db-wal'].forEach(f => {
+    try { rmSync(join(globalDbDir, f), { force: true }); } catch {}
+  });
+
+  return xdgData;
+}
+
+async function runOpencode(args, workdir, timeoutMs, signal) {
+  const xdgData = await setupOpencodeEnv(workdir);
+  console.log('[opencode] spawning:', args.join(' '));
+
   return new Promise((resolve, reject) => {
-    // --- DIAG: pre-flight checks ---
-    try {
-      const shOk = execSync('/bin/sh -c "echo ok"', { timeout: 3000, encoding: 'utf-8' });
-      console.log('[diag] step1 spawn+shell:', JSON.stringify(shOk.trim()));
-    } catch (e) {
-      console.log('[diag] step1 spawn+shell FAILED:', e.message);
-    }
-
-    try {
-      const ver = execSync('opencode --version', { timeout: 5000, encoding: 'utf-8' });
-      console.log('[diag] step2 opencode version:', ver.trim());
-    } catch (e) {
-      console.log('[diag] step2 opencode version FAILED:', e.message, e.stderr?.slice(-500));
-    }
-
-    try {
-      const auth = execSync('opencode auth list', { timeout: 5000, encoding: 'utf-8' });
-      console.log('[diag] step3 auth list:', auth.trim());
-    } catch (e) {
-      console.log('[diag] step3 auth list FAILED:', e.message, e.stderr?.slice(-500));
-    }
-
-    try {
-      const model = config.opencodeModel;
-      const shortPrompt = 'Write a single HTML file with hello world.';
-      const testRun = execSync(`opencode run --model "${model}" "${shortPrompt}"`, { cwd: workdir, timeout: 15000, encoding: 'utf-8' });
-      console.log('[diag] step4 test run stdout:', testRun.slice(-1000));
-    } catch (e) {
-      console.log('[diag] step4 test run FAILED:', e.message);
-      console.log('[diag] step4 test run stderr:', e.stderr?.slice(-2000));
-    }
-
-    // --- DIAG: step5 check opencode runtime directory ---
-    try {
-      const ls = execSync('ls -la /home/appuser/.local/share/opencode/ 2>&1; ls -la /home/appuser/.config/opencode/ 2>&1', { timeout: 3000, encoding: 'utf-8' });
-      console.log('[diag] step5 opencode dirs:\n' + ls.trim());
-    } catch (e) {
-      console.log('[diag] step5 opencode dirs FAILED:', e.message, e.stdout?.slice(-500));
-    }
-
-    // --- DIAG: step6 dump auth.json ---
-    try {
-      const authFile = execSync('cat /home/appuser/.local/share/opencode/auth.json 2>&1', { timeout: 3000, encoding: 'utf-8' });
-      console.log('[diag] step6 auth.json:', authFile.trim());
-    } catch (e) {
-      console.log('[diag] step6 auth.json FAILED:', e.message, e.stdout?.slice(-500));
-    }
-
-    // --- DIAG: step7 try with --verbose and timeout to see where it hangs ---
-    try {
-      const model = config.opencodeModel;
-      const debugRun = execSync(`timeout 8 opencode run --verbose --model "${model}" "test" 2>&1 || echo "EXIT_CODE:$?"`, { cwd: workdir, timeout: 12000, encoding: 'utf-8' });
-      console.log('[diag] step7 verbose run:\n' + debugRun.trim().slice(-2000));
-    } catch (e) {
-      console.log('[diag] step7 verbose run FAILED:', e.message, e.stdout?.slice(-2000));
-    }
-
-    console.log('[opencode] spawning:', args.join(' '));
     const child = spawn('opencode', args, {
       cwd: workdir,
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env },
+      env: {
+        ...process.env,
+        XDG_DATA_HOME: xdgData,
+      },
       shell: true,
     });
 
@@ -120,15 +88,6 @@ function runOpencode(args, workdir, timeoutMs, signal) {
       console.log('[opencode] stdout tail:', stdout.slice(-1500));
       console.log('[opencode] stderr tail:', stderr.slice(-2000));
       if (code !== 0) {
-        if (code === null && !stdout && !stderr) {
-          try {
-            const fb = execSync(`opencode ${args.join(' ')}`, { cwd: workdir, timeout: 10000, encoding: 'utf-8' });
-            console.log('[opencode] exec fallback stdout:', fb.slice(-1500));
-          } catch (e) {
-            console.log('[opencode] exec fallback error:', e.message);
-            console.log('[opencode] exec fallback stderr:', e.stderr?.slice(-2000));
-          }
-        }
         reject(new Error(`opencode exited with code ${code} signal ${sig}\nstderr: ${stderr.slice(-2000)}`));
         return;
       }
