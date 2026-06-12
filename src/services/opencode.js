@@ -54,6 +54,31 @@ function runOpencode(args, workdir, timeoutMs, signal) {
       console.log('[diag] step4 test run stderr:', e.stderr?.slice(-2000));
     }
 
+    // --- DIAG: step5 check opencode runtime directory ---
+    try {
+      const ls = execSync('ls -la /home/appuser/.local/share/opencode/ 2>&1; ls -la /home/appuser/.config/opencode/ 2>&1', { timeout: 3000, encoding: 'utf-8' });
+      console.log('[diag] step5 opencode dirs:\n' + ls.trim());
+    } catch (e) {
+      console.log('[diag] step5 opencode dirs FAILED:', e.message, e.stdout?.slice(-500));
+    }
+
+    // --- DIAG: step6 dump auth.json ---
+    try {
+      const authFile = execSync('cat /home/appuser/.local/share/opencode/auth.json 2>&1', { timeout: 3000, encoding: 'utf-8' });
+      console.log('[diag] step6 auth.json:', authFile.trim());
+    } catch (e) {
+      console.log('[diag] step6 auth.json FAILED:', e.message, e.stdout?.slice(-500));
+    }
+
+    // --- DIAG: step7 try with --verbose and timeout to see where it hangs ---
+    try {
+      const model = config.opencodeModel;
+      const debugRun = execSync(`timeout 8 opencode run --verbose --model "${model}" "test" 2>&1 || echo "EXIT_CODE:$?"`, { cwd: workdir, timeout: 12000, encoding: 'utf-8' });
+      console.log('[diag] step7 verbose run:\n' + debugRun.trim().slice(-2000));
+    } catch (e) {
+      console.log('[diag] step7 verbose run FAILED:', e.message, e.stdout?.slice(-2000));
+    }
+
     console.log('[opencode] spawning:', args.join(' '));
     const child = spawn('opencode', args, {
       cwd: workdir,
