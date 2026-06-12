@@ -56,11 +56,12 @@ function runOpencode(args, workdir, timeoutMs, signal) {
 
     if (signal) signal.addEventListener('abort', onAbort, { once: true });
 
-    child.on('close', (code) => {
+    child.on('close', (code, sig) => {
       cleanup();
-      console.log('[opencode] exit code:', code);
+      console.log('[opencode] exit code:', code, 'signal:', sig);
       if (code !== 0) {
-        reject(new Error(`opencode exited with code ${code}\nstderr: ${stderr.slice(-2000)}`));
+        console.log('[opencode] stderr:', stderr.slice(-2000));
+        reject(new Error(`opencode exited with code ${code} signal ${sig}\nstderr: ${stderr.slice(-2000)}`));
         return;
       }
       resolve({ stdout, stderr });
@@ -123,5 +124,9 @@ async function readGameHtml(workdir) {
   if (!existsSync(gamePath)) {
     throw new Error('game.html was not created by opencode');
   }
-  return await readFile(gamePath, 'utf-8');
+  const html = await readFile(gamePath, 'utf-8');
+  if (!html || html.trim().length < 50) {
+    throw new Error('game.html is empty or incomplete');
+  }
+  return html;
 }
