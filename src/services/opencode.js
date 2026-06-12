@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,6 +27,7 @@ function runOpencode(args, workdir, timeoutMs, signal) {
       cwd: workdir,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },
+      shell: true,
     });
 
     let stdout = '';
@@ -62,6 +63,15 @@ function runOpencode(args, workdir, timeoutMs, signal) {
       console.log('[opencode] stdout tail:', stdout.slice(-1500));
       console.log('[opencode] stderr tail:', stderr.slice(-2000));
       if (code !== 0) {
+        if (code === null && !stdout && !stderr) {
+          try {
+            const fb = execSync(`opencode ${args.join(' ')}`, { cwd: workdir, timeout: 10000, encoding: 'utf-8' });
+            console.log('[opencode] exec fallback stdout:', fb.slice(-1500));
+          } catch (e) {
+            console.log('[opencode] exec fallback error:', e.message);
+            console.log('[opencode] exec fallback stderr:', e.stderr?.slice(-2000));
+          }
+        }
         reject(new Error(`opencode exited with code ${code} signal ${sig}\nstderr: ${stderr.slice(-2000)}`));
         return;
       }
