@@ -52,7 +52,7 @@ async function runOpencode(args, workdir, timeoutMs, signal) {
         ...process.env,
         XDG_DATA_HOME: xdgData,
       },
-      shell: true,
+      shell: false,
     });
 
     let stdout = '';
@@ -148,12 +148,18 @@ export async function generateFromExisting(workdir, userMessage, signal) {
 
 async function readGameHtml(workdir) {
   const gamePath = join(workdir, 'game.html');
-  if (!existsSync(gamePath)) {
-    throw new Error('game.html was not created by opencode');
+  if (existsSync(gamePath)) {
+    const html = await readFile(gamePath, 'utf-8');
+    if (html && html.trim().length >= 50) return html;
   }
-  const html = await readFile(gamePath, 'utf-8');
-  if (!html || html.trim().length < 50) {
-    throw new Error('game.html is empty or incomplete');
+
+  const { readdir } = await import('node:fs/promises');
+  const files = await readdir(workdir);
+  const htmlFiles = files.filter(f => f.endsWith('.html'));
+  if (htmlFiles.length > 0) {
+    const fallback = await readFile(join(workdir, htmlFiles[0]), 'utf-8');
+    if (fallback && fallback.trim().length >= 50) return fallback;
   }
-  return html;
+
+  throw new Error('No valid HTML file found in workdir');
 }
